@@ -3,8 +3,6 @@
 """
 Created on Tue Oct  3 16:03:02 2023
 
-Last edit on Tue Oct 24 2023
-
 @author: tom.munoz
 """
 

@@ -871,8 +871,6 @@ def plotTotalDirectivity(theta, freq, pMic, xscale='log', fmin=20, fmax=20e3,
     None.
 
     """
-    print("THETA: ", theta)
-    # theta = np.deg2rad(theta)
     # compute directivity
     maxAngle = np.array([np.max(abs(pMic), 1)])
     maxMatrix = np.repeat(maxAngle, len(theta), 0).T
