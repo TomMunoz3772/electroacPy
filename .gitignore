@@ -3,3 +3,4 @@
 __pycache__
 app_ui
 bempp/api/space/__pycache__/scalar_spaces._compute_p1_dof_map-355.py311.nbi
+*.nbi
