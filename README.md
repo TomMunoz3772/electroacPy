@@ -38,7 +38,13 @@ conda install python=3.9 pip
 conda install python=3.11 pip
 ```
 
-4. Finally, run the following command:
+4. Finally, run the following command if you don't plan contributing':
+
+```shell
+pip install /path/to/ElectroacPy
+```
+
+or, to be able to edit the toolbox:
 
 ```shell
 pip install -e /path/to/ElectroacPy
