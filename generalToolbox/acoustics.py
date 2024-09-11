@@ -409,7 +409,7 @@ def multiply_matrices(matrix_list, index):
 
 
 ## PLOTTING TOOLS
-def plot_FRF(freq, H, transformation="SPL", logx=True, labels=None, **kwargs):  #logx=True, xlim=None, ylim=None, title=None, save=False, dpi=64):
+def plot_FRF(freq, H, transformation="SPL", logx=True, legend=None, **kwargs):  #logx=True, xlim=None, ylim=None, title=None, save=False, dpi=64):
     """
     Plot Frequency Response Functions (FRFs).
 
@@ -430,7 +430,7 @@ def plot_FRF(freq, H, transformation="SPL", logx=True, labels=None, **kwargs):  
     from generalToolbox.gain import SPL, dB
 
     # get kwargs
-
+    labels = legend
     # check inputs
     if isinstance(freq, tuple):
         freq = freq
@@ -508,7 +508,10 @@ def plot_FRF(freq, H, transformation="SPL", logx=True, labels=None, **kwargs):  
     plt.xlabel('Frequency [Hz]')
     # plt.title('Frequency Response Function')
     if labels != None:
-        plt.legend()
+        if "loc" in kwargs:
+            plt.legend(loc=kwargs["loc"])
+        else:
+            plt.legend(loc="best")
 
     if 'xlim' in kwargs:
         plt.xlim(kwargs['xlim'])

@@ -17,6 +17,13 @@ classifiers = [
 ]
 dependencies = ["numpy", "pandas", "pyarrow", "matplotlib",
             "tqdm", "numba", "meshio", "scipy", "pyvista",
-            "pyuff", "gmsh", "plotly"
+            "pyuff", "gmsh", "plotly", "siphash24"
 ]
 
+
+[tool.hatch.build]
+include = [
+    "electroacPy/**",  # Include all files under electroacPy
+    "generalToolbox/**",  # Include all files under generalToolbox
+    "bempp/**"  # Include all files under bempp
+]

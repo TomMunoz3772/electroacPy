@@ -5,14 +5,13 @@ Welcome to the electroacPy toolbox! This toolbox provides a collection of tools 
 ## Installation
 
 **Before "Before starting"**
-These steps have been verified on Windows for Python 3.9 to 3.11. For MacOs, only 3.9 was tested.
-In theory any version of Python should work as long as all dependencies are available in that specific version. Feel free to install multiple conda environment (*step 1.*) to try-out different Python version. 
+These steps have been verified on Windows for Python 3.9 to 3.11. For MacOs, only 3.9 was tested. In theory, any version of Python should work as long as all dependencies are available in that specific version. Feel free to install multiple conda environment (*step 1.*) to try-out different Python version. 
 
 **Before starting - if you don't know about installing Python**
 The installation procedure is made using the CONDA package manager for Python. It can be installed either through:
 - [Anaconda](https://www.anaconda.com/download/), which is a full Python development suite. It will also install Spyder (IDE), Jupyter Notebook / Lab (similar to Matlab live-script), and other Python / datascience related software, which is very practical for beginners - but a lot is a bit unnecessary. **If you chose this one, you can follow the installation guide using the newly installed Anaconda Prompt (that you'll find with the Windows / MacOs search tool).**
 - [Miniconda](https://docs.anaconda.com/free/miniconda/miniconda-install/), it is "a free minimal installer for conda. It is a small bootstrap version of Anaconda that includes only conda, Python, the packages they both depend on, and a small number of other useful packages (like pip, zlib, and a few others)". **In the case you decide to use miniconda, use the Miniconda Prompt to install ElectroacPy.**
-- [Miniforge](https://conda-forge.org/miniforge/), very similar to Miniconda but it is community driven (and not maintained by Anaconda) meaning you get a better architecture support for CONDA (e.g. MacOs with M1 chip). If it somewhat matters, this is the one I use. **Use Miniforge Prompt to install ElectroacPy**. Side note: for MacOs users, you'll have to install Miniforge using bash.  
+- [Miniforge](https://conda-forge.org/miniforge/), very similar to Miniconda but it is community driven (and not maintained by Anaconda) meaning you get a better architecture support for CONDA (e.g. MacOs with M1 chip). If it somewhat matters, this is the one I use. **Use Miniforge Prompt to install ElectroacPy**. Side note: for MacOs users, you'll have to install Miniforge using bash.
 
 **Let's install**
 
@@ -52,6 +51,11 @@ If using Spyder, you'll need to install spyder-kernels in the newly created envi
 ```shell
 pip install spyder-kernels
 ```
+Note that if you install spyder directly in the related conda environment, you won't have to do that.
+```shell
+conda install spyder
+```
+
 
 **Post install**
 In Windows and Linux, you can actually use OpenCL to reduce computing time (and setup bempp-cl to use your computer's GPU (also works with intel CPUs)). In the corresponding Conda environment:
@@ -92,4 +96,4 @@ If you encounter any issues or have suggestions for improvements, please feel fr
 
 # Acknowledgments
 
-This toolbox uses the BEMPP-CL library for Boundary Element Method computations, which is provided directly in the installation. Thanks a lot to its authors, without who this set of modules wouldn't exists. 
+This toolbox uses the BEMPP-CL library for Boundary Element Method computations, which is provided directly (due to some minor modifications) with electroacPy. Thanks a lot to its authors, without whom this set of modules wouldn't exists. 
