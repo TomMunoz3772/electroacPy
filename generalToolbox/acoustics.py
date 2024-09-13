@@ -244,171 +244,8 @@ def interpolate_Impedance(impedanceData, freq_in, freq_out):
 
     return interpolatedImpedance
 
-## Transmission Line
-class TL:
-    def __init__(self, frequency, losses=True, rho=1.22, c=343):
-        # output
-        self.Zin = np.zeros(len(frequency), dtype=complex)
-        self.Zrad = np.zeros(len(frequency), dtype=complex)
-
-        # input
-        self.losses = losses
-        self.frequency = frequency
-        self.om = 2*np.pi*frequency
-        self.k = self.om/c
-        self.c = c
-        self.rho = rho
-        self.TL = []
-        self.termination = ""
-
-
-    def addRectangularDuct(self, Lx, Ly, Lz, termination="closed"):
-        section = Ly*Lz
-        perimeter = Ly+Lz
-        Zc = self.rho * self.c / section
-        if self.losses is True:
-            kl = kloss(section, perimeter, self.k, self.rho, self.c)
-        else:
-            kl = k
-
-        tl_mat = np.zeros([2, 2, len(self.frequency)], dtype=complex)
-        A = np.cos(kl*Lx)
-        B = 1j*Zc*np.sin(kl*Lx)
-        C = 1j/Zc*np.sin(kl*Lx)
-        D = np.cos(kl*Lx)
-        tl_mat[0, 0, :] = A
-        tl_mat[0, 1, :] = B
-        tl_mat[1, 0, :] = C
-        tl_mat[1, 1, :] = D
-        self.TL.append(tl_mat)
-        self.termination = termination
-        return tl_mat
-
-    def addCircularDuct(self, Lx, r, termination="closed"):
-        section = np.pi*r**2
-        perimeter = 2*np.pi*r
-        Zc = self.rho * self.c / section
-        if self.losses is True:
-            kl = kloss(section, perimeter, self.k, self.rho, self.c)
-        else:
-            kl = k
-
-        tl_mat = np.zeros([2, 2, len(self.frequency)], dtype=complex)
-        A = np.cos(kl * Lx)
-        B = 1j * Zc * np.sin(kl * Lx)
-        C = 1j / Zc * np.sin(kl * Lx)
-        D = np.cos(kl * Lx)
-        tl_mat[0, 0, :] = A
-        tl_mat[0, 1, :] = B
-        tl_mat[1, 0, :] = C
-        tl_mat[1, 1, :] = D
-        self.TL.append(tl_mat)
-        self.termination = termination
-        return tl_mat
-
-    def removeTL(self, index):
-        self.TL.pop(index)
-        return None
-
-    def updateTL(self):
-        if self.termination == "closed":
-            self.Zrad = np.zeros(len(self.frequency), dtype=complex)
-            TL_out = np.zeros([2, 2, len(self.frequency)], dtype=complex)
-            for i in range(len(self.frequency)):
-                TL_out[:, :, i] = multiply_matrices(self.TL, i)
-            for i in range(len(self.frequency)):
-                TL_out[:, :, i] = TL_out[:, :, i] @ np.array([[1], [0]])
-            A = TL_out[0, 0, :]
-            B = TL_out[0, 1, :]
-            C = TL_out[1, 0, :]
-            D = TL_out[1, 1, :]
-            self.Zin = (A+B) / (C+D)
-        # import matplotlib.pyplot as plt
-        # fig, ax = plt.subplots()
-        # ax.semilogx(self.frequency, np.abs(C))
-        return None
-
-
-
-def kloss(section, perimeter, k, rho=1.22, c=343):
-    """
-    Losses as expressed by Jean-Pierre Dalmont in his university courses
-
-    Input parameters
-    -----
-    section: duct cross-sectional area
-    perimeter: perimeter of the cross-section
-    k: input wavenumber
-
-    ------
-    return: k_l --> wavenumber with losses
-    """
-    f = k * c / 2 / np.pi
-    om = 2 * np.pi * f
-    alpha = np.sqrt(f) * (0.95e-5 + 2.03e-5) * perimeter / 2 / section  # +1 was added
-    k_l = om / c * (1 + (1 - 1j) * alpha)
-    return k_l
-
-def matrix(L, S, k, rho=1.22, c=343):
-    """
-    Parameters
-    ----------
-    L: length of the duct
-    S: Section of the duct
-    k: wave number (w/c)
-
-    return
-    ------
-    m: 4x4 transfer matrix (input from output)
-    """
-    Zc = rho*c/S
-    A = cos(k*L)
-    D = A
-    B = 1j * Zc * sin(k*L)
-    C = 1j * sin(k*L)/Zc
-    m = np.zeros((2, 2), dtype=complex)
-    m[0, 0] = A
-    m[0, 1] = B
-    m[1, 0] = C
-    m[1, 1] = D
-    return m
-
-
-def matrixOut(L, S, k, rho=1.22, c=343):
-    """
-     Parameters
-     ----------
-     L: length of the duct
-     S: Section of the duct
-     k: wave number (w/c)
-
-     return
-     ------
-     m: 4x4 transfer matrix (output from input)
-     """
-    Zc = rho*c/S
-    A = cos(k*L)
-    D = A
-    B = -1j * Zc * sin(k * L)
-    C = -1j * sin(k * L) / Zc
-    m = np.zeros((2, 2), dtype=complex)
-    m[0, 0] = A
-    m[0, 1] = B
-    m[1, 0] = C
-    m[1, 1] = D
-    return m
-
-
-def multiply_matrices(matrix_list, index):
-    result_matrix = np.eye(2)  # Initialize with the identity matrix
-
-    for matrix in matrix_list:
-        result_matrix = np.dot(result_matrix, matrix[:, :, index])
-
-    return result_matrix
-
-
-## PLOTTING TOOLS
+#%% PLOTTING TOOLS
+## 
 def plot_FRF(freq, H, transformation="SPL", logx=True, legend=None, **kwargs):  #logx=True, xlim=None, ylim=None, title=None, save=False, dpi=64):
     """
     Plot Frequency Response Functions (FRFs).
@@ -634,7 +471,53 @@ def plot_directivity(freq, theta, H, transformation='SPL', logx=True, **kwargs):
             print("save argument must str")
     plt.show()
 
+#%% Export tools
+def export_directivity(folder_name, frequency_array, angle_array, pmic_array):
+    """
+    Export a directivity evaluation extracted from a loudspeakerSystem object.
+    Can be imported in other software, such as VituixCAD or VACS.
 
+    Parameters
+    ----------
+    folder_name : str
+        export path.
+    frequency_array : numpy array
+        frequency range of length Nfft.
+    angle_array : numpy array
+        angular position of microphones
+    pmic_array : numpy array
+        acoustic pressure (complex) of shape [Nfft, N_angles].
+
+    Returns
+    -------
+    folder with *.txt file containing frequency, SPL and phase of extracted 
+    directivity.
+
+    """
+    import os
+    
+    # Create the folder if it doesn't exist
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+    
+   # Loop through each microphone (angle)
+    for i, angle in enumerate(angle_array):
+        # Compute SPL values for the current microphone
+        spl_values = gtb.gain.SPL(pmic_array[:, i])
+        
+        # Compute phase (in degrees) using np.angle and np.rad2deg
+        phase_values = np.rad2deg(np.angle(pmic_array[:, i]))
+        
+        # Prepare the data to save: frequency, SPL, and phase
+        data_to_save = np.column_stack((frequency_array, spl_values, phase_values))
+        
+        # File name format: folder_name_angle.txt
+        file_name = os.path.join(folder_name, f"{folder_name}_{angle}.txt")
+        
+        # Save the data to the text file using np.savetxt with the correct header
+        np.savetxt(file_name, data_to_save, header="frequency  SPL  phase", fmt="%.3e")
+        
+        print(f"Saved data to {file_name}")
 
 
 

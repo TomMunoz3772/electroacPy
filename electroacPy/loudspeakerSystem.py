@@ -118,40 +118,40 @@ class loudspeakerSystem:
         self.radiator_id[name] = 'EAD'
         return None
 
-    def lem_enclosure(self, name, Vb, Lp=False, Sp=False, rp=False, eta=1e-5, flanged=False,
-                      setDriver=None, Nd=1, wiring='parallel', ref2bem=None):
-        """
-        Add enclosure to simulation. Can act as a radiator.
-        :param name:
-        :param Vb:
-        :param Lp:
-        :param Sp:
-        :param rp:
-        :param setDriver:
-        :param Nd:
-        :param wiring:
-        :param ref2bem:
-        :return:
-        """
-        physics = speakerBox(Vb, Lp, Sp, rp, eta=eta, flanged=flanged,
-                             frequencyRange=self.frequency, c=self.c, rho=self.rho)
-        physics.ref2bem = ref2bem
-        self.enclosure[name] = physics
-        self.radiator_id[name] = 'SPKBOX'
+    # def lem_enclosure(self, name, Vb, Lp=False, Sp=False, rp=False, eta=1e-5, flanged=False,
+    #                   setDriver=None, Nd=1, wiring='parallel', ref2bem=None):
+    #     """
+    #     Add enclosure to simulation. Can act as a radiator.
+    #     :param name:
+    #     :param Vb:
+    #     :param Lp:
+    #     :param Sp:
+    #     :param rp:
+    #     :param setDriver:
+    #     :param Nd:
+    #     :param wiring:
+    #     :param ref2bem:
+    #     :return:
+    #     """
+    #     physics = speakerBox(Vb, Lp, Sp, rp, eta=eta, flanged=flanged,
+    #                          frequencyRange=self.frequency, c=self.c, rho=self.rho)
+    #     physics.ref2bem = ref2bem
+    #     self.enclosure[name] = physics
+    #     self.radiator_id[name] = 'SPKBOX'
 
-        # associate velocities
-        try:
-            physics.getDriverResponse(self.driver[setDriver], Nd=Nd, wiring='parallel')
-            physics.whichDriver = setDriver
-        except:
-            try:
-                physics.getDriverResponse(self.laser_acc[setDriver], Nd=Nd, wiring='parallel')
-                physics.whichDriver = setDriver
-            except:
-                None
-        return None
+    #     # associate velocities
+    #     try:
+    #         physics.getDriverResponse(self.driver[setDriver], Nd=Nd, wiring='parallel')
+    #         physics.whichDriver = setDriver
+    #     except:
+    #         try:
+    #             physics.getDriverResponse(self.laser_acc[setDriver], Nd=Nd, wiring='parallel')
+    #             physics.whichDriver = setDriver
+    #         except:
+    #             None
+    #     return None
 
-    def lem_enclosure_2(self, name, Vb, eta=1e-5, setDriver=None, Nd=1, wiring="parallel", ref2bem=None, **kwargs):
+    def lem_enclosure(self, name, Vb, eta=1e-5, setDriver=None, Nd=1, wiring="parallel", ref2bem=None, **kwargs):
         physics = speakerBox_v2(Vb, frequencyRange=self.frequency, c=self.c, rho=self.rho,
                                 eta=eta, **kwargs)
         physics.ref2bem = ref2bem
@@ -1051,6 +1051,7 @@ def apply_Velocity_From_SPKBOX(loudspeakerSystem, study, radiatorName):
             elif ls.enclosure[radiatorName].isPorted is True:
                 ls.results[study].addFilter(v, ref2bem[:-1])
                 ls.results[study].addFilter(vp, [ref2bem[-1]])
+                
     else: # to support new enclosure creation function (lem_enclosure_2)
         if isinstance(ref2bem, int) is True:
             if ls.enclosure[radiatorName].config == "sealed":  # check if 1 radiator because sealed or bp config

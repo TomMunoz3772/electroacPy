@@ -606,8 +606,21 @@ class observations:
 
     def plot_system(self, engineering=False):
         mesh = pyvista.read(self.bemObject.meshPath)
+        
+        # prepare mesh color
+        max_scalar = np.max(mesh.active_scalars)
+        colors = []
+        for scalar in mesh.active_scalars:
+            if scalar != max_scalar:
+                colors.append([255, 177, 0])  # Green color for enclosure
+            else:
+                colors.append([87, 212, 82])  # Red color for non-enclosure
+        mesh.cell_data['colors'] = colors
+        
+        # create plotter
         pl = pyvista.Plotter()
-        pl.add_mesh(mesh, show_edges=True, cmap='summer', show_scalar_bar=False)
+        pl.add_mesh(mesh, show_edges=True, cmap='summer',  scalars='colors',
+                    show_scalar_bar=False)
         light = pyvista.Light(light_type='headlight')
         # pl.add_floor('-z', color='grey', pad=5.0)
 
