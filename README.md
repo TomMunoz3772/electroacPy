@@ -54,11 +54,11 @@ conda install python=3.11
 
 ## Additional Steps for Spyder Users
 If you plan to use **Spyder**:
-- You'll need to install spyder-kernels in the newly created environment:
+- You'll need to install `spyder-kernels` in the newly created environment:
 ```shell
 pip install spyder-kernels
 ```
-- Alternatively, you can install **Spyder** directly in the environment to avoid needing spyder-kernels:
+- Alternatively, you can install **Spyder** directly in the environment to avoid needing `spyder-kernels`:
 ```shell
 conda install spyder
 ```
@@ -71,14 +71,15 @@ pip install pyopencl intel-opencl-rt
 You'll also need to install OpenCL drivers, which you'll find [here](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-cpu-runtime-for-opencl-applications-with-sycl-support.html) for windows users. Linux users can follow the **OpenCL** section from [bempp-cl installation guide](https://bempp.com/installation.html).
 
 # Modules
+This toolbox is divided into multiple sub-modules.
 
 ## electroacPy
 
-The `electroacPy` module is a comprehensive toolkit for prototyping loudspeaker systems using both Lumped Element Method (LEM) and Boundary Element Method (BEM) approaches. It offers capabilities to design filters and crossover networks, making loudspeaker system development more efficient and effective.
+The `electroacPy` module is a toolkit for prototyping loudspeaker systems using Lumped Element Method (LEM). It is also a set of wrappers for bempp-cl to solve acoustic radiation problems using Boundary Elements. It offers capabilities to design filters and crossover networks.
 
 ## generalToolbox
 
-The `generalToolbox` module provides a set of versatile tools that simplify various tasks related to electroacoustics and data manipulation. It offers functions to compute gains, manipulate arrays and point clouds, as well as loading UFF files (acceleration data) and directivities saved as CSV files.
+The `generalToolbox` module provides a set of tools that simplify various tasks related to electroacoustics and data manipulation. It offers functions to compute gains, manipulate arrays and point clouds, plot frequency-response functions, as well as loading UFF files (acceleration data) and directivities saved as CSV files.
 
 ## bempp-cl
 From [bempp-cl website](https://bempp.com):
@@ -94,11 +95,11 @@ Bempp is an open-source computational boundary element platform to solve electro
 
 # Documentation
 
-The PDF serves as documentation, no automatic doc was generated. 
+Waiting for documentation. For now, please refer to the examples.
 
 # Contributing
 
-If you encounter any issues or have suggestions for improvements, please feel free to contribute! You can submit issues, pull requests, or even share your usage examples in the ElectroacPy GitHub repository.
+If you encounter any issues or have suggestions for improvements, please feel free to fork and contribute. You can submit issues, pull requests, or even share your usage examples.
 
 # Acknowledgments
 
