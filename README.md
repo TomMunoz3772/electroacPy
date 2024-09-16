@@ -15,26 +15,29 @@ The recommended installation method uses the **Conda** package manager for Pytho
 2. [Miniconda](https://docs.anaconda.com/free/miniconda/miniconda-install/): A minimal version of Anaconda, including only the necessary packages for managing environments.
     - **Windows**: Use the Miniconda Prompt for installation.
     - **macOS/Linux**: Use your terminal (bash/zsh).
+3. [Miniforge](https://conda-forge.org/miniforge/): A lightweight version similar to Miniconda, but community-driven, providing better architecture support (e.g., M1/M2 chips on macOS).
+    - **Windows**: Use the Miniforge Prompt for installation.
+    - **macOS/Linux**: Use your terminal (bash/zsh).
 
 ### Installation Steps
 1. **Create a new Conda environment** (recommended but optional):
-```bash
-conda create -n acoustic_sim
-```
+    ```bash
+    conda create -n acoustic_sim
+    ```
 
 2. **Activate the environment**:
-```bash
-conda activate acoustic_sim
-```
+    ```bash
+    conda activate acoustic_sim
+    ```
 
 3. **Install Python 3.9 and pip** (you can adjust the Python version if needed):
-```bash
-conda install python=3.9 pip
-```
+    ```bash
+    conda install python=3.9 pip
+    ```
 Optionally, you can use Python 3.11 (or newer).
-```bash
-conda install python=3.11
-```
+    ```bash
+    conda install python=3.11
+    ```
 4. **Install electroacPy**:
 - For standard installation:
     ```bash
