@@ -10,11 +10,11 @@ Welcome to the electroacPy toolbox! This toolbox provides a collection of tools 
 ### Setting Up Python with Conda
 The recommended installation method uses the **Conda** package manager for Python. You can install Conda through one of the following options:
 1. [Anaconda](https://www.anaconda.com/download/): A full Python development suite that includes Spyder (IDE), Jupyter Notebook/Lab, and other tools.
-- **Windows**: Use the Anaconda Prompt to follow the installation steps.
-- **macOS/Linux**: Use your terminal (bash/zsh).
+    - **Windows**: Use the Anaconda Prompt to follow the installation steps.
+    - **macOS/Linux**: Use your terminal (bash/zsh).
 2. [Miniconda](https://docs.anaconda.com/free/miniconda/miniconda-install/): A minimal version of Anaconda, including only the necessary packages for managing environments.
-- **Windows**: Use the Miniconda Prompt for installation.
-- **macOS/Linux**: Use your terminal (bash/zsh).
+    - **Windows**: Use the Miniconda Prompt for installation.
+    - **macOS/Linux**: Use your terminal (bash/zsh).
 
 ### Installation Steps
 1. **Create a new Conda environment** (recommended but optional):
@@ -37,13 +37,13 @@ conda install python=3.11
 ```
 4. **Install electroacPy**:
 - For standard installation:
-```bash
-pip install /path/to/electroacPy
-```
+    ```bash
+    pip install /path/to/electroacPy
+    ```
 - For development (editable) installation:
-```bash
-pip install -e /path/to/electroacPy
-```
+    ```bash
+    pip install -e /path/to/electroacPy
+    ```
 ### Notes
 - **Using a separate environment**:  Installing ElectroacPy in its own Conda environment is recommended. This helps prevent conflicts during updates and allows easier management of dependencies.
 - **Selecting environments**: In Python IDEs like Spyder or PyCharm, you can choose the specific Conda environment where ElectroacPy is installed.
