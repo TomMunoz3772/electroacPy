@@ -21,23 +21,23 @@ The recommended installation method uses the **Conda** package manager for Pytho
 
 ### Installation Steps
 1. **Create a new Conda environment** (recommended but optional):
-    ```bash
-    conda create -n acoustic_sim
-    ```
+```bash
+conda create -n acoustic_sim
+```
 
 2. **Activate the environment**:
-    ```bash
-    conda activate acoustic_sim
-    ```
+```bash
+conda activate acoustic_sim
+```
 
 3. **Install Python 3.9 and pip** (you can adjust the Python version if needed):
-    ```bash
-    conda install python=3.9 pip
-    ```
+```bash
+conda install python=3.9 pip
+```
 Optionally, you can use Python 3.11 (or newer).
-    ```bash
-    conda install python=3.11
-    ```
+```bash
+conda install python=3.11
+```
 4. **Install electroacPy**:
 - For standard installation:
     ```bash
@@ -47,6 +47,7 @@ Optionally, you can use Python 3.11 (or newer).
     ```bash
     pip install -e /path/to/electroacPy
     ```
+
 ### Notes
 - **Using a separate environment**:  Installing ElectroacPy in its own Conda environment is recommended. This helps prevent conflicts during updates and allows easier management of dependencies.
 - **Selecting environments**: In Python IDEs like Spyder or PyCharm, you can choose the specific Conda environment where ElectroacPy is installed.
@@ -62,12 +63,12 @@ pip install spyder-kernels
 conda install spyder
 ```
 
-**Post install**
-In Windows and Linux, you can actually use OpenCL to reduce computing time (and setup bempp-cl to use your computer's GPU (also works with intel CPUs)). In the corresponding Conda environment:
+## Post install
+In Windows and Linux, you can actually use the OpenCL backend to reduce computing time. In the corresponding Conda environment:
 ```shell
 pip install pyopencl intel-opencl-rt
 ```
-You might need to install OpenCL drivers, which you'll find [here](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-cpu-runtime-for-opencl-applications-with-sycl-support.html). I can't remember how exactly I installed Linux opencl drivers, so you'll unfortunately have to figure that out until I look into it again.
+You'll also need to install OpenCL drivers, which you'll find [here](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-cpu-runtime-for-opencl-applications-with-sycl-support.html) for windows users. Linux users can follow the **OpenCL** section from [bempp-cl installation guide](https://bempp.com/installation.html).
 
 # Modules
 
