@@ -207,124 +207,7 @@ def compute_circle_point_cloud_surface_area(point_cloud):
 
 
 ## MICROPHONE ARRAY CREATION
-def createCircArray(theta, plane, radius=5, offset=[0, 0, 0]):
-    """
-    Create an array of shape (len(theta), 3) with the coordinates of a circular
-    microphone array. To be used with pointSourceProblem.getMicPressure() or 
-    bemppProblem.getMicPressure().
-
-    Parameters
-    ----------
-    theta : numpy array
-        Angles [radians] at which the observation points are placed.
-    plane : str
-        Plane on which the observation points are placed. ex: "xy", "zx", etc.
-        First axis will define 0 degree.
-    radius : float, optional
-        Distance origin / microphones (radius of the circle) in meters. The 
-        default is 5.
-    offset : list of floats, optional
-        Offset of the center of the circular array, in meters. 
-        The default is [0,0,0].
-
-    Raises
-    ------
-    ValueError
-        Tell user if "plane" parameter is not understood - ex: "xa" will 
-        raise this error.
-
-    Returns
-    -------
-    numpy array
-        mic_circle array of shape (len(theta), 3) with the x, y, z coordinates
-        of a circular microphone array.
-
-    """
-    radius = radius
-    xo = offset[0]
-    yo = offset[1]
-    zo = offset[2]
-
-    if plane[0] == '-':
-        sign = -1
-        plane = plane[1:]
-    else:
-        sign = 1
-
-    if plane == "xy":
-        mic_circle = np.array([radius * np.cos(theta) + xo,
-                               radius * np.sin(theta) + yo,
-                               np.zeros(len(theta)) + zo]) * np.array([[sign], [1], [1]])
-    elif plane == "yx":
-        mic_circle = np.array([radius * np.sin(theta) + xo,
-                               radius * np.cos(theta) + yo,
-                               np.zeros(len(theta)) + zo]) * np.array([[1], [sign], [1]])
-    elif plane == "xz":
-        mic_circle = np.array([radius * np.cos(theta) + xo,
-                               np.zeros(len(theta)) + yo,
-                               radius * np.sin(theta) + zo]) * np.array([[sign], [1], [1]])
-    elif plane == "zx":
-        mic_circle = np.array([radius * np.sin(theta) + xo,
-                               np.zeros(len(theta)) + yo,
-                               radius * np.cos(theta) + zo]) * np.array([[1], [1], [sign]])
-    elif plane == "yz":
-        mic_circle = np.array([np.zeros(len(theta)) + xo,
-                               radius * np.cos(theta) + yo,
-                               radius * np.sin(theta) + zo]) * np.array([[1], [sign], [1]])
-    elif plane == "zy":
-        mic_circle = np.array([np.zeros(len(theta)) + xo,
-                               radius * np.sin(theta) + yo,
-                               radius * np.cos(theta) + zo]) * np.array([[1], [1], [sign]])
-    else:
-        raise ValueError("Plane not understood")
-
-    return mic_circle.T
-
-
-def create_circular_array(theta, plane, radius, offsets):
-    # Convert theta to radians
-    theta_rad = np.radians(theta)
-
-    # Initialize arrays for x, y, z coordinates
-    x = np.zeros_like(theta_rad)
-    y = np.zeros_like(theta_rad)
-    z = np.zeros_like(theta_rad)
-
-    # Generate coordinates based on the specified plane
-    if plane == "xy":
-        x = radius * np.cos(theta_rad) + offsets[0]
-        y = radius * np.sin(theta_rad) + offsets[1]
-        z = np.zeros_like(theta_rad) + offsets[2]
-    elif plane == "xz":
-        x = radius * np.cos(theta_rad) + offsets[0]
-        y = np.zeros_like(theta_rad) + offsets[1]
-        z = radius * np.sin(theta_rad) + offsets[2]
-    elif plane == "yz":
-        x = np.zeros_like(theta_rad) + offsets[0]
-        y = radius * np.cos(theta_rad) + offsets[1]
-        z = radius * np.sin(theta_rad) + offsets[2]
-    elif plane == "-xy":
-        x = radius * np.cos(theta_rad) + offsets[0]
-        y = -radius * np.sin(theta_rad) + offsets[1]
-        z = np.zeros_like(theta_rad) + offsets[2]
-    elif plane == "-xz":
-        x = radius * np.cos(theta_rad) + offsets[0]
-        y = np.zeros_like(theta_rad) + offsets[1]
-        z = -radius * np.sin(theta_rad) + offsets[2]
-    elif plane == "-yz":
-        x = np.zeros_like(theta_rad) + offsets[0]
-        y = radius * np.cos(theta_rad) + offsets[1]
-        z = -radius * np.sin(theta_rad) + offsets[2]
-    else:
-        raise ValueError("Invalid plane specified. Choose from 'xy', 'xz', 'yz', '-xy', '-xz', '-yz'.")
-
-    # Combine x, y, z into an array of points
-    points = np.vstack((x, y, z)).T
-
-    return points
-
-
-def create_circular_array_2(theta, on_axis, rotation, radius, offsets):
+def create_circular_array(theta, on_axis, rotation, radius, offsets):
     # Initialize the points array
     points = np.zeros((len(theta), 3))
 
@@ -364,7 +247,7 @@ def create_circular_array_2(theta, on_axis, rotation, radius, offsets):
     return points
 
 
-def createPlaneArray(length, width, micSpacing, plane, offset=[0, 0, 0], vert=False, mode=False):
+def create_planar_array(length, width, micSpacing, plane, offset=[0, 0, 0], vert=False, mode=False):
     """
     Create a rectangular array of microphones on given plane. Place the corner on [x=0, y=0, z=0]
 
@@ -392,37 +275,37 @@ def createPlaneArray(length, width, micSpacing, plane, offset=[0, 0, 0], vert=Fa
         Array corresponding to the given width
 
     """
-    L = np.arange(0, length + micSpacing, micSpacing)
-    W = np.arange(0, width + micSpacing, micSpacing)
-    nMic = len(L) * len(W)
+    L = np.arange(0, length+micSpacing, micSpacing)
+    W = np.arange(0, width+micSpacing, micSpacing)
+    nMic = len(L)*len(W)
     xmic = np.zeros([nMic, 3])
     xOffset = np.ones([nMic, 3]) * offset
     # is there a better way to do it?
-    if plane == 'xy':
+    if plane=='xy':
         dim1 = 0
         dim2 = 1
-        dim3 = 2
-    elif plane == 'yx':
+        dim3 = 2 
+    elif plane=='yx':
         dim1 = 1
         dim2 = 0
         dim3 = 2
-    elif plane == 'xz':
+    elif plane=='xz':
         dim1 = 0
         dim2 = 2
         dim3 = 1
-    elif plane == 'zx':
+    elif plane=='zx':
         dim1 = 2
         dim2 = 0
         dim3 = 1
-    elif plane == 'yz':
+    elif plane=='yz':
         dim1 = 1
         dim2 = 2
         dim3 = 0
-    elif plane == 'zy':
+    elif plane=='zy':
         dim1 = 2
         dim2 = 1
         dim3 = 0
-
+        
     i = 0
     for w in range(len(W)):
         for l in range(len(L)):
@@ -436,15 +319,41 @@ def createPlaneArray(length, width, micSpacing, plane, offset=[0, 0, 0], vert=Fa
     out = (xmic, L, W,)
 
     if vert is not False:
-        xmic_n = filter_microphones(xmic, vert, mode=mode)
+        xmic_n = filter_points(xmic, vert, mode=mode)
         L_n = L[np.isin(L, xmic_n[:, dim1])]
         W_n = W[np.isin(W, xmic_n[:, dim2])]
         out = (xmic_n, L_n, W_n)
-
     return out
 
+def filter_points(points, boundary, mode='inside'):
+    """
+    Filter points based on their location relative to the boundary.
 
-def createSphereArray(nMic, sphereRadius=1.8, offset=[0, 0, 0]):
+    Parameters:
+    - microphones: NumPy array of shape (N, 3), representing points coordinates.
+    - boundary: NumPy array of shape (M, 3), representing boundary coordinates.
+    - mode: 'inside' or 'outside', specifying whether to keep microphones inside or outside the boundary.
+
+    Returns:
+    - filtered_points: NumPy array of shape (K, 3), where K <= N, containing the filtered microphone coordinates.
+    """
+
+    if mode not in ('inside', 'outside'):
+        raise ValueError("Mode must be 'inside' or 'outside'.")
+
+    if mode == 'inside':
+        # Keep microphones inside the boundary
+        condition = np.all((points[:, np.newaxis] >= boundary.min(axis=0)) &
+                           (points[:, np.newaxis] <= boundary.max(axis=0)), axis=2)
+    else:
+        # Keep microphones outside the boundary
+        condition = np.any((points[:, np.newaxis] < boundary.min(axis=0)) |
+                           (points[:, np.newaxis] > boundary.max(axis=0)), axis=2)
+
+    filtered_points = points[condition.all(axis=1)]
+    return filtered_points
+
+def create_spherical_array(nMic, sphereRadius=1.8, offset=[0, 0, 0]):
     """
     create a spherical microphone array
     :param Nmic: number of microphones in the array
@@ -470,7 +379,7 @@ def createSphereArray(nMic, sphereRadius=1.8, offset=[0, 0, 0]):
     return xmic
 
 
-def create_boundingBox(Lx, Ly, Lz, step=1, offset=[0, 0, 0]):
+def create_bounding_box(Lx, Ly, Lz, step=1, offset=[0, 0, 0]):
     x_offset, y_offset, z_offset = offset
     x_range = np.arange(x_offset, x_offset + Lx + step, step)
     y_range = np.arange(y_offset, y_offset + Ly + step, step)

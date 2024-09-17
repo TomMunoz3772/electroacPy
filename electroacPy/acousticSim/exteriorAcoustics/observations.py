@@ -89,7 +89,7 @@ class observations:
         self.polarPlane = []
         self.DI = []
 
-        # bounding box -> not sure that it will be used
+        # bounding box
         self.Lx = []
         self.Ly = []
         self.Lz = []
@@ -102,7 +102,7 @@ class observations:
         self.referenceStudy = None
         
         
-    def pressureField(self, obsName: str,
+    def pressureField(self,  obsName: str,
                              Length: float, 
                              Width: float,
                              step: float,

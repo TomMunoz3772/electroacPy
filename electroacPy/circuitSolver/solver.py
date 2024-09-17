@@ -8,7 +8,7 @@ Created on Tue Sep  3 11:26:36 2024
 from numpy import unique, zeros, squeeze, linalg, concatenate, int16
 from numpy import max as nmax
 from copy import copy
-
+from tqdm import tqdm
     
 class circuit:
     def __init__(self, frequency):
@@ -133,7 +133,8 @@ class circuit:
         self.countNodesAndSources()
         self.X = zeros([self.N+self.M, self.Nfft], dtype=complex)
         
-        for nf in range(self.Nfft):
+        print("Solving network...")
+        for nf in tqdm(range(self.Nfft)):
             self.G_m = self.build_G(nf)
             self.I_s = self.build_Is(nf)
             self.X[:, nf] = squeeze(linalg.inv(self.G_m) @ self.I_s)
