@@ -247,7 +247,8 @@ def create_circular_array(theta, on_axis, rotation, radius, offsets):
     return points
 
 
-def create_planar_array(length, width, micSpacing, plane, offset=[0, 0, 0], vert=False, mode=False):
+def create_planar_array(length, width, micSpacing, plane, offset=[0, 0, 0], 
+                        vert=False, mode=False):
     """
     Create a rectangular array of microphones on given plane. Place the corner on [x=0, y=0, z=0]
 

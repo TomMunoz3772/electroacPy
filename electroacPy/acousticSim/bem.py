@@ -25,7 +25,7 @@ warnings.filterwarnings("ignore", message="splu converted its input to CSC forma
 # bempp.api.DEFAULT_PRECISION = 'single'
 
 class bem:
-    def __init__(self, meshPath, radiatingElements, velocity, frequency, 
+    def __init__(self, meshPath, radiatingElement, velocity, frequency, 
                  domain="exterior", c_0=343, rho_0=1.22, **kwargs):
         """
         Create a BEM object.
@@ -34,7 +34,7 @@ class bem:
         ----------
         meshPath : TYPE
             DESCRIPTION.
-        radiatingElements : TYPE
+        radiatingElement : TYPE
             DESCRIPTION.
         velocity : TYPE
             DESCRIPTION.
@@ -56,7 +56,7 @@ class bem:
         """
         # get main parameters
         self.meshPath = meshPath
-        self.radiatingElements = radiatingElements
+        self.radiatingElement = radiatingElement
         self.velocity = velocity
         self.frequency = frequency
         self.c_0 = c_0
@@ -79,7 +79,7 @@ class bem:
         self.parse_input()
         
         # other parameters
-        self.Ns = len(self.radiatingElements)
+        self.Ns = len(self.radiatingElement)
         self.isComputed = False
         self.is2dData = checkVelocityInput(self.velocity)
         
@@ -108,7 +108,7 @@ class bem:
         dof = np.zeros(self.Ns)
         for i in range(self.Ns):
             spaceU = bempp.api.function_space(self.grid_sim, "DP", 0,
-                                              segments=[radiatingElements[i]])
+                                              segments=[radiatingElement[i]])
             self.spaceU_freq[i] = spaceU
             dof[i] = int(spaceU.grid_dof_count)   # degree of freedom of each radiators
             if isinstance(self.direction, bool) is False:  # if direction has been defined by user
@@ -133,8 +133,7 @@ class bem:
                                                                                     self.sizeFactor)
         
         self.admittanceCoeff = getSurfaceAdmittance(self.impedanceSurfaceIndex, self.surfaceImpedance, 
-                                                    frequency, self.spaceP, self.c_0, self.rho_0)
-        
+                                                    frequency, self.spaceP, self.c_0, self.rho_0)        
         # driver reference
         self.LEM_enclosures = None
         self.radiator = None
@@ -158,8 +157,8 @@ class bem:
     def initialize_conditions(self):
         for bc in self.boundary_conditions:
             if bc not in ["x", "X", "y", "Y", "z", "Z"]:
-                self.impedanceSurfaceIndex.append(self.boundary_conditions[bc].index)
-                self.surfaceImpedance.append(self.boundary_conditions[bc].impedance)
+                self.impedanceSurfaceIndex.append(self.boundary_conditions[bc]["index"])
+                self.surfaceImpedance.append(self.boundary_conditions[bc]["impedance"])
             else:
                 pass
     
@@ -212,7 +211,7 @@ class bem:
                 for rs in range(self.Ns):                
                     coeff_radSurf = self.coeff_radSurf[i, rs, :int(self.dof[rs])]
                     spaceU = bempp.api.function_space(self.grid_sim, "DP", 0,
-                                                      segments=[self.radiatingElements[rs]])
+                                                      segments=[self.radiatingElement[rs]])
     
                     # get velocity on current radiator
                     u_total = bempp.api.GridFunction(spaceU, coefficients=-coeff_radSurf *
@@ -241,13 +240,11 @@ class bem:
                 single_layer_Y = helmholtz.single_layer(self.spaceP, self.spaceP,
                                                         self.spaceP, k[i])
                 for rs in range(self.Ns):
-                    # grid_dof = self.spaceU_list[rs].grid_dof_count
-
                     # RADIATING SURFACES
                     coeff_radSurf = self.coeff_radSurf[i, rs, :int(self.dof[rs])]
 
                     spaceU = bempp.api.function_space(self.grid_sim, "DP", 0,
-                                                      segments=[self.radiatingElements[rs]])
+                                                      segments=[self.radiatingElement[rs]])
 
                     # get velocity on current radiator
                     u_total = bempp.api.GridFunction(spaceU, coefficients=-coeff_radSurf *
@@ -323,7 +320,7 @@ class bem:
                                               k[i]) * self.p_mesh[i, rs] \
                     - 1j * omega[i] * self.rho_0 * \
                     helmholtz_potential.single_layer(
-                        self.spaceU_list[rs],
+                        self.spaceU_freq[rs],
                         micPosition, k[i]) * self.u_mesh[i, rs], nMic)
                 pressure_mic[i, :] += pressure_mic_array[i, :, rs]
 
@@ -368,36 +365,37 @@ def mirror_mesh(grid_init, boundary_conditions):
     if bc is not None:
         for item in bc:
             boundary = bc[item]
-            offset = boundary["offset"]
-            vertices = np.copy(grid_init.vertices)
-            elements = np.copy(grid_init.elements)
-            if item in ["x", "X"]:
-                if offset != 0:
-                    vertices[0, :] = 2*offset - vertices[0, :]
-                    elements[[2, 0], :] = elements[[0, 2], :]
+            if boundary["type"] == "infinite_baffle":
+                offset = boundary["offset"]
+                vertices = np.copy(grid_tot.vertices)
+                elements = np.copy(grid_tot.elements)
+                if item in ["x", "X"]:
+                    if offset != 0:
+                        vertices[0, :] = 2*offset - vertices[0, :]
+                        elements[[2, 0], :] = elements[[0, 2], :]
+                    else:
+                        vertices[0, :] = vertices[0, :]
+                        elements[[2, 0], :] = elements[[0, 2], :]                    
+                elif item in ["y", "Y"]:
+                    if offset != 0 :
+                        vertices[1, :] = 2*offset - vertices[1, :]
+                        elements[[2, 0], :] = elements[[0, 2], :]
+                    else:
+                        vertices[1, :] = vertices[1, :]
+                        elements[[2, 0], :] = elements[[0, 2], :]    
+                elif item in ["z", "Z"]:
+                    if offset is not False:
+                        vertices[2, :] = 2*offset - vertices[2, :]
+                        elements[[2, 0], :] = elements[[0, 2], :]
+                    else:
+                        vertices[2, :] = vertices[2, :]
+                        elements[[2, 0], :] = elements[[0, 2], :]               
                 else:
-                    vertices[0, :] = vertices[0, :]
-                    elements[[2, 0], :] = elements[[0, 2], :]                    
-            elif item in ["y", "Y"]:
-                if offset != 0 :
-                    vertices[1, :] = 2*offset - vertices[1, :]
-                    elements[[2, 0], :] = elements[[0, 2], :]
-                else:
-                    vertices[1, :] = vertices[1, :]
-                    elements[[2, 0], :] = elements[[0, 2], :]    
-            elif item in ["z", "Z"]:
-                if offset is not False:
-                    vertices[2, :] = 2*offset - vertices[2, :]
-                    elements[[2, 0], :] = elements[[0, 2], :]
-                else:
-                    vertices[2, :] = vertices[2, :]
-                    elements[[2, 0], :] = elements[[0, 2], :]               
-            else:
-                print("{} not infinite baffle.".format(item))
-            grid_mirror = bempp.api.Grid(vertices, elements, domain_indices=grid_init.domain_indices)
-            grid_tot = bempp.api.grid.union([grid_init, grid_mirror],
-                                            [grid_init.domain_indices, grid_mirror.domain_indices])
-            size_factor *= 2
+                    print("{} not infinite baffle.".format(item))
+                grid_mirror = bempp.api.Grid(vertices, elements, domain_indices=grid_tot.domain_indices)
+                grid_tot = bempp.api.grid.union([grid_tot, grid_mirror],
+                                                [grid_tot.domain_indices, grid_mirror.domain_indices])
+                size_factor *= 2
     return grid_tot, size_factor
 
 
@@ -511,6 +509,7 @@ class boundaryConditions:
             raise ValueError("Normal to axis should be x, y or z.")
         self.parameters[normal] = {}
         self.parameters[normal]["offset"] = offset
+        self.parameters[normal]["type"] = "infinite_baffle"
         if "absorption" in kwargs:
             self.parameters[normal]["absorption"] = kwargs["absorption"]
         elif "impedance" in kwargs:
@@ -523,6 +522,7 @@ class boundaryConditions:
     def addSurfaceImpedance(self, name, index, **kwargs):
         self.parameters[name] = {}
         self.parameters[name]["index"] = index
+        self.parameters[name]["type"] = "surface_impedance"
         if "absorption" in kwargs:
             self.parameters[name]["absorption"] = kwargs["absorption"]
         elif "impedance" in kwargs:

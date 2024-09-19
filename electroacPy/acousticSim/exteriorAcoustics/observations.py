@@ -724,7 +724,8 @@ def createCircArray(theta, plane, radius=5, offset=[0,0,0]):
     return mic_circle.T
 
 
-def createPlaneArray(length, width, micSpacing, plane, offset=[0, 0, 0], vert=False, mode=False):
+def createPlaneArray(length, width, micSpacing, plane, offset=[0, 0, 0], 
+                     vert=False, mode=False):
     """
     Create a rectangular array of microphones on given plane. Place the corner on [x=0, y=0, z=0]
 
@@ -800,7 +801,6 @@ def createPlaneArray(length, width, micSpacing, plane, offset=[0, 0, 0], vert=Fa
         L_n = L[np.isin(L, xmic_n[:, dim1])]
         W_n = W[np.isin(W, xmic_n[:, dim2])]
         out = (xmic_n, L_n, W_n)
-
     return out
 
 
@@ -1184,12 +1184,6 @@ def plotPressureField_pyvista(bemOBJ, toPlotter, toPlotterMicIdx, L, W, pMicData
         ax.set(xlabel='Frequency [Hz]', ylabel='SPL [dB]', ylim=[max-40, max+6])
         ax.legend(loc='best')
         plt.show()
-
-        # chart = pyvista.Chart2D()
-        # chart.line(np.log10(bemOBJ.freq_array), gtb.gain.SPL(pMicToPlot), label='{}'.format(point))
-        # chart.x_label='Frequency [kHz]'
-        # chart.y_label='SPL [dB]'
-        # chart.show()
         return None
 
 
@@ -1378,7 +1372,6 @@ def plot_spherical_radiation(xMic, pMic, freq_array):
 
 ## tools
 def sumPressureArray(bemObj, radiatingSurface):
-    # print(radiatingSurface)
     p_mesh = bemObj.p_mesh
     radSurf_system = bemObj.radiatingSurface
     if radiatingSurface == 'all':
@@ -1518,8 +1511,6 @@ class pyvista_spkPlotter:
             font_family="arial",
             color='k',
             title=title_arg + str(round(frequency, 1)) + " Hz",
-            # position_x=0.35,
-            # position_y=0
         )
 
         show_sc_b = []
@@ -1580,7 +1571,6 @@ class pyvista_boundingBoxPlotter:
         self.vertices = bemOBJ.vertices
         self.sizeFactor = bemOBJ.sizeFactor
         self.pMicData = pMicData
-        # self.pMicDataCopy = copy(self.pMicData)
         self.xMic = xMic
         self.radiatingSurface = radiatingSurface
 
@@ -1737,13 +1727,6 @@ class pyvista_sphericalPlotter:
             title="SPL, dB - " + str(round(frequency, 1)) + " Hz",
         )
 
-        # X = gtb.gain.SPL(np.sin(elevation) * np.cos(azimuth) * self.pMic[freq_idx, :]) #* np.sin(elevation) * np.cos(azimuth)
-        # Y = gtb.gain.SPL(np.sin(elevation) * np.sin(azimuth) * self.pMic[freq_idx, :]) #* np.sin(elevation) * np.sin(azimuth)
-        # Z = gtb.gain.SPL(np.cos(elevation) * self.pMic[freq_idx, :]) #* np.cos(elevation)
-        # XVEC = np.zeros([len(X), 3])
-        # XVEC[:, 0] = X
-        # XVEC[:, 1] = Y
-        # XVEC[:, 2] = Z
         cloud = pyvista.PolyData(self.xMic)
         volume = cloud.delaunay_3d(alpha=2.)
         shell = volume.extract_geometry()
