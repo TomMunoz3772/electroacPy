@@ -264,7 +264,7 @@ class observations:
             # plot all observations
             obs2plot = list(self.setup.keys())
         else:
-            obs2plot = self.evaluations
+            obs2plot = evaluations
         
         if bool(radiatingElement) is False:
             # plot all elements
@@ -318,9 +318,10 @@ class observations:
                                     title=polarName[i])
         
         # plot field
-        field2plot = getPressure(pmicField, self.bemObject.radiatingElement, 
-                                element2plot, elementCoeff)
-        gplot.pressureField_3D(self.bemObject, xMic, L, W, field2plot, element2plot)
+        if bool(field) is True:
+            field2plot = getPressure(pmicField, self.bemObject.radiatingElement, 
+                                    element2plot, elementCoeff)
+            gplot.pressureField_3D(self.bemObject, xMic, L, W, field2plot, element2plot)
         
         # plot evaluation points
         for i, obs in enumerate(point):

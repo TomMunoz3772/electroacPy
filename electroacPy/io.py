@@ -75,49 +75,26 @@ def save(projectPath, loudspeakerSystem):
         copy2(studyTmp.meshPath, projectPath)
         mesh_filename = os.path.basename(studyTmp.meshPath)
         # EXTERIOR
-        if studyTmp.identifier == "BEM_EXT":
-            np.savez(join(projectPath, 'acs_{}'.format(study)),
-                     meshPath            = studyTmp.meshPath,
-                     mesh_filename       = mesh_filename,
-                     radiatingSurface    = studyTmp.radiatingSurface,
-                     surfaceVelocity     = array(studyTmp.surfaceVelocity, dtype=object),
-                     radiation_direction = array(studyTmp.radiation_direction, dtype=object),
-                     vibrometry_points   = array(studyTmp.vibrometry_points, dtype=object),
-                     nRad_S              = studyTmp.nRad_S,
-                     isComputed          = studyTmp.isComputed,
-                     coeff_radSurf       = studyTmp.coeff_radSurf,
-                     vertices            = studyTmp.vertices,
-                     boundary            = studyTmp.boundary,
-                     offset              = studyTmp.offset,
-                     pressureArrayAcs    = pressureArrayAcs,
-                     identifier          = studyTmp.identifier,
-                     LEM_enclosures      = studyTmp.LEM_enclosures,
-                     radiator            = studyTmp.radiator,
-                     c_0                 = studyTmp.c_0,
-                     rho_0               = studyTmp.rho_0
-                     )
-
-        elif studyTmp.identifier == "BEM_INT":
-            np.savez(join(projectPath, 'acs_{}'.format(study)),
-                     meshPath               = studyTmp.meshPath,
-                     mesh_filename          = mesh_filename,
-                     radiatingSurface       = studyTmp.radiatingSurface,
-                     surfaceVelocity        = array(studyTmp.surfaceVelocity, dtype=object),
-                     radiation_direction    = array(studyTmp.radiation_direction, dtype=object),
-                     vibrometry_points      = array(studyTmp.vibrometry_points, dtype=object),
-                     nRad_S                 = studyTmp.nRad_S,
-                     absorbingSurface       = array(studyTmp.absorbingSurface, dtype=object),
-                     surfaceImpedance       = array(studyTmp.surfaceImpedance, dtype=object),
-                     isComputed             = studyTmp.isComputed,
-                     coeff_radSurf          = studyTmp.coeff_radSurf,
-                     vertices               = studyTmp.vertices,
-                     pressureArrayAcs       = pressureArrayAcs,
-                     identifier             = studyTmp.identifier,
-                     LEM_enclosures         = studyTmp.LEM_enclosures,
-                     radiator               = studyTmp.radiator,
-                     c_0                    = studyTmp.c_0,
-                     rho_0                  = studyTmp.rho_0
-                     )
+        np.savez(join(projectPath, 'acs_{}'.format(study)),
+                 meshPath            = studyTmp.meshPath,
+                 mesh_filename       = mesh_filename,
+                 radiatingSurface    = studyTmp.radiatingSurface,
+                 surfaceVelocity     = array(studyTmp.surfaceVelocity, dtype=object),
+                 radiation_direction = array(studyTmp.radiation_direction, dtype=object),
+                 vibrometry_points   = array(studyTmp.vibrometry_points, dtype=object),
+                 nRad_S              = studyTmp.nRad_S,
+                 isComputed          = studyTmp.isComputed,
+                 coeff_radSurf       = studyTmp.coeff_radSurf,
+                 vertices            = studyTmp.vertices,
+                 boundary            = studyTmp.boundary,
+                 offset              = studyTmp.offset,
+                 pressureArrayAcs    = pressureArrayAcs,
+                 identifier          = studyTmp.identifier,
+                 LEM_enclosures      = studyTmp.LEM_enclosures,
+                 radiator            = studyTmp.radiator,
+                 c_0                 = studyTmp.c_0,
+                 rho_0               = studyTmp.rho_0
+                 )
     return None
 
 def load(pathToProject):

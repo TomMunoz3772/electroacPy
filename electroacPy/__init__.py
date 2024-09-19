@@ -13,5 +13,6 @@ Toolbox for electroacoustic simulations
 # =============================================================================
 #%% modules
 from electroacPy.loudspeakerSystem import loudspeakerSystem
-from electroacPy.io import save, load
+from electroacPy.loudspeakerSystem_2 import loudspeakerSystem as LS2
+from electroacPy.io_2 import save, load
 
