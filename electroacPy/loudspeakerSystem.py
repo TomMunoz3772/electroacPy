@@ -12,14 +12,9 @@ Created on Tue Oct  3 16:03:02 2023
 #
 #==================================================
 # Exterior acoustic sim
-from electroacPy.acousticSim.exteriorAcoustics.bem import bem as bem_ext
-from electroacPy.acousticSim.exteriorAcoustics.observations import observations as obs_ext
-from electroacPy.acousticSim.exteriorAcoustics.postProcessing import postProcess as pp_ext
-
-# Interior acoustic sim
-from electroacPy.acousticSim.interiorAcoustics.bem import bem as bem_int
-from electroacPy.acousticSim.interiorAcoustics.observations import observations as obs_int
-from electroacPy.acousticSim.interiorAcoustics.postProcessing import postProcess as pp_int
+from electroacPy.acousticSim.bem import bem
+from electroacPy.acousticSim.observations import observations as obs_bem
+from electroacPy.acousticSim.postProcessing import postProcess as pp
 
 # Lumped element
 from electroacPy.speakerSim.electroAcousticDriver import electroAcousticDriver, loadLPM
@@ -118,40 +113,8 @@ class loudspeakerSystem:
         self.radiator_id[name] = 'EAD'
         return None
 
-    # def lem_enclosure(self, name, Vb, Lp=False, Sp=False, rp=False, eta=1e-5, flanged=False,
-    #                   setDriver=None, Nd=1, wiring='parallel', ref2bem=None):
-    #     """
-    #     Add enclosure to simulation. Can act as a radiator.
-    #     :param name:
-    #     :param Vb:
-    #     :param Lp:
-    #     :param Sp:
-    #     :param rp:
-    #     :param setDriver:
-    #     :param Nd:
-    #     :param wiring:
-    #     :param ref2bem:
-    #     :return:
-    #     """
-    #     physics = speakerBox(Vb, Lp, Sp, rp, eta=eta, flanged=flanged,
-    #                          frequencyRange=self.frequency, c=self.c, rho=self.rho)
-    #     physics.ref2bem = ref2bem
-    #     self.enclosure[name] = physics
-    #     self.radiator_id[name] = 'SPKBOX'
-
-    #     # associate velocities
-    #     try:
-    #         physics.getDriverResponse(self.driver[setDriver], Nd=Nd, wiring='parallel')
-    #         physics.whichDriver = setDriver
-    #     except:
-    #         try:
-    #             physics.getDriverResponse(self.laser_acc[setDriver], Nd=Nd, wiring='parallel')
-    #             physics.whichDriver = setDriver
-    #         except:
-    #             None
-    #     return None
-
-    def lem_enclosure(self, name, Vb, eta=1e-5, setDriver=None, Nd=1, wiring="parallel", ref2bem=None, **kwargs):
+    def lem_enclosure(self, name, Vb, eta=1e-5, setDriver=None, Nd=1, 
+                      wiring="parallel", ref2bem=None, **kwargs):
         physics = speakerBox_v2(Vb, frequencyRange=self.frequency, c=self.c, rho=self.rho,
                                 eta=eta, **kwargs)
         physics.ref2bem = ref2bem
@@ -309,10 +272,10 @@ class loudspeakerSystem:
 
     ## ==================
     # %% ACOUSTIC STUDIES
-    def study_exteriorBEM(self, name, meshPath, acoustic_radiator, radiation_direction=False,
-                          boundary=False, offset=False, tol=1e-5):
+    def study_acousticBEM(self, name, meshPath, acoustic_radiator, 
+                          domain="exterior", **kwargs):
         """
-        Add an exterior boundary element analysis to the acoustical studies.
+        Add a boundary element analysis to the loudspeaker study.
 
         :param name:
         :param meshPath:
@@ -377,95 +340,17 @@ class loudspeakerSystem:
 
 
         # surf_v = np.ones([len(rad_surf), len(self.frequency)])
-        physics = bem_ext(meshPath, rad_surf, surf_v, self.frequency, vibrometry_points=vibrometry_points,
-                          radiation_direction=radiation_direction, boundary=boundary, offset=offset,
-                          c_0=self.c, rho_0=self.rho, tol=tol)
+        physics = bem(meshPath, rad_surf, surf_v, self.frequency, domain,
+                      c_0=self.c, rho_0=self.rho, **kwargs)
         physics.radiator = acoustic_radiator
         self.acoustic_study[name] = physics
-        self.observation[name] = obs_ext(physics)
+        self.observation[name] = obs_bem(physics)
         self.observation[name].referenceStudy = name
         return None
 
-
-    def study_interiorBEM(self, name, meshPath, acoustic_radiator, radiation_direction=False,
-                          absorbingSurface=[], surfaceImpedance=[], exterior_link=False):
-        """
-        Add an interior boundary element analysis to the acoustical studies.
-
-        :param name:
-        :param meshPath:
-        :param acoustic_radiator:
-        :param wall_impedance:
-        :param link_to_exterior:
-        :return:
-        """
-        rad_surf          = []
-        surf_v            = []
-        vibrometry_points = []
-        Nfft              = len(self.frequency)
-        if isinstance(acoustic_radiator, str):
-            acoustic_radiator = [acoustic_radiator]   # set radiator in list is single str given
-
-        # associate acoustic_radiator to velocity data // vibrometric data
-        for i in range(len(acoustic_radiator)):
-            cname = acoustic_radiator[i]
-
-            # ========
-            # enclosure
-            if self.radiator_id[cname] == 'SPKBOX':
-                try:
-                    nRef = len(self.enclosure[cname].ref2bem)
-                    for i in range(nRef):
-                        rad_surf.append(self.enclosure[cname].ref2bem[i])
-                        surf_v.append(np.ones(Nfft))
-                        vibrometry_points.append(False)
-                except:
-                    rad_surf.append(self.enclosure[cname].ref2bem)
-                    surf_v.append(np.ones(Nfft))
-                    vibrometry_points.append(False)
-
-            # ========
-            # driver
-            elif self.radiator_id[cname] == 'EAD':
-                try:
-                    nRef = len(self.driver[cname].ref2bem)
-                    for i in range(nRef):
-                        rad_surf.append(self.driver[cname].ref2bem[i])
-                        surf_v.append(np.ones(Nfft))
-                        vibrometry_points.append(False)
-                except:
-                    rad_surf.append(self.driver[cname].ref2bem)
-                    surf_v.append(np.ones(Nfft))
-                    vibrometry_points.append(False)
-
-            # =========================
-            # Polytech vibrometric data
-            elif self.radiator_id[cname] == 'PLV':
-                try:
-                    nRef = len(self.laser_acc[cname].ref2bem)
-                    for i in range(nRef):
-                        rad_surf.append(self.laser_acc[cname].ref2bem[i])
-                        surf_v.append(self.laser_acc[cname].v_point)
-                        vibrometry_points.append(self.laser_acc[cname].point_cloud)
-                except:
-                    rad_surf.append(self.laser_acc[cname].ref2bem)
-                    surf_v.append(self.laser_acc[cname].v_point)
-                    vibrometry_points.append(self.laser_acc[cname].point_cloud)
-
-
-        # surf_v = np.ones([len(rad_surf), len(self.frequency)])
-        physics = bem_int(meshPath, rad_surf, surf_v, self.frequency, vibrometry_points=vibrometry_points,
-                          radiation_direction=radiation_direction, absorbingSurface=absorbingSurface,
-                          surfaceImpedance=surfaceImpedance, c_0=self.c, rho_0=self.rho)
-        physics.radiator = acoustic_radiator
-        physics.exterior_link = exterior_link
-        self.acoustic_study[name] = physics
-        self.observation[name] = obs_int(physics)
-        self.observation[name].referenceStudy = name
-        return None
 
     ## =======================
-    # %% ACOUSTIC OBSERVATIONS
+    # %% ACOUSTIC obs
     def observation_polarRadiation(self,
                            reference_study: str or list,
                            observation_name: str,
@@ -535,23 +420,21 @@ class loudspeakerSystem:
                                                                    L2,
                                                                    step,
                                                                    plane,
-                                                                   offset,
-                                                                   addToPlotter)
+                                                                   offset)
         else:
             self.observation[reference_study].pressureField(observation_name,
                                                                L1,
                                                                L2,
                                                                step,
                                                                plane,
-                                                               offset,
-                                                               addToPlotter)
+                                                               offset)
         return None
 
-    def observation_pressureResponse(self,
+    def observation_fieldPoint(self,
                              reference_study: str,
                              observation_name: str,
                              microphonePositions: list,
-                             labels: list):
+                             **kwargs):
         """
         Add FRF observation points at defined position on given study.
 
@@ -564,13 +447,13 @@ class loudspeakerSystem:
 
         if isinstance(reference_study, list):
             for i in range(len(reference_study)):
-                self.observation[reference_study[i]].pressureResponse(observation_name,
-                                                                   microphonePositions,
-                                                                   labels)
+                self.observation[reference_study[i]].fieldPoint(observation_name,
+                                                                microphonePositions,
+                                                                **kwargs)
         else:
-            self.observation[reference_study].pressureResponse(observation_name,
-                                                               microphonePositions,
-                                                               labels)
+            self.observation[reference_study].fieldPoint(observation_name,
+                                                         microphonePositions,
+                                                         **kwargs)
         return None
 
     def observation_boundingBox(self,
@@ -622,23 +505,29 @@ class loudspeakerSystem:
                 None
 
         for obs in self.observation:
-            self.observation[obs].computeObservations()
-            # assignVelocities(self.observation[obs])
+            self.observation[obs].solve()
         return None
 
     ## PLOT
-    def plot_results(self, study_to_plot='all', observation='all', radiatingSurface='all', bypass_xover=False):
+    def plot_results(self, study_to_plot='all', 
+                     observation=[], radiatingSurface=[], bypass_xover=False):
+        
         # update solutions
         if isinstance(radiatingSurface, int) is True: # avoid possible error if only one rad surf is selected
             radiatingSurface = [radiatingSurface]
-
+        
+        import generalToolbox as gtb
+        
         if study_to_plot == 'all':
             for study in self.acoustic_study:
                 _ = updateResults(self, study, bypass_xover)
-                _ = self.results[study].plot(observation, radiatingSurface)
+                # gtb.plot.FRF(self.frequency, self.results[study].TF["port"]["H"])
+                _ = self.observation[study].plot(observation, radiatingSurface, 
+                                             processing=self.results[study])
         else:
             _ = updateResults(self, study_to_plot, bypass_xover)
-            _ = self.results[study_to_plot].plot(observation, radiatingSurface)
+            _ = self.observation[study_to_plot].plot(observation, radiatingSurface,
+                                                 processing=self.results[study_to_plot])
         return None
 
     def plot_system(self, study_to_plot):
@@ -744,176 +633,150 @@ class loudspeakerSystem:
             radiatingSurface = [radiatingSurface]
 
         updateResults(self, studyName, bypass_xover)
-        out = self.results[studyName].get_pMic(observationName, radiatingSurface, get_freq_array)
+        out = self.results[studyName].get_pMic(observationName, 
+                                               radiatingSurface, get_freq_array)
         return out
 
-    def invalidate_frequency(self, study, freq2invalidate):
-        from generalToolbox import findInArray
-        ind2remove = []
-        try:
-            for i in range(len(freq2invalidate)):
-                index, _ = findInArray(self.frequency, freq2invalidate[i])
-                ind2remove.append(index)
-        except:
-            index, _ = findInArray(self.frequency, freq2invalidate)
-            ind2remove.append(index)
+    # def invalidate_frequency(self, study, freq2invalidate):
+    #     from generalToolbox import findInArray
+    #     ind2remove = []
+    #     try:
+    #         for i in range(len(freq2invalidate)):
+    #             index, _ = findInArray(self.frequency, freq2invalidate[i])
+    #             ind2remove.append(index)
+    #     except:
+    #         index, _ = findInArray(self.frequency, freq2invalidate)
+    #         ind2remove.append(index)
 
-        self.frequency = np.delete(self.frequency, ind2remove)
-        for obs in range(len(self.observation[study].observationName)):
-            self.observation[study].pMicArray[obs] = np.delete(self.observation[study].pMicArray[obs],
-                                                               ind2remove, axis=0)
-            # self.observation[study].pMic[obs] = np.delete(self.observation[study].pMic[obs],
-            #                                                    ind2remove, axis=0)
-        return None
+    #     self.frequency = np.delete(self.frequency, ind2remove)
+    #     for obs in range(len(self.observation[study].observationName)):
+    #         self.observation[study].pMicArray[obs] = np.delete(self.observation[study].pMicArray[obs],
+    #                                                            ind2remove, axis=0)
+    #         # self.observation[study].pMic[obs] = np.delete(self.observation[study].pMic[obs],
+    #         #                                                    ind2remove, axis=0)
+    #     return None
 
-    def export_results(self, export_folder):
-        """
-        Export simulated data to *.CSV, compatible with VACS, EXCEL, etc.
+    # def export_results(self, export_folder):
+    #     """
+    #     Export simulated data to *.CSV, compatible with VACS, EXCEL, etc.
 
-        :param studyName:
-        :param observationName:
-        :param radiatingSurface:
-        :param get_freq_array:
-        :return:
-        """
-        import os
-        from generalToolbox.gain import SPL
-        # updateResults(self, studyName, bypass_xover)
-        # out = self.results[studyName].get_pMic(observationName, radiatingSurface, get_freq_array)
+    #     :param studyName:
+    #     :param observationName:
+    #     :param radiatingSurface:
+    #     :param get_freq_array:
+    #     :return:
+    #     """
+    #     import os
+    #     from generalToolbox.gain import SPL
+    #     # updateResults(self, studyName, bypass_xover)
+    #     # out = self.results[studyName].get_pMic(observationName, radiatingSurface, get_freq_array)
 
-        # create folder if it does not exist
-        if not os.path.exists(export_folder):
-            os.mkdir(export_folder)
+    #     # create folder if it does not exist
+    #     if not os.path.exists(export_folder):
+    #         os.mkdir(export_folder)
 
-        # === RUN THROUGH STUDIES ===
-        for study in self.observation:
-            if not os.path.exists(os.path.join(export_folder, study)):
-                os.mkdir(os.path.join(export_folder, study))
-            # get observation names, radiating surface index
-            obs = self.observation[study].observationName
-            radName, radSurf = groupSurfaces2Export(self)
+    #     # === RUN THROUGH STUDIES ===
+    #     for study in self.observation:
+    #         if not os.path.exists(os.path.join(export_folder, study)):
+    #             os.mkdir(os.path.join(export_folder, study))
+    #         # get observation names, radiating surface index
+    #         obs = self.observation[study].observationName
+    #         radName, radSurf = groupSurfaces2Export(self)
 
-            # without crossovers
-            updateResults(self, study, bypass_xover=True)
-            for i in range(len(obs)):
-                for ind_rs in range(len(radSurf)+1):
-                    if self.observation[study].observationType[i] == 'polar':
-                        angle = np.rad2deg(self.observation[study].theta[i].astype(float))
-                        try:
-                            out = self.results[study].get_pMic(obs[i], radiatingSurface=[radSurf[ind_rs]])
-                        except:
-                            out = self.results[study].get_pMic(obs[i], radiatingSurface='all')
-                        df = create_polarRadiation_dataframe(SPL(out), angle, self.frequency)
+    #         # without crossovers
+    #         updateResults(self, study, bypass_xover=True)
+    #         for i in range(len(obs)):
+    #             for ind_rs in range(len(radSurf)+1):
+    #                 if self.observation[study].observationType[i] == 'polar':
+    #                     angle = np.rad2deg(self.observation[study].theta[i].astype(float))
+    #                     try:
+    #                         out = self.results[study].get_pMic(obs[i], radiatingSurface=[radSurf[ind_rs]])
+    #                     except:
+    #                         out = self.results[study].get_pMic(obs[i], radiatingSurface='all')
+    #                     df = create_polarRadiation_dataframe(SPL(out), angle, self.frequency)
                         
-                        newFolder = os.path.join(export_folder, study,
-                                                 "Polar_Radiation", "No_Crossovers")
-                        if not os.path.exists(newFolder):
-                            os.makedirs(newFolder)
-                        try:
-                            save_path = os.path.join(newFolder, obs[i] + '_' + radName[ind_rs]
-                                                     + "_" + str(radSurf[ind_rs]) + ".csv")
-                        except:
-                            save_path = os.path.join(newFolder, obs[i] + '_all' + ".csv")
-                        df.to_csv(save_path)
+    #                     newFolder = os.path.join(export_folder, study,
+    #                                              "Polar_Radiation", "No_Crossovers")
+    #                     if not os.path.exists(newFolder):
+    #                         os.makedirs(newFolder)
+    #                     try:
+    #                         save_path = os.path.join(newFolder, obs[i] + '_' + radName[ind_rs]
+    #                                                  + "_" + str(radSurf[ind_rs]) + ".csv")
+    #                     except:
+    #                         save_path = os.path.join(newFolder, obs[i] + '_all' + ".csv")
+    #                     df.to_csv(save_path)
 
-                        try:
-                            newFolderVituix = os.path.join(newFolder, "VituixCAD")
-                            if not os.path.exists(newFolderVituix):
-                                os.makedirs(newFolderVituix)
-                            save_path_vituix = os.path.join(newFolderVituix, obs[i] + "_" + radName[ind_rs]
-                                                            + "_" + str(radSurf[ind_rs]))
-                            exportToVituixCAD(save_path_vituix, out, angle, self.frequency)
-                        except:
-                            pass
+    #                     try:
+    #                         newFolderVituix = os.path.join(newFolder, "VituixCAD")
+    #                         if not os.path.exists(newFolderVituix):
+    #                             os.makedirs(newFolderVituix)
+    #                         save_path_vituix = os.path.join(newFolderVituix, obs[i] + "_" + radName[ind_rs]
+    #                                                         + "_" + str(radSurf[ind_rs]))
+    #                         exportToVituixCAD(save_path_vituix, out, angle, self.frequency)
+    #                     except:
+    #                         pass
 
-                    elif self.observation[study].observationType[i] == 'FRF':
-                        xyz = self.observation[study].xMic[i]
-                        try:
-                            out = self.results[study].get_pMic(obs[i], radiatingSurface=[radSurf[ind_rs]])
-                        except:
-                            out = self.results[study].get_pMic(obs[i], radiatingSurface='all')
-                        df = create_pressureResponse_dataframe(SPL(out), xyz, self.frequency)
+    #                 elif self.observation[study].observationType[i] == 'FRF':
+    #                     xyz = self.observation[study].xMic[i]
+    #                     try:
+    #                         out = self.results[study].get_pMic(obs[i], radiatingSurface=[radSurf[ind_rs]])
+    #                     except:
+    #                         out = self.results[study].get_pMic(obs[i], radiatingSurface='all')
+    #                     df = create_pressureResponse_dataframe(SPL(out), xyz, self.frequency)
 
-                        newFolder = os.path.join(export_folder, study,
-                                                 "Pressure_Response", "No_Crossovers")
-                        if not os.path.exists(newFolder):
-                            os.makedirs(newFolder)
-                        try:
-                            save_path = os.path.join(newFolder, obs[i] + '_' + radName[ind_rs]
-                                                     + "_" + str(radSurf[ind_rs]) + ".csv")
-                        except:
-                            save_path = os.path.join(newFolder, obs[i] + '_all' + ".csv")
-                        df.to_csv(save_path)
+    #                     newFolder = os.path.join(export_folder, study,
+    #                                              "Pressure_Response", "No_Crossovers")
+    #                     if not os.path.exists(newFolder):
+    #                         os.makedirs(newFolder)
+    #                     try:
+    #                         save_path = os.path.join(newFolder, obs[i] + '_' + radName[ind_rs]
+    #                                                  + "_" + str(radSurf[ind_rs]) + ".csv")
+    #                     except:
+    #                         save_path = os.path.join(newFolder, obs[i] + '_all' + ".csv")
+    #                     df.to_csv(save_path)
+                        
+    #         # with crossovers
+    #         updateResults(self, study, bypass_xover=False)
+    #         for i in range(len(obs)):
+    #             for ind_rs in range(len(radSurf)+1):
+    #                 if self.observation[study].observationType[i] == 'polar':
+    #                     angle = np.rad2deg(self.observation[study].theta[i].astype(float))
+    #                     try:
+    #                         out = self.results[study].get_pMic(obs[i], radiatingSurface=[radSurf[ind_rs]])
+    #                     except:
+    #                         out = self.results[study].get_pMic(obs[i], radiatingSurface='all')
+    #                     df = create_polarRadiation_dataframe(SPL(out), angle, self.frequency)
 
-                    # elif self.observation[study].observationType[i] == "BOX":
-                    #     import pandas as pd
-                    #     xyz = self.observation[study].xMic[i]
-                    #     out = SPL(self.results[study].get_pMic(obs[i], radiatingSurface='all'))
-                    #     # df = create_boundingBox_dataframe(xyz, SPL(out), self.frequency)
-                    #
-                    #     newFolder = os.path.join(export_folder, study,
-                    #                              "pressureBox", "No_Crossovers")
-                    #     if not os.path.exists(newFolder):
-                    #         os.makedirs(newFolder)
-                    #
-                    #     # Determine the number of digits needed for padding
-                    #     num_digits = len(str(int(self.frequency[-1])))
-                    #     for n, frequency in enumerate(self.frequency):
-                    #         # Create a DataFrame with x, y, z coordinates and scalar values
-                    #         df = pd.DataFrame({
-                    #             'x coord': xyz[:, 0],
-                    #             'y coord': xyz[:, 1],
-                    #             'z coord': xyz[:, 2],
-                    #             'scalar': out[n, :]
-                    #         })
-                    #         filename = f"data_{int(frequency):0{num_digits}}.csv"  # Add leading zeros based on the number of digits in frequency
-                    #         save_path = os.path.join(newFolder, filename)
-                    #         df.to_csv(save_path, index=False)
+    #                     newFolder = os.path.join(export_folder, study,
+    #                                              "Polar_Radiation", "With_Crossovers")
+    #                     if not os.path.exists(newFolder):
+    #                         os.makedirs(newFolder)
+    #                     try:
+    #                         save_path = os.path.join(newFolder, obs[i] + '_' + radName[ind_rs]
+    #                                                  + "_" + str(radSurf[ind_rs]) + ".csv")
+    #                     except:
+    #                         save_path = os.path.join(newFolder, obs[i] + '_all' + ".csv")
+    #                     df.to_csv(save_path)
 
+    #                 elif self.observation[study].observationType[i] == 'FRF':
+    #                     xyz = self.observation[study].xMic[i]
+    #                     try:
+    #                         out = self.results[study].get_pMic(obs[i], radiatingSurface=[radSurf[ind_rs]])
+    #                     except:
+    #                         out = self.results[study].get_pMic(obs[i], radiatingSurface='all')
+    #                     df = create_pressureResponse_dataframe(SPL(out), xyz, self.frequency)
 
-
-            # with crossovers
-            updateResults(self, study, bypass_xover=False)
-            for i in range(len(obs)):
-                for ind_rs in range(len(radSurf)+1):
-                    if self.observation[study].observationType[i] == 'polar':
-                        angle = np.rad2deg(self.observation[study].theta[i].astype(float))
-                        try:
-                            out = self.results[study].get_pMic(obs[i], radiatingSurface=[radSurf[ind_rs]])
-                        except:
-                            out = self.results[study].get_pMic(obs[i], radiatingSurface='all')
-                        df = create_polarRadiation_dataframe(SPL(out), angle, self.frequency)
-
-                        newFolder = os.path.join(export_folder, study,
-                                                 "Polar_Radiation", "With_Crossovers")
-                        if not os.path.exists(newFolder):
-                            os.makedirs(newFolder)
-                        try:
-                            save_path = os.path.join(newFolder, obs[i] + '_' + radName[ind_rs]
-                                                     + "_" + str(radSurf[ind_rs]) + ".csv")
-                        except:
-                            save_path = os.path.join(newFolder, obs[i] + '_all' + ".csv")
-                        df.to_csv(save_path)
-
-                    elif self.observation[study].observationType[i] == 'FRF':
-                        xyz = self.observation[study].xMic[i]
-                        try:
-                            out = self.results[study].get_pMic(obs[i], radiatingSurface=[radSurf[ind_rs]])
-                        except:
-                            out = self.results[study].get_pMic(obs[i], radiatingSurface='all')
-                        df = create_pressureResponse_dataframe(SPL(out), xyz, self.frequency)
-
-                        newFolder = os.path.join(export_folder, study,
-                                                 "Pressure_Response", "With_Crossovers")
-                        if not os.path.exists(newFolder):
-                            os.makedirs(newFolder)
-                        try:
-                            save_path = os.path.join(newFolder, obs[i] + '_' + radName[ind_rs]
-                                                     + "_" + str(radSurf[ind_rs]) + ".csv")
-                        except:
-                            save_path = os.path.join(newFolder, obs[i] + '_all' + ".csv")
-                        df.to_csv(save_path)
-        return None
+    #                     newFolder = os.path.join(export_folder, study,
+    #                                              "Pressure_Response", "With_Crossovers")
+    #                     if not os.path.exists(newFolder):
+    #                         os.makedirs(newFolder)
+    #                     try:
+    #                         save_path = os.path.join(newFolder, obs[i] + '_' + radName[ind_rs]
+    #                                                  + "_" + str(radSurf[ind_rs]) + ".csv")
+    #                     except:
+    #                         save_path = os.path.join(newFolder, obs[i] + '_all' + ".csv")
+    #                     df.to_csv(save_path)
+    #     return None
 
 def create_polarRadiation_dataframe(data_array, angle_array, freq_array):
     import pandas as pd
@@ -997,11 +860,7 @@ def groupSurfaces2Export(loudspeakerSystem):
 def updateResults(loudspeakerSystem, study_to_plot, bypass_xover):
     ls = loudspeakerSystem
     study = study_to_plot
-    if ls.acoustic_study[study].identifier == 'BEM_EXT':
-        ls.results[study] = pp_ext(ls.observation[study])
-    elif ls.acoustic_study[study].identifier == 'BEM_INT':
-        ls.results[study] = pp_int(ls.observation[study])
-    radiatingSurface  = ls.acoustic_study[study].radiatingSurface
+    ls.results[study] = pp()
     radiatorName      = ls.acoustic_study[study].radiator
     for name in radiatorName:
         if ls.radiator_id[name] == 'SPKBOX':
@@ -1014,13 +873,14 @@ def updateResults(loudspeakerSystem, study_to_plot, bypass_xover):
     if bypass_xover is False:
         for xover in ls.crossover:
             if ls.crossover[xover].referenceStudy == study:  # check if some of the crossovers are to be applied in the study
-                # print(ls.crossover[xover].filterList)
                 h = ls.crossover[xover].h
                 ref2bem = ls.crossover[xover].ref2bem
                 if isinstance(ref2bem, int):
-                    _ = ls.results[study].addFilter(h, [ref2bem])
+                    ls.results[study].addTransferFunction("filter_stage_"+xover, 
+                                                          h, [ref2bem])
                 elif isinstance(ref2bem, list):
-                    _ = ls.results[study].addFilter(h, ref2bem)
+                    ls.results[study].addTransferFunction("filter_stage_"+xover, 
+                                                          h, ref2bem)
                 else:
                     print("you shouldn't use a numpy array, at least for now :)")
     return None
@@ -1041,40 +901,29 @@ def apply_Velocity_From_SPKBOX(loudspeakerSystem, study, radiatorName):
     vpr = ls.enclosure[radiatorName].vpr  # passive radiator velocity (in case of pr enclosure config)
     ref2bem = ls.enclosure[radiatorName].ref2bem
 
-    # ASSOCIATE VELOCITIES :: 2 ways of use depending of the use of lem_enclosure or lem_enclosure_2
-    if hasattr(ls.enclosure[radiatorName], "isPorted") is True:  # just to keep with soon-to-be legacy function lem_enclosure
-        if isinstance(ref2bem, int) is True:
-            ls.results[study].addFilter(v, [ref2bem])
-        elif isinstance(ref2bem, list) is True:
-            if ls.enclosure[radiatorName].isPorted is False:
-                ls.results[study].addFilter(v, ref2bem)
-            elif ls.enclosure[radiatorName].isPorted is True:
-                ls.results[study].addFilter(v, ref2bem[:-1])
-                ls.results[study].addFilter(vp, [ref2bem[-1]])
-                
-    else: # to support new enclosure creation function (lem_enclosure_2)
-        if isinstance(ref2bem, int) is True:
-            if ls.enclosure[radiatorName].config == "sealed":  # check if 1 radiator because sealed or bp config
-                ls.results[study].addFilter(v, [ref2bem])
-            elif ls.enclosure[radiatorName].config == "bandpass":
-                ls.results[study].addFilter(vp, [ref2bem])
-            elif ls.enclosure[radiatorName].config == "bandpass_pr":
-                ls.results[study].addFilter(vpr, [ref2bem])
-                # print("here")
-        elif isinstance(ref2bem, list) is True:
-            if ls.enclosure[radiatorName].config == "sealed":
-                ls.results[study].addFilter(v, ref2bem)
-            elif ls.enclosure[radiatorName].config == "vented":
-                ls.results[study].addFilter(v, ref2bem[:-1])
-                ls.results[study].addFilter(vp, [ref2bem[-1]])
-            elif ls.enclosure[radiatorName].config == "passiveRadiator":
-                ls.results[study].addFilter(v, ref2bem[:-1])
-                ls.results[study].addFilter(vpr, [ref2bem[-1]])
-            elif ls.enclosure[radiatorName].config == "bandpass":
-                ls.results[study].addFilter(vp, ref2bem)
-            elif ls.enclosure[radiatorName].config == "bandpass_pr":
-                ls.results[study].addFilter(vpr, ref2bem)
-                # print("here")
+    if isinstance(ref2bem, int) is True:
+        if ls.enclosure[radiatorName].config == "sealed":  # check if 1 radiator because sealed or bp config
+            ls.results[study].addTransferFunction("driver_"+radiatorName,
+                                                  v, [ref2bem])
+        elif ls.enclosure[radiatorName].config == "bandpass":
+            ls.results[study].addTransferFunction("port_"+radiatorName, 
+                                                  vp, [ref2bem])
+        elif ls.enclosure[radiatorName].config == "bandpass_pr":
+            ls.results[study].addTransferFunction("passive-radiator_"+"radiatorName",
+                                                  vpr, [ref2bem])
+    elif isinstance(ref2bem, list) is True:
+        if ls.enclosure[radiatorName].config == "sealed":
+            ls.results[study].addTransferFunction("driver_"+radiatorName, v, ref2bem)
+        elif ls.enclosure[radiatorName].config == "vented":
+            ls.results[study].addTransferFunction("driver_"+radiatorName, v, ref2bem[:-1])
+            ls.results[study].addTransferFunction("port_"+radiatorName, vp, [ref2bem[-1]])
+        elif ls.enclosure[radiatorName].config == "passiveRadiator":
+            ls.results[study].addTransferFunction("driver_"+radiatorName, v, ref2bem[:-1])
+            ls.results[study].addTransferFunction("passive-radiator_"+radiatorName, vpr, [ref2bem[-1]])
+        elif ls.enclosure[radiatorName].config == "bandpass":
+            ls.results[study].addTransferFunction("port_"+radiatorName, vp, ref2bem)
+        elif ls.enclosure[radiatorName].config == "bandpass_pr_":
+            ls.results[study].addTransferFunction("passive-radiator_"+radiatorName, vpr, ref2bem)
     return None
 
 def apply_Velocity_From_EAD(loudspeakerSystem, study, radiatorName):
@@ -1089,9 +938,9 @@ def apply_Velocity_From_EAD(loudspeakerSystem, study, radiatorName):
     v = ls.driver[radiatorName].v
     ref2bem = ls.driver[radiatorName].ref2bem
     if isinstance(ref2bem, int) is True:
-        ls.results[study].addFilter(v, [ref2bem])
+        ls.results[study].addTransferFunction("driver_"+radiatorName, v, [ref2bem])
     elif isinstance(ref2bem, list) is True:
-        ls.results[study].addFilter(v, ref2bem)
+        ls.results[study].addTransferFunction("driver_"+radiatorName, v, ref2bem)
     return None
 
 def apply_Velocity_From_PLV(loudspeakerSystem, study, radiatorName):
@@ -1106,9 +955,9 @@ def apply_Velocity_From_PLV(loudspeakerSystem, study, radiatorName):
     v = ls.laser_acc[radiatorName].v
     ref2bem = ls.laser_acc[radiatorName].ref2bem
     if isinstance(ref2bem, int) is True:
-        ls.results[study].addFilter(v, [ref2bem])
+        ls.results[study].addTransferFunction("unit_v_"+radiatorName, v, [ref2bem])
     elif isinstance(ref2bem, list) is True:
-        ls.results[study].addFilter(v, ref2bem)
+        ls.results[study].addTransferFunction("unit_v_"+radiatorName, v, ref2bem)
     return None
 
 ## ===============

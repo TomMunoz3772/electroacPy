@@ -175,15 +175,15 @@ class observations:
 
     def plot_system(self):
         mesh = pyvista.read(self.bemObject.meshPath)
+        radSurf = self.bemObject.radiatingElement
         
         # prepare mesh color, camera and bounds
-        max_scalar = np.max(mesh.active_scalars)
         colors = []
         for scalar in mesh.active_scalars:
-            if scalar != max_scalar:
-                colors.append([255, 0, 0])  # Green color for enclosure
+            if scalar in radSurf:
+                colors.append([255, 0, 0])  # Red color for radiators
             else:
-                colors.append([128, 128, 128])  # Red color for non-enclosure
+                colors.append([128, 128, 128])  # gray color for non-radiating
         mesh.cell_data['colors'] = colors
         center = mesh.center
 
@@ -205,10 +205,10 @@ class observations:
             point_cloud_tmp = pyvista.PolyData(xMic.astype(float))
             if setup.type == "box":
                 pl.add_mesh(point_cloud_tmp.outline(), color=colour[i],
-                            render_points_as_spheres=True, label=key, point_size=9)
+                            render_points_as_spheres=True, label=key, point_size=6)
             else:
                 pl.add_mesh(point_cloud_tmp, color=colour[i],
-                            render_points_as_spheres=True, label=key, point_size=9)
+                            render_points_as_spheres=True, label=key, point_size=6)
 
         # get bounds to add planes
         bounds = pl.bounds
