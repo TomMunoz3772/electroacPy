@@ -14,7 +14,9 @@ Created on Tue Oct  3 16:03:02 2023
 # Exterior acoustic sim
 from electroacPy.acousticSim.bem import bem
 from electroacPy.acousticSim.observations import observations as obs_bem
+from electroacPy.acousticSim.observations import getPressure
 from electroacPy.acousticSim.postProcessing import postProcess as pp
+
 
 # Lumped element
 from electroacPy.speakerSim.electroAcousticDriver import electroAcousticDriver, loadLPM
@@ -510,23 +512,20 @@ class loudspeakerSystem:
 
     ## PLOT
     def plot_results(self, study_to_plot='all', 
-                     observation=[], radiatingSurface=[], bypass_xover=False):
+                     observation=[], radiatingElement=[], bypass_xover=False):
         
         # update solutions
-        if isinstance(radiatingSurface, int) is True: # avoid possible error if only one rad surf is selected
-            radiatingSurface = [radiatingSurface]
-        
-        import generalToolbox as gtb
-        
+        if isinstance(radiatingElement, int) is True: # avoid possible error if only one rad surf is selected
+            radiatingElement = [radiatingElement]
+                
         if study_to_plot == 'all':
             for study in self.acoustic_study:
                 _ = updateResults(self, study, bypass_xover)
-                # gtb.plot.FRF(self.frequency, self.results[study].TF["port"]["H"])
-                _ = self.observation[study].plot(observation, radiatingSurface, 
+                _ = self.observation[study].plot(observation, radiatingElement, 
                                              processing=self.results[study])
         else:
             _ = updateResults(self, study_to_plot, bypass_xover)
-            _ = self.observation[study_to_plot].plot(observation, radiatingSurface,
+            _ = self.observation[study_to_plot].plot(observation, radiatingElement,
                                                  processing=self.results[study_to_plot])
         return None
 
@@ -619,7 +618,7 @@ class loudspeakerSystem:
         print(maxTot * "#")
         return None
 
-    def get_pMic(self, studyName, observationName, radiatingSurface='all', get_freq_array=False, bypass_xover=False):
+    def get_pMic(self, studyName, observationName, radiatingElement=[], bypass_xover=False):
         """
         Return pressure at microphone points for defined studies, observation and radiating surfaces.
 
@@ -629,154 +628,35 @@ class loudspeakerSystem:
         :param get_freq_array:
         :return:
         """
-        if isinstance(radiatingSurface, int) is True: # avoid possible error if only one rad surf is selected
-            radiatingSurface = [radiatingSurface]
+        if bool(radiatingElement) is False:
+            radiatingElement = self.acoustic_study[studyName].radiatingElement 
+        
+        if isinstance(radiatingElement, int) is True: # avoid possible error if only one rad surf is selected
+            radiatingElement = [radiatingElement]
 
-        updateResults(self, studyName, bypass_xover)
-        out = self.results[studyName].get_pMic(observationName, 
-                                               radiatingSurface, get_freq_array)
+        _  = updateResults(self, studyName, bypass_xover)
+        pmic = self.observation[studyName].setup[observationName].pMic
+        
+        if self.results[studyName] is not None:
+            elementCoeff = np.ones([len(self.frequency), len(radiatingElement)], 
+                                   dtype=complex)
+            pp = self.results[studyName]
+            for name in pp.TF:
+                if bypass_xover is False:
+                    for idx, element in enumerate(radiatingElement):
+                        if element in pp.TF[name]["radiatingElement"]:
+                            elementCoeff[:, idx] *= pp.TF[name]["H"]
+                elif bypass_xover is True and name[:12] != "filter_stage":
+                    for idx, element in enumerate(radiatingElement):
+                        if element in pp.TF[name]["radiatingElement"]:
+                            elementCoeff[:, idx] *= pp.TF[name]["H"]
+        else:
+            elementCoeff = np.ones([len(self.frequency), len(radiatingElement)], 
+                                   dtype=complex)
+        
+        out = getPressure(pmic, self.acoustic_study[studyName].radiatingElement,
+                                radiatingElement, elementCoeff)
         return out
-
-    # def invalidate_frequency(self, study, freq2invalidate):
-    #     from generalToolbox import findInArray
-    #     ind2remove = []
-    #     try:
-    #         for i in range(len(freq2invalidate)):
-    #             index, _ = findInArray(self.frequency, freq2invalidate[i])
-    #             ind2remove.append(index)
-    #     except:
-    #         index, _ = findInArray(self.frequency, freq2invalidate)
-    #         ind2remove.append(index)
-
-    #     self.frequency = np.delete(self.frequency, ind2remove)
-    #     for obs in range(len(self.observation[study].observationName)):
-    #         self.observation[study].pMicArray[obs] = np.delete(self.observation[study].pMicArray[obs],
-    #                                                            ind2remove, axis=0)
-    #         # self.observation[study].pMic[obs] = np.delete(self.observation[study].pMic[obs],
-    #         #                                                    ind2remove, axis=0)
-    #     return None
-
-    # def export_results(self, export_folder):
-    #     """
-    #     Export simulated data to *.CSV, compatible with VACS, EXCEL, etc.
-
-    #     :param studyName:
-    #     :param observationName:
-    #     :param radiatingSurface:
-    #     :param get_freq_array:
-    #     :return:
-    #     """
-    #     import os
-    #     from generalToolbox.gain import SPL
-    #     # updateResults(self, studyName, bypass_xover)
-    #     # out = self.results[studyName].get_pMic(observationName, radiatingSurface, get_freq_array)
-
-    #     # create folder if it does not exist
-    #     if not os.path.exists(export_folder):
-    #         os.mkdir(export_folder)
-
-    #     # === RUN THROUGH STUDIES ===
-    #     for study in self.observation:
-    #         if not os.path.exists(os.path.join(export_folder, study)):
-    #             os.mkdir(os.path.join(export_folder, study))
-    #         # get observation names, radiating surface index
-    #         obs = self.observation[study].observationName
-    #         radName, radSurf = groupSurfaces2Export(self)
-
-    #         # without crossovers
-    #         updateResults(self, study, bypass_xover=True)
-    #         for i in range(len(obs)):
-    #             for ind_rs in range(len(radSurf)+1):
-    #                 if self.observation[study].observationType[i] == 'polar':
-    #                     angle = np.rad2deg(self.observation[study].theta[i].astype(float))
-    #                     try:
-    #                         out = self.results[study].get_pMic(obs[i], radiatingSurface=[radSurf[ind_rs]])
-    #                     except:
-    #                         out = self.results[study].get_pMic(obs[i], radiatingSurface='all')
-    #                     df = create_polarRadiation_dataframe(SPL(out), angle, self.frequency)
-                        
-    #                     newFolder = os.path.join(export_folder, study,
-    #                                              "Polar_Radiation", "No_Crossovers")
-    #                     if not os.path.exists(newFolder):
-    #                         os.makedirs(newFolder)
-    #                     try:
-    #                         save_path = os.path.join(newFolder, obs[i] + '_' + radName[ind_rs]
-    #                                                  + "_" + str(radSurf[ind_rs]) + ".csv")
-    #                     except:
-    #                         save_path = os.path.join(newFolder, obs[i] + '_all' + ".csv")
-    #                     df.to_csv(save_path)
-
-    #                     try:
-    #                         newFolderVituix = os.path.join(newFolder, "VituixCAD")
-    #                         if not os.path.exists(newFolderVituix):
-    #                             os.makedirs(newFolderVituix)
-    #                         save_path_vituix = os.path.join(newFolderVituix, obs[i] + "_" + radName[ind_rs]
-    #                                                         + "_" + str(radSurf[ind_rs]))
-    #                         exportToVituixCAD(save_path_vituix, out, angle, self.frequency)
-    #                     except:
-    #                         pass
-
-    #                 elif self.observation[study].observationType[i] == 'FRF':
-    #                     xyz = self.observation[study].xMic[i]
-    #                     try:
-    #                         out = self.results[study].get_pMic(obs[i], radiatingSurface=[radSurf[ind_rs]])
-    #                     except:
-    #                         out = self.results[study].get_pMic(obs[i], radiatingSurface='all')
-    #                     df = create_pressureResponse_dataframe(SPL(out), xyz, self.frequency)
-
-    #                     newFolder = os.path.join(export_folder, study,
-    #                                              "Pressure_Response", "No_Crossovers")
-    #                     if not os.path.exists(newFolder):
-    #                         os.makedirs(newFolder)
-    #                     try:
-    #                         save_path = os.path.join(newFolder, obs[i] + '_' + radName[ind_rs]
-    #                                                  + "_" + str(radSurf[ind_rs]) + ".csv")
-    #                     except:
-    #                         save_path = os.path.join(newFolder, obs[i] + '_all' + ".csv")
-    #                     df.to_csv(save_path)
-                        
-    #         # with crossovers
-    #         updateResults(self, study, bypass_xover=False)
-    #         for i in range(len(obs)):
-    #             for ind_rs in range(len(radSurf)+1):
-    #                 if self.observation[study].observationType[i] == 'polar':
-    #                     angle = np.rad2deg(self.observation[study].theta[i].astype(float))
-    #                     try:
-    #                         out = self.results[study].get_pMic(obs[i], radiatingSurface=[radSurf[ind_rs]])
-    #                     except:
-    #                         out = self.results[study].get_pMic(obs[i], radiatingSurface='all')
-    #                     df = create_polarRadiation_dataframe(SPL(out), angle, self.frequency)
-
-    #                     newFolder = os.path.join(export_folder, study,
-    #                                              "Polar_Radiation", "With_Crossovers")
-    #                     if not os.path.exists(newFolder):
-    #                         os.makedirs(newFolder)
-    #                     try:
-    #                         save_path = os.path.join(newFolder, obs[i] + '_' + radName[ind_rs]
-    #                                                  + "_" + str(radSurf[ind_rs]) + ".csv")
-    #                     except:
-    #                         save_path = os.path.join(newFolder, obs[i] + '_all' + ".csv")
-    #                     df.to_csv(save_path)
-
-    #                 elif self.observation[study].observationType[i] == 'FRF':
-    #                     xyz = self.observation[study].xMic[i]
-    #                     try:
-    #                         out = self.results[study].get_pMic(obs[i], radiatingSurface=[radSurf[ind_rs]])
-    #                     except:
-    #                         out = self.results[study].get_pMic(obs[i], radiatingSurface='all')
-    #                     df = create_pressureResponse_dataframe(SPL(out), xyz, self.frequency)
-
-    #                     newFolder = os.path.join(export_folder, study,
-    #                                              "Pressure_Response", "With_Crossovers")
-    #                     if not os.path.exists(newFolder):
-    #                         os.makedirs(newFolder)
-    #                     try:
-    #                         save_path = os.path.join(newFolder, obs[i] + '_' + radName[ind_rs]
-    #                                                  + "_" + str(radSurf[ind_rs]) + ".csv")
-    #                     except:
-    #                         save_path = os.path.join(newFolder, obs[i] + '_all' + ".csv")
-    #                     df.to_csv(save_path)
-    #     return None
 
 def create_polarRadiation_dataframe(data_array, angle_array, freq_array):
     import pandas as pd

@@ -193,7 +193,7 @@ class observations:
                     show_scalar_bar=False, rgb=True)
         light = pyvista.Light(light_type='headlight')
         pl.add_light(light)
-        pl.camera.focal_point = center
+        # pl.camera.focal_point = center
 
         
         # add evaluation points
@@ -263,8 +263,10 @@ class observations:
         if bool(evaluations) is False:
             # plot all observations
             obs2plot = list(self.setup.keys())
-        else:
+        elif isinstance(evaluations, list):
             obs2plot = evaluations
+        else:
+            obs2plot = [evaluations]
         
         if bool(radiatingElement) is False:
             # plot all elements
@@ -329,6 +331,7 @@ class observations:
                                     element2plot, elementCoeff)
             gplot.FRF(self.frequency, point2plot, legend=obs.legend)
         return None
+    
     
 
 
