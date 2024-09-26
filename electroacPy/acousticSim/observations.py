@@ -143,7 +143,12 @@ class observations:
     
     def solve(self, observation_name="all"):
         if observation_name == "all":
-            obs_to_compute = list(self.setup.keys())
+            obs_to_compute = [] #list(self.setup.keys())
+            for key in self.setup:
+                if self.setup[key].isComputed is False:
+                    obs_to_compute.append(key)
+                else:
+                    pass
         elif isinstance(observation_name, str):
             obs_to_compute = [observation_name]
         elif isinstance(observation_name, list):
@@ -189,8 +194,13 @@ class observations:
 
         # create plotter
         pl = pyvista.Plotter()
-        pl.add_mesh(mesh, show_edges=True, cmap='summer',  scalars='colors',
-                    show_scalar_bar=False, rgb=True)
+        if self.bemObject.domain == "exterior":
+            pl.add_mesh(mesh, show_edges=True, cmap='summer',  scalars='colors',
+                        show_scalar_bar=False, rgb=True)
+        elif self.bemObject.domain == "interior":
+            pl.add_mesh_clip_box(mesh, show_edges=True, cmap='summer',  
+                                 scalars='colors', show_scalar_bar=False, 
+                                 rgb=True, rotation_enabled=False)
         light = pyvista.Light(light_type='headlight')
         pl.add_light(light)
         # pl.camera.focal_point = center

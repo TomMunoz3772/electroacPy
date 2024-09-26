@@ -397,7 +397,10 @@ def pressureField_3D(bemOBJ, xMic, L, W, pMicData, radiatingElement):
     nObs = len(xMic)
     
     # initialize plotter
-    pl = pyvista.Plotter(lighting='three lights')
+    if bemOBJ.domain == "interior":
+        pl = pyvista.Plotter(lighting='three lights', shape=(1, 2))
+    elif bemOBJ.domain =="exterior":
+        pl = pyvista.Plotter(lighting='three lights')
     pl.background_color = 'white'
 
     for i in range(nObs):
@@ -421,12 +424,13 @@ def pressureField_3D(bemOBJ, xMic, L, W, pMicData, radiatingElement):
 
         pMic_tmp = pMicData[idxp].T
         pMicToPlot = pMic_tmp[idxm, :]
-        max = np.max(gtb.gain.SPL(pMicToPlot))
+        maxP = np.max(gtb.gain.SPL(pMicToPlot))
 
         fig, ax = plt.subplots()
         ax.semilogx(bemOBJ.frequency, gtb.gain.SPL(pMicToPlot), label='{}'.format(p))
         ax.grid(which='both')
-        ax.set(xlabel='Frequency [Hz]', ylabel='SPL [dB]', ylim=[max-40, max+6])
+        ax.set(xlabel='Frequency [Hz]', ylabel='SPL [dB]', ylim=[maxP-40, 
+                                                                 maxP+6])
         ax.legend(loc='best')
         plt.show()
         return None
@@ -548,6 +552,8 @@ def sphericalRadiation(xMic, pMic, freq_array):
 ## ================================================
 # %% PyVista plotter classes (for 3D visualization)
 class pyvista_spkPlotter:
+    # I think this class and associated methods are more complex than 
+    # they should be. For now it works as it is.
     def __init__(self, mesh, bemOBJ, L, W, pMicData, 
                  xMic, radiatingElement, nObs):
         self.output = mesh
@@ -636,7 +642,49 @@ class pyvista_spkPlotter:
             color='k',
             title=title_arg + str(round(frequency, 1)) + " Hz",
         )
+        
+        # system mesh
+        try:
+            if self.bemOBJ.domain == "exterior":
+                self.output.remove_actor('spk_mesh')
+                self.output.add_mesh(self.speaker, show_edges=showMesh,
+                            scalars=pressureCoeff_system[freq_idx, :self.bemOBJ.spaceP.grid_dof_count // self.sizeFactor],
+                            cmap=cmap_d,
+                            n_colors=ncolor,
+                            show_scalar_bar=False, clim=[minPressure, maxPressure], name='spk_mesh')
 
+            elif self.bemOBJ.domain == "interior":
+                self.output.remove_actor('spk_mesh')
+                self.output.subplot(0, 0)
+                self.output.add_mesh(self.speaker, show_edges=showMesh,
+                            scalars=pressureCoeff_system[freq_idx, :self.bemOBJ.spaceP.grid_dof_count // self.sizeFactor],
+                            cmap=cmap_d,
+                            n_colors=ncolor,
+                            show_scalar_bar=False, clim=[minPressure, maxPressure], 
+                            name='spk_mesh')
+        except:
+            pressure_system = pressureCoeff_system[freq_idx, :self.bemOBJ.spaceP.grid_dof_count // self.sizeFactor]
+            toAdd = self.vertices - self.bemOBJ.spaceP.grid_dof_count
+            scalars_to_plot = np.concatenate((pressure_system, np.zeros(toAdd)))
+            if self.bemOBJ.domain == "exterior":
+                self.output.remove_actor('spk_mesh')
+                self.output.add_mesh(self.speaker, show_edges=showMesh,
+                                     scalars=scalars_to_plot,
+                                     cmap=cmap_d,
+                                     n_colors=ncolor,
+                                     show_scalar_bar=False, clim=[minPressure, maxPressure],
+                                     name='spk_mesh')
+            elif self.bemOBJ.domain == "interior":
+                self.output.remove_actor('spk_mesh')
+                self.output.subplot(0, 0)
+                self.output.add_mesh(self.speaker, show_edges=showMesh,
+                            scalars=pressureCoeff_system[freq_idx, :self.bemOBJ.spaceP.grid_dof_count // self.sizeFactor],
+                            cmap=cmap_d,
+                            n_colors=ncolor,
+                            show_scalar_bar=False, 
+                            clim=[minPressure, maxPressure], 
+                            name='spk_mesh')
+        
         show_sc_b = []
         for i in range(self.nObs):
             if i == 0:
@@ -654,32 +702,26 @@ class pyvista_spkPlotter:
             else:
                 pMicToPlot = gtb.gain.SPL(pMicRes)
 
-            # system mesh
-            self.output.remove_actor('spk_mesh')
-            try:
-                self.output.add_mesh(self.speaker, show_edges=showMesh,
-                            scalars=pressureCoeff_system[freq_idx, :self.bemOBJ.spaceP.grid_dof_count // self.sizeFactor],
-                            cmap=cmap_d,
-                            n_colors=ncolor,
-                            show_scalar_bar=False, clim=[minPressure, maxPressure], name='spk_mesh')
-            except:
-                pressure_system = pressureCoeff_system[freq_idx, :self.bemOBJ.spaceP.grid_dof_count // self.sizeFactor]
-                toAdd = self.vertices - self.bemOBJ.spaceP.grid_dof_count
-                scalars_to_plot = np.concatenate((pressure_system, np.zeros(toAdd)))
-                self.output.add_mesh(self.speaker, show_edges=showMesh,
-                                     scalars=scalars_to_plot,
-                                     cmap=cmap_d,
-                                     n_colors=ncolor,
-                                     show_scalar_bar=False, clim=[minPressure, maxPressure],
-                                     name='spk_mesh')
-
             # observation mesh
-            self.output.remove_actor('SPL_{}'.format(i))
-            self.output.add_mesh(self.meshPlot[i], show_edges=showMesh, scalars=pMicToPlot, cmap=cmap_d,
-                        scalar_bar_args=sargs, clim=[minPressure, maxPressure], n_colors=ncolor,
-                        name='SPL_{}'.format(i), show_scalar_bar=show_sc_b[i])
-        _ = self.output.show_grid(color='k')
-        self.output.add_axes(color='k')
+            if self.bemOBJ.domain == "exterior":
+                self.output.remove_actor('SPL_{}'.format(i))
+                self.output.add_mesh(self.meshPlot[i], show_edges=showMesh, scalars=pMicToPlot, cmap=cmap_d,
+                            scalar_bar_args=sargs, clim=[minPressure, maxPressure], n_colors=ncolor,
+                            name='SPL_{}'.format(i), show_scalar_bar=show_sc_b[i])
+            elif self.bemOBJ.domain == "interior":
+                self.output.subplot(0, 1)
+                self.output.remove_actor('SPL_{}'.format(i))
+                self.output.add_mesh(self.meshPlot[i], show_edges=showMesh, scalars=pMicToPlot, cmap=cmap_d,
+                            scalar_bar_args=sargs, clim=[minPressure, maxPressure], n_colors=ncolor,
+                            name='SPL_{}'.format(i), show_scalar_bar=show_sc_b[i])
+                self.output.add_mesh(self.speaker, show_scalar_bar=False, color='grey',
+                                     opacity=0.15, name='boundary_{}'.format(i))
+                self.output.link_views()
+        
+        if self.bemOBJ.domain == "exterior": # if used for interior plot, crashes
+            self.output.add_axes(color='k') # this mf crashes
+        
+        _ = self.output.show_grid(color='k') # this one does not
         return
 
 

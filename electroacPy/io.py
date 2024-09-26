@@ -65,6 +65,7 @@ def save(projectPath, loudspeakerSystem):
                  isComputed           = studyTmp.isComputed,
                  coeff_radSurf        = studyTmp.coeff_radSurf,
                  vertices             = studyTmp.vertices,
+                 domain               = studyTmp.domain,
                  kwargs               = studyTmp.kwargs,
                  pressureArrayAcs     = pressureArrayAcs,
                  LEM_enclosures       = studyTmp.LEM_enclosures,
@@ -120,6 +121,7 @@ def load(pathToProject):
         radSurf      = data_acs['radiatingElement']
         surfVelocity = data_acs['velocity']
         isComputed   = data_acs['isComputed'].item()
+        domain       = data_acs["domain"].item()
         kwargs       = data_acs['kwargs'].item()
         try:
             enclosures   = list(data_acs['LEM_enclosures'])
@@ -133,6 +135,7 @@ def load(pathToProject):
                               radSurf,
                               surfVelocity,
                               LS.frequency,
+                              domain=domain,
                               **kwargs)
         physics_acs.isComputed     = isComputed
         physics_acs.LEM_enclosures = enclosures
