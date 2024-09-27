@@ -343,7 +343,8 @@ class loudspeakerSystem:
 
         # surf_v = np.ones([len(rad_surf), len(self.frequency)])
         physics = bem(meshPath, rad_surf, surf_v, self.frequency, domain,
-                      c_0=self.c, rho_0=self.rho, **kwargs)
+                      c_0=self.c, rho_0=self.rho, 
+                      vibrometry_points=vibrometry_points, **kwargs)
         physics.radiator = acoustic_radiator
         self.acoustic_study[name] = physics
         self.observation[name] = obs_bem(physics)
