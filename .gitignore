@@ -4,3 +4,4 @@ __pycache__
 app_ui
 *.nbi
 *.pyc
+/bempp/api/space/__pycache__
