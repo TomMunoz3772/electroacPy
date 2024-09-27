@@ -400,7 +400,8 @@ def mirror_mesh(grid_init, boundary_conditions):
 
 
 #%% Radiation coefficients
-def getRadiationCoefficients(support_elements, centroids, vibrometric_data, vibrometry_points, sizeFactor):
+def getRadiationCoefficients(support_elements, centroids, vibrometric_data, 
+                             vibrometry_points, sizeFactor):
     """
     Build radiation coefficients from vibrometric dataset.
 
