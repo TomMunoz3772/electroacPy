@@ -421,7 +421,7 @@ class membrane:
        """
        s = laplace(frequency)
        
-       Za = s*self.Ma + self.Ca/s + self.Ra
+       Za = s*self.Ma + 1/self.Ca/s + self.Ra
        self.Gs = 1 / Za # conductance
        
        
@@ -500,6 +500,7 @@ class closed_line:
         self.G = 1
         self.Gs = None
         self.stamp_G = None
+        self.contribute = ["G"]        
         
         self.vsource = 0
         
@@ -582,6 +583,7 @@ class open_line_T:
         self.Ys = None
         self.stamp_G = None
         self.stamp_Y = None
+        self.contribute = ["G"]        
         
         self.vsource = 0
 

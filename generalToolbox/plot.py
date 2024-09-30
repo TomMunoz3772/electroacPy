@@ -10,7 +10,6 @@ from matplotlib.widgets import Cursor
 from matplotlib.backend_bases import MouseButton
 import pyvista
 
-
 #%% helper
 def sumPressureArray(bemObj, radiatingSurface):
     p_mesh = bemObj.p_mesh
@@ -166,6 +165,7 @@ def FRF(freq, H, transformation="SPL", logx=True, legend=None, **kwargs):  #logx
                 plt.savefig(kwargs['save'])
         else:
             print("save argument must str")
+    plt.tight_layout()
     plt.show()
 
 

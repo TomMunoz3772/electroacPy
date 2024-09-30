@@ -48,7 +48,8 @@ class CCVS:
         self.stamp_G = array([[0, 0, 1], 
                               [0, 0, -1], 
                               [1, -1, 0]])
-        self.contribute = ["G"]  
+        self.stamp_I = None
+        self.contribute = ["G", "Is"]  
         self.vsource = 2
         
     
@@ -113,3 +114,7 @@ class CCVS:
         # Bl factor
         self.stamp_G[maxNode+nbsource, maxNode+nbsource+1] = self.value
                 
+        # Y stamp
+        self.stamp_I = zeros([maxNode+M, 1], dtype=complex)
+        
+        

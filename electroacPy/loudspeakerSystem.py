@@ -506,9 +506,12 @@ class loudspeakerSystem:
                 self.acoustic_study[study].solve()
             else:
                 None
-
-        for obs in self.observation:
-            self.observation[obs].solve()
+            
+        if bool(self.observation) is True:
+            for obs in self.observation:
+                self.observation[obs].solve()
+        else:
+            print("No observation to evaluate.")
         return None
 
     ## PLOT
