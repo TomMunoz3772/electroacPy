@@ -57,7 +57,8 @@ class voltageSource:
         None.
 
         """
-        self.Gs = self.G * ones(len(frequency)) 
+        self.Gs = 1 * ones(len(frequency))  
+        # self.Y  = self.value * ones(len(frequency))  
         
     
     def update_stamp(self, node_id, M, nbsource):
@@ -97,7 +98,7 @@ class voltageSource:
         
         # I stamp
         self.stamp_I = zeros([maxNode+M, 1], dtype=complex) 
-        self.stamp_I[maxNode+nbsource] = 1
+        self.stamp_I[maxNode+nbsource] = self.value # 1
         
         
 class currentSource:
