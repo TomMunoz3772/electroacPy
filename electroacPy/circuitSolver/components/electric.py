@@ -57,7 +57,7 @@ class voltageSource:
         None.
 
         """
-        self.Gs = 1 * ones(len(frequency))  
+        self.Gs = ones(len(frequency))  
         # self.Y  = self.value * ones(len(frequency))  
         
     
@@ -90,11 +90,12 @@ class voltageSource:
         # G stamp
         self.stamp_G = zeros([maxNode+M, maxNode+M], dtype=complex)
         
-        if self.np != 0:
-            self.stamp_G[np-1, maxNode+nbsource] = 1
-            self.stamp_G[maxNode+nbsource, np-1] = 1
-        if self.nm != 0:
-            self.stamp_G[maxNode+nbsource, nm-1] = -1        
+        if np != 0:
+            self.stamp_G[maxNode+nbsource, np-1] = 1  # sub mat B
+            self.stamp_G[np-1, maxNode+nbsource] = 1  # sub mat C
+        if nm != 0:
+            self.stamp_G[maxNode+nbsource, nm-1] = -1 # sub mat B
+            self.stamp_G[nm-1, maxNode+nbsource] = -1 # sub mat C
         
         # I stamp
         self.stamp_I = zeros([maxNode+M, 1], dtype=complex) 

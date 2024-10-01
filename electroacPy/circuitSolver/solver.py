@@ -143,7 +143,9 @@ class circuit:
             elif "Is" in comp.contribute:
                 comp.update_stamp(self.node_id, self.M, nbsource)
                 nbsource += comp.vsource  # add number of sources
-                if nbsource == 2:
+                # print("nbsource", nbsource)
+                # print("comp.np", comp.np)
+                if comp.vsource == 2:
                     self.source_id[comp.np] = nbsource-1
                     self.source_id[comp.np1] = nbsource
                 else:

@@ -58,39 +58,39 @@ class EAD:
         self.Sd = Sd
         
         np = str(A)   # input electric
-        nm = str(B) # input acoustic
-        np1 = str(C)   # output electric
-        nm1 = str(D) # output acoustic
+        nm = str(B)   # output electric
+        np1 = str(C)  # input acoustic
+        nm1 = str(D)  # output acoustic
         rnd_id = randomblock_id(3)
         
         if v_probe is not None:
             v_p = v_probe
         elif v_probe is None:
             # v_p = np + "m_4" + rnd_id
-            v_p = np + "m_5" + rnd_id
+            v_p = np + "_m_8_" + rnd_id
 
         
-        self.network = {"Le": inductance(np, np+"_e1_"+rnd_id, self.Le),
-                        "Re": resistance(np+"_e1_"+rnd_id, np+"_e2_"+rnd_id, self.Re),
-                        "Bl1": CCVS(np+"_e2_"+rnd_id, np+"_e3_"+rnd_id,
-                                    np+"_m4_"+rnd_id, np+"_m5_"+rnd_id, self.Bl),
-                        "Bl2": CCVS(np+"_m5_"+rnd_id, 0, 
-                                    nm, np+"_e3_"+rnd_id, self.Bl),
-                        "Mms": inductance(np+"_m4_"+rnd_id, 
-                                          np+"_m6_"+rnd_id, self.Mms),
-                        "Cms": capacitance(np+"_m6_"+rnd_id, 
-                                           np+"_m7_"+rnd_id, self.Cms),
-                        "Rms": resistance(np+"_m7_"+rnd_id, 
-                                          np+"_m8_"+rnd_id, self.Rms),
-                        "Sd1": CCVS(np+"_m8_"+rnd_id, np+"_m9_"+rnd_id, 
-                                    np+"_s10_"+rnd_id, np+"_s11_"+rnd_id, self.Sd),
-                        "Sd2": CCVS(np+"_s10_"+rnd_id, np+"_s12_"+rnd_id, 
-                                    np1, np1+"_a14_"+rnd_id, 1),
-                        "Sd3": CCVS(np1+"_a14_"+rnd_id, nm1, 0, 
-                                    np+"_s12_"+rnd_id, 1),
-                        "Sd4": CCVS(np+"_s11_"+rnd_id, 0, 0, 
-                                    np+"_m9_"+rnd_id, self.Sd)
-                        }
+        # self.network = {"Le": inductance(np, np+"_e1_"+rnd_id, self.Le),
+        #                 "Re": resistance(np+"_e1_"+rnd_id, np+"_e2_"+rnd_id, self.Re),
+        #                 "Bl1": CCVS(np+"_e2_"+rnd_id, np+"_e3_"+rnd_id,
+        #                             np+"_m4_"+rnd_id, np+"_m5_"+rnd_id, self.Bl),
+        #                 "Bl2": CCVS(np+"_m5_"+rnd_id, 0, 
+        #                             nm, np+"_e3_"+rnd_id, self.Bl),
+        #                 "Mms": inductance(np+"_m4_"+rnd_id, 
+        #                                   np+"_m6_"+rnd_id, self.Mms),
+        #                 "Cms": capacitance(np+"_m6_"+rnd_id, 
+        #                                    np+"_m7_"+rnd_id, self.Cms),
+        #                 "Rms": resistance(np+"_m7_"+rnd_id, 
+        #                                   np+"_m8_"+rnd_id, self.Rms),
+        #                 "Sd1": CCVS(np+"_m8_"+rnd_id, np+"_m9_"+rnd_id, 
+        #                             np+"_s10_"+rnd_id, np+"_s11_"+rnd_id, self.Sd),
+        #                 "Sd2": CCVS(np+"_s10_"+rnd_id, np+"_s12_"+rnd_id, 
+        #                             np1, np1+"_a14_"+rnd_id, 1),
+        #                 "Sd3": CCVS(np1+"_a14_"+rnd_id, nm1, 0, 
+        #                             np+"_s12_"+rnd_id, 1),
+        #                 "Sd4": CCVS(np+"_s11_"+rnd_id, 0, 0, 
+        #                             np+"_m9_"+rnd_id, self.Sd)
+        #                 }
         
         # self.network = {"Le": inductance(np, np+"_e1_"+rnd_id, self.Le),
         #                 "Re": resistance(np+"_e1_"+rnd_id, np+"_e2_"+rnd_id, self.Re),
@@ -114,26 +114,25 @@ class EAD:
         #                             np+"_m9_"+rnd_id, self.Sd)
         #                 }
 
-
         self.network = {"Le": inductance(np, np+"_e1_"+rnd_id, self.Le),
                         "Re": resistance(np+"_e1_"+rnd_id, np+"_e2_"+rnd_id, self.Re),
                         "Bl1": CCVS(np+"_e2_"+rnd_id, np+"_e3_"+rnd_id,
-                                    np+"_m4_"+rnd_id, v_p, self.Bl),
-                        "Bl2": CCVS(v_p, 0, 
-                                    nm, np+"_e3_"+rnd_id, self.Bl),
+                                    np+"_m4_"+rnd_id, np+"_m5_"+rnd_id, self.Bl),
+                        "Bl2": CCVS(np+"_m5_"+rnd_id, 0, 
+                                    np+"_e3_"+rnd_id, nm, -self.Bl),
                         "Mms": inductance(np+"_m4_"+rnd_id, 
                                           np+"_m6_"+rnd_id, self.Mms),
                         "Cms": capacitance(np+"_m6_"+rnd_id, 
                                            np+"_m7_"+rnd_id, self.Cms),
                         "Rms": resistance(np+"_m7_"+rnd_id, 
-                                          np+"_m8_"+rnd_id, self.Rms),
-                        "Sd1": CCVS(np+"_m8_"+rnd_id, np+"_m9_"+rnd_id, 
+                                          v_p, self.Rms),
+                        "Sd1": CCVS(v_p, np+"_m9_"+rnd_id, 
                                     np+"_s10_"+rnd_id, np+"_s11_"+rnd_id, self.Sd),
-                        "Sd2": CCVS(np+"_s10_"+rnd_id, np+"_s12_"+rnd_id, 
+                        "RSn": resistance(np+"_s10_"+rnd_id, np+"_s12_"+rnd_id, 1e-9),
+                        "Sd2": CCVS(np+"_s12_"+rnd_id, np+"_s13_"+rnd_id, 
                                     np1, np1+"_a14_"+rnd_id, 1),
-                        "Sd3": CCVS(np1+"_a14_"+rnd_id, nm1, 0, 
-                                    np+"_s12_"+rnd_id, 1),
-                        "Sd4": CCVS(np+"_s11_"+rnd_id, 0, 0, 
-                                    np+"_m9_"+rnd_id, self.Sd)
-                        }
-            
+                        "Sd3": CCVS(np1+"_a14_"+rnd_id, nm1, 
+                                    np+"_s13_"+rnd_id, 0, -1),
+                        "Sd4": CCVS(np+"_s11_"+rnd_id, 0, 
+                                    np+"_m9_"+rnd_id, 0, -self.Sd)
+                        }       
