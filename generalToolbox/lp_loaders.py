@@ -38,7 +38,7 @@ def basta_lp_loader(file_path):
 
                 # Check if the key is in the mapping and not already extracted
                 if key in keys_mapping:
-                    extracted_data[keys_mapping[key]] = value
+                    extracted_data[keys_mapping[key]] = float(value)
 
     return extracted_data
 
