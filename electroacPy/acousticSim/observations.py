@@ -248,7 +248,7 @@ class observations:
         pl.background_color = 'white'
 
         _ = pl.show_grid(color='k')
-        obj = pl.show(block=False)
+        obj = pl.show()
         return obj
     
     def plot(self, evaluations=[], radiatingElement=[], processing=None):
