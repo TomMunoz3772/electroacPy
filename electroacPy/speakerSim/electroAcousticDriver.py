@@ -5,14 +5,13 @@ Created on Tue Oct  3 15:50:43 2023
 
 @author: tom.munoz
 """
-import electroacPy.speakerSim.electroAcousticDriver
 import numpy as np
-from scipy.signal import freqs
 from electroacPy.globalVariables import air
 import matplotlib.pyplot as plt
-import pandas as pd
-from matplotlib.widgets import Cursor, Slider, TextBox, Button
+from matplotlib.widgets import TextBox
 import generalToolbox as gtb
+import generalToolbox.lp_loaders as lpl
+import os
 from copy import copy
 
 pi = np.pi
@@ -574,54 +573,136 @@ class electroAcousticDriver:
         bSp.set_val(str(round(self.Sp * 1e4, 2)))  # 1e4 to set in cm^2
         return bVb, bLp, bRp, bSp, plt.show()
 
+# def loadLPM(lpmfile, freq_array, U=1, LeZero=False,
+#             number_of_drivers=1,
+#             wiring='parallel',
+#             c=air.c,
+#             rho=air.rho):
+#     """
+#     Return electro_acoustic_driver object from LPM file (Klippel measurements)
+#     :param lpmfile:
+#     :param freq_array:
+#     :param U:
+#     :param c:
+#     :param rho:
+#     :return:
+#     """
+#     data = pd.read_csv(lpmfile, sep="\t", header=0,
+#                        names=["Parameters", "value", "unit", "description"],
+#                        encoding='unicode_escape')
+#     idxRe = data.index[data['Parameters'] == 'Re'].to_list()[0]
+#     idxLe = data.index[data['Parameters'] == 'Le'].to_list()[0]
+#     idxCms = data.index[data['Parameters'] == 'Cms'].to_list()[0]
+#     idxMms = data.index[data['Parameters'] == 'Mms'].to_list()[0]
+#     idxRms = data.index[data['Parameters'] == 'Rms'].to_list()[0]
+#     idxSd = data.index[data['Parameters'] == 'Sd'].to_list()[0]
+#     idxBl = data.index[data['Parameters'] == 'Bl'].to_list()[0]
+
+#     # print('idxLe: ', idxLe)
+#     # print(type(data.iat[idxLe, 1]))
+
+#     Re = float(data.iat[idxRe, 1])
+#     Le = float(data.iat[idxLe, 1]) * 1e-3
+#     Mms = float(data.iat[idxMms, 1]) * 1e-3
+#     Rms = float(data.iat[idxRms, 1])
+#     Cms = float(data.iat[idxCms, 1]) * 1e-3
+#     Bl = float(data.iat[idxBl, 1])
+#     Sd = float(data.iat[idxSd, 1]) * 1e-4
+
+#     if LeZero is True:
+#         Le = 0
+
+#     if number_of_drivers > 1:
+#         if wiring == 'parallel':
+#             n = number_of_drivers
+#             drv = electroAcousticDriver(U, Le/n, Re/n, Cms/n, Mms*n, Rms*n, Bl, Sd*n, freq_array, c, rho)
+#         elif wiring == 'series':
+#             n = number_of_drivers
+#             drv = electroAcousticDriver(U, Le*n, Re*n, Cms/n, Mms*n, Rms*n, Bl*n, Sd*n, freq_array, c, rho)
+#         else:
+#             ValueError("'wiring' must be either 'parallel' or 'series'.")
+#     else:
+#         drv = electroAcousticDriver(U, Le, Re, Cms, Mms, Rms, Bl, Sd, freq_array, c, rho)
+#     return drv
+
 def loadLPM(lpmfile, freq_array, U=1, LeZero=False,
             number_of_drivers=1,
             wiring='parallel',
             c=air.c,
             rho=air.rho):
-    """
-    Return electro_acoustic_driver object from LPM file (Klippel measurements)
-    :param lpmfile:
-    :param freq_array:
-    :param U:
-    :param c:
-    :param rho:
-    :return:
-    """
-    data = pd.read_csv(lpmfile, sep="\t", header=0,
-                       names=["Parameters", "value", "unit", "description"],
-                       encoding='unicode_escape')
-    idxRe = data.index[data['Parameters'] == 'Re'].to_list()[0]
-    idxLe = data.index[data['Parameters'] == 'Le'].to_list()[0]
-    idxCms = data.index[data['Parameters'] == 'Cms'].to_list()[0]
-    idxMms = data.index[data['Parameters'] == 'Mms'].to_list()[0]
-    idxRms = data.index[data['Parameters'] == 'Rms'].to_list()[0]
-    idxSd = data.index[data['Parameters'] == 'Sd'].to_list()[0]
-    idxBl = data.index[data['Parameters'] == 'Bl'].to_list()[0]
-
-    # print('idxLe: ', idxLe)
-    # print(type(data.iat[idxLe, 1]))
-
-    Re = float(data.iat[idxRe, 1])
-    Le = float(data.iat[idxLe, 1]) * 1e-3
-    Mms = float(data.iat[idxMms, 1]) * 1e-3
-    Rms = float(data.iat[idxRms, 1])
-    Cms = float(data.iat[idxCms, 1]) * 1e-3
-    Bl = float(data.iat[idxBl, 1])
-    Sd = float(data.iat[idxSd, 1]) * 1e-4
-
+    
+    # define loader based on extension
+    _, extension = os.path.splitext(lpmfile)
+    if extension == ".qsp":
+        loader    = lpl.qspeaker_lp_loader
+        weight_Le  = 1e-3
+        weight_Sd  = 1
+        weight_Mms = 1
+        weight_Cms = 1
+    elif extension == ".sdrv":
+        loader = lpl.speakerSim_lp_loader
+        weight_Le  = 1
+        weight_Sd  = 1
+        weight_Mms = 1
+        weight_Cms = 1
+    elif extension == ".wdr":
+        loader = lpl.winSd_lp_loader
+        weight_Le  = 1
+        weight_Sd  = 1
+        weight_Mms = 1
+        weight_Cms = 1
+    elif extension == ".bastaelement":
+        loader = lpl.basta_lp_loader
+        weight_Le  = 1
+        weight_Sd  = 1
+        weight_Mms = 1
+        weight_Cms = 1
+    elif extension == ".txt":
+        with open(lpmfile, 'r') as file:
+            first_line = file.readline().strip()
+        if first_line == 'Electrical Parameters':
+            loader = lpl.klippel_lp_loader
+            weight_Le  = 1e-3
+            weight_Sd  = 1e-4
+            weight_Mms = 1e-3
+            weight_Cms = 1e-3
+        else:
+            loader = lpl.hornResp_lp_loader
+            weight_Le  = 1e-3
+            weight_Sd  = 1e-4
+            weight_Mms = 1e-3
+            weight_Cms = 1
+    
+    # create driver object
+    data = loader(lpmfile)
+    Le = data["Le"] * weight_Le
+    Re = data["Re"]
+    Cms = data["Cms"] * weight_Cms
+    Mms = data["Mms"] * weight_Mms
+    Rms = data["Rms"]
+    Bl = data["Bl"]
+    Sd = data["Sd"] * weight_Sd
+    
     if LeZero is True:
         Le = 0
-
+    
+    
     if number_of_drivers > 1:
         if wiring == 'parallel':
             n = number_of_drivers
-            drv = electroAcousticDriver(U, Le/n, Re/n, Cms/n, Mms*n, Rms*n, Bl, Sd*n, freq_array, c, rho)
+            drv = electroAcousticDriver(U, Le/n, Re/n, Cms/n, Mms*n, 
+                                        Rms*n, Bl, Sd*n, freq_array, c, rho)
         elif wiring == 'series':
             n = number_of_drivers
-            drv = electroAcousticDriver(U, Le*n, Re*n, Cms/n, Mms*n, Rms*n, Bl*n, Sd*n, freq_array, c, rho)
+            drv = electroAcousticDriver(U, Le*n, Re*n, Cms/n, 
+                                        Mms*n, Rms*n, Bl*n, Sd*n, 
+                                        freq_array, c, rho)
         else:
             ValueError("'wiring' must be either 'parallel' or 'series'.")
     else:
-        drv = electroAcousticDriver(U, Le, Re, Cms, Mms, Rms, Bl, Sd, freq_array, c, rho)
+        drv = electroAcousticDriver(U, Le, Re, Cms, Mms, Rms, 
+                                    Bl, Sd, freq_array, c, rho)
     return drv
+    
+    
+    
