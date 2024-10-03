@@ -13,14 +13,14 @@ Created on Tue Oct  3 16:03:02 2023
 #==================================================
 # Exterior acoustic sim
 from electroacPy.acousticSim.bem import bem
-from electroacPy.acousticSim.observations import observations as obs_bem
-from electroacPy.acousticSim.observations import getPressure
+from electroacPy.acousticSim.evaluations import evaluations as evs_bem
+from electroacPy.acousticSim.evaluations import getPressure
 from electroacPy.acousticSim.postProcessing import postProcess as pp
 
 
 # Lumped element
 from electroacPy.speakerSim.electroAcousticDriver import electroAcousticDriver, loadLPM
-from electroacPy.speakerSim.enclosureDesign import speakerBox, speakerBox_v2
+from electroacPy.speakerSim.enclosureDesign import speakerBox
 from electroacPy.speakerSim.filterDesign import xovers
 
 # Vibrometry
@@ -51,10 +51,10 @@ class loudspeakerSystem:
         # simulations
         self.driver         = {}
         self.enclosure      = {}
-        self.laser_acc      = {}
+        self.vibrometry     = {}
         self.crossover      = {}
         self.acoustic_study = {}
-        self.observation    = {}
+        self.evaluation    = {}
         self.results        = {}
 
         # help
@@ -118,7 +118,7 @@ class loudspeakerSystem:
 
     def lem_enclosure(self, name, Vb, eta=1e-5, setDriver=None, Nd=1, 
                       wiring="parallel", ref2bem=None, **kwargs):
-        physics = speakerBox_v2(Vb, frequencyRange=self.frequency, c=self.c, rho=self.rho,
+        physics = speakerBox(Vb, frequencyRange=self.frequency, c=self.c, rho=self.rho,
                                 eta=eta, **kwargs)
         physics.ref2bem = ref2bem
         self.enclosure[name] = physics
@@ -142,7 +142,7 @@ class loudspeakerSystem:
         """
         physics = laser_v(file_path, rotation, self.frequency, useAverage, inputVoltage=inputVoltage)
         physics.ref2bem = ref2bem
-        self.laser_acc[name] = physics
+        self.vibrometry[name] = physics
         self.radiator_id[name] = 'PLV'
         return None
 
@@ -331,15 +331,15 @@ class loudspeakerSystem:
             # Polytech vibrometric data
             elif self.radiator_id[cname] == 'PLV':
                 try:
-                    nRef = len(self.laser_acc[cname].ref2bem)
+                    nRef = len(self.vibrometry[cname].ref2bem)
                     for i in range(nRef):
-                        rad_surf.append(self.laser_acc[cname].ref2bem[i])
-                        surf_v.append(self.laser_acc[cname].v_point)
-                        vibrometry_points.append(self.laser_acc[cname].point_cloud)
+                        rad_surf.append(self.vibrometry[cname].ref2bem[i])
+                        surf_v.append(self.vibrometry[cname].v_point)
+                        vibrometry_points.append(self.vibrometry[cname].point_cloud)
                 except:
-                    rad_surf.append(self.laser_acc[cname].ref2bem)
-                    surf_v.append(self.laser_acc[cname].v_point)
-                    vibrometry_points.append(self.laser_acc[cname].point_cloud)
+                    rad_surf.append(self.vibrometry[cname].ref2bem)
+                    surf_v.append(self.vibrometry[cname].v_point)
+                    vibrometry_points.append(self.vibrometry[cname].point_cloud)
 
 
         # surf_v = np.ones([len(rad_surf), len(self.frequency)])
@@ -348,16 +348,16 @@ class loudspeakerSystem:
                       vibrometry_points=vibrometry_points, **kwargs)
         physics.radiator = acoustic_radiator
         self.acoustic_study[name] = physics
-        self.observation[name] = obs_bem(physics)
-        self.observation[name].referenceStudy = name
+        self.evaluation[name] = evs_bem(physics)
+        self.evaluation[name].referenceStudy = name
         return None
 
 
     ## =======================
     # %% ACOUSTIC obs
-    def observation_polarRadiation(self,
+    def evaluation_polarRadiation(self,
                            reference_study: str or list,
-                           observation_name: str,
+                           evaluation_name: str,
                            min_angle: float,
                            max_angle: float,
                            step: float,
@@ -370,12 +370,12 @@ class loudspeakerSystem:
         Add a circular microphone array to given study.
 
         :param reference_study:
-        :param observation_name:
+        :param evaluation_name:
         :return:
         """
         if isinstance(reference_study, list):
             for i in range(len(reference_study)):
-                self.observation[reference_study[i]].polarRadiation(observation_name,
+                self.evaluation[reference_study[i]].polarRadiation(evaluation_name,
                                                                     min_angle,
                                                                     max_angle,
                                                                     step,
@@ -384,7 +384,7 @@ class loudspeakerSystem:
                                                                     radius,
                                                                     offset)
         else:
-            self.observation[reference_study].polarRadiation(observation_name,
+            self.evaluation[reference_study].polarRadiation(evaluation_name,
                                                                 min_angle,
                                                                 max_angle,
                                                                 step,
@@ -394,9 +394,9 @@ class loudspeakerSystem:
                                                                 offset)
         return None
 
-    def observation_pressureField(self,
+    def evaluation_pressureField(self,
                           reference_study: str,
-                          observation_name: str,
+                          evaluation_name: str,
                           L1: float,
                           L2: float,
                           step: float,
@@ -407,7 +407,7 @@ class loudspeakerSystem:
         Add planar microphone array for "slice" pressure plot in given study.
 
         :param reference_study:
-        :param observation_name:
+        :param evaluation_name:
         :param L1:
         :param L2:
         :param step:
@@ -419,14 +419,14 @@ class loudspeakerSystem:
 
         if isinstance(reference_study, list):
             for i in range(len(reference_study)):
-                self.observation[reference_study[i]].pressureField(observation_name,
+                self.evaluation[reference_study[i]].pressureField(evaluation_name,
                                                                    L1,
                                                                    L2,
                                                                    step,
                                                                    plane,
                                                                    offset)
         else:
-            self.observation[reference_study].pressureField(observation_name,
+            self.evaluation[reference_study].pressureField(evaluation_name,
                                                                L1,
                                                                L2,
                                                                step,
@@ -434,16 +434,16 @@ class loudspeakerSystem:
                                                                offset)
         return None
 
-    def observation_fieldPoint(self,
+    def evaluation_fieldPoint(self,
                              reference_study: str,
-                             observation_name: str,
+                             evaluation_name: str,
                              microphonePositions: list,
                              **kwargs):
         """
-        Add FRF observation points at defined position on given study.
+        Add FRF evaluation points at defined position on given study.
 
         :param reference_study:
-        :param observation_name:
+        :param evaluation_name:
         :param microphonePositions:
         :param labels:
         :return:
@@ -451,18 +451,18 @@ class loudspeakerSystem:
 
         if isinstance(reference_study, list):
             for i in range(len(reference_study)):
-                self.observation[reference_study[i]].fieldPoint(observation_name,
+                self.evaluation[reference_study[i]].fieldPoint(evaluation_name,
                                                                 microphonePositions,
                                                                 **kwargs)
         else:
-            self.observation[reference_study].fieldPoint(observation_name,
+            self.evaluation[reference_study].fieldPoint(evaluation_name,
                                                          microphonePositions,
                                                          **kwargs)
         return None
 
-    def observation_boundingBox(self,
+    def evaluation_boundingBox(self,
                                 reference_study: str,
-                                observation_name: str,
+                                evaluation_name: str,
                                 Lx: float,
                                 Ly: float,
                                 Lz: float,
@@ -471,26 +471,26 @@ class loudspeakerSystem:
 
         if isinstance(reference_study, list):
             for i in range(len(reference_study)):
-                self.observation[reference_study[i]].boundingBox(observation_name,
+                self.evaluation[reference_study[i]].boundingBox(evaluation_name,
                                                                  Lx, Ly, Lz, step, offset)
         else:
-            self.observation[reference_study].boundingBox(observation_name,
+            self.evaluation[reference_study].boundingBox(evaluation_name,
                                                           Lx, Ly, Lz, step, offset)
         return None
 
-    def observation_sphericalRadiation(self,
+    def evaluation_sphericalRadiation(self,
                                        reference_study: str,
-                                       observation_name: str,
+                                       evaluation_name: str,
                                        nMic: float,
                                        radius: float = 1.8,
                                        offset: list = [0, 0, 0]):
 
         if isinstance(reference_study, list):
             for i in range(len(reference_study)):
-                self.observation[reference_study[i]].sphericalRadiation(observation_name,
+                self.evaluation[reference_study[i]].sphericalRadiation(evaluation_name,
                                                                  nMic, radius, offset)
         else:
-            self.observation[reference_study].sphericalRadiation(observation_name,
+            self.evaluation[reference_study].sphericalRadiation(evaluation_name,
                                                           nMic, radius, offset)
         return None
 
@@ -508,16 +508,16 @@ class loudspeakerSystem:
             else:
                 None
             
-        if bool(self.observation) is True:
-            for obs in self.observation:
-                self.observation[obs].solve()
+        if bool(self.evaluation) is True:
+            for obs in self.evaluation:
+                self.evaluation[obs].solve()
         else:
-            print("No observation to evaluate.")
+            print("No evaluation to evaluate.")
         return None
 
     ## PLOT
     def plot_results(self, study_to_plot='all', 
-                     observation=[], radiatingElement=[], bypass_xover=False):
+                     evaluation=[], radiatingElement=[], bypass_xover=False):
         
         # update solutions
         if isinstance(radiatingElement, int) is True: # avoid possible error if only one rad surf is selected
@@ -526,16 +526,16 @@ class loudspeakerSystem:
         if study_to_plot == 'all':
             for study in self.acoustic_study:
                 _ = updateResults(self, study, bypass_xover)
-                _ = self.observation[study].plot(observation, radiatingElement, 
+                _ = self.evaluation[study].plot(evaluation, radiatingElement, 
                                              processing=self.results[study])
         else:
             _ = updateResults(self, study_to_plot, bypass_xover)
-            _ = self.observation[study_to_plot].plot(observation, radiatingElement,
+            _ = self.evaluation[study_to_plot].plot(evaluation, radiatingElement,
                                                  processing=self.results[study_to_plot])
         return None
 
     def plot_system(self, study_to_plot):
-        self.observation[study_to_plot].plot_system()
+        self.evaluation[study_to_plot].plot_system()
         return None
 
     def plot_xovers(self, networks, split=True, amplitude=64):
@@ -578,8 +578,8 @@ class loudspeakerSystem:
             maxInfo.append(len(str(box_INFO)))
         else:
             out_message += ('No enclosure defined', )
-        if bool(self.laser_acc) is True:
-            laser_INFO = list(self.laser_acc)
+        if bool(self.vibrometry) is True:
+            laser_INFO = list(self.vibrometry)
             out_message += (laser_INFO, )
             maxInfo.append(len(str(laser_INFO)))
         else:
@@ -623,12 +623,12 @@ class loudspeakerSystem:
         print(maxTot * "#")
         return None
 
-    def get_pMic(self, studyName, observationName, radiatingElement=[], bypass_xover=False):
+    def get_pMic(self, studyName, evaluationName, radiatingElement=[], bypass_xover=False):
         """
-        Return pressure at microphone points for defined studies, observation and radiating surfaces.
+        Return pressure at microphone points for defined studies, evaluation and radiating surfaces.
 
         :param studyName:
-        :param observationName:
+        :param evaluationName:
         :param radiatingSurface:
         :param get_freq_array:
         :return:
@@ -640,7 +640,7 @@ class loudspeakerSystem:
             radiatingElement = [radiatingElement]
 
         _  = updateResults(self, studyName, bypass_xover)
-        pmic = self.observation[studyName].setup[observationName].pMic
+        pmic = self.evaluation[studyName].setup[evaluationName].pMic
         
         if self.results[studyName] is not None:
             elementCoeff = np.ones([len(self.frequency), len(radiatingElement)], 
@@ -712,13 +712,13 @@ def groupSurfaces2Export(loudspeakerSystem):
     for radname in loudspeakerSystem.radiator_id:
         # PLV
         if loudspeakerSystem.radiator_id[radname] == "PLV":
-            if type(loudspeakerSystem.laser_acc[radname].ref2bem) == list:
-                for i in range(len(loudspeakerSystem.laser_acc[radname].ref2bem)):
+            if type(loudspeakerSystem.vibrometry[radname].ref2bem) == list:
+                for i in range(len(loudspeakerSystem.vibrometry[radname].ref2bem)):
                     radiatorName.append(radname)
-                    radiatingSurface.append(loudspeakerSystem.laser_acc[radname].ref2bem[i])
+                    radiatingSurface.append(loudspeakerSystem.vibrometry[radname].ref2bem[i])
             else:
                 radiatorName.append(radname)
-                radiatingSurface.append(loudspeakerSystem.laser_acc[radname].ref2bem)
+                radiatingSurface.append(loudspeakerSystem.vibrometry[radname].ref2bem)
 
         # SPKBOX
         elif loudspeakerSystem.radiator_id[radname] == "SPKBOX":
@@ -784,6 +784,7 @@ def apply_Velocity_From_SPKBOX(loudspeakerSystem, study, radiatorName):
     vp = ls.enclosure[radiatorName].vp    # port's velocity
     vp2 = ls.enclosure[radiatorName].vp2  # port 2 velocity (in case of bp2 enclosure config)
     vpr = ls.enclosure[radiatorName].vpr  # passive radiator velocity (in case of pr enclosure config)
+    vpr2 = ls.enclosure[radiatorName].vpr2
     ref2bem = ls.enclosure[radiatorName].ref2bem
 
     if isinstance(ref2bem, int) is True:
@@ -802,13 +803,25 @@ def apply_Velocity_From_SPKBOX(loudspeakerSystem, study, radiatorName):
         elif ls.enclosure[radiatorName].config == "vented":
             ls.results[study].addTransferFunction("driver_"+radiatorName, v, ref2bem[:-1])
             ls.results[study].addTransferFunction("port_"+radiatorName, vp, [ref2bem[-1]])
+        
         elif ls.enclosure[radiatorName].config == "passiveRadiator":
             ls.results[study].addTransferFunction("driver_"+radiatorName, v, ref2bem[:-1])
             ls.results[study].addTransferFunction("passive-radiator_"+radiatorName, vpr, [ref2bem[-1]])
+        
         elif ls.enclosure[radiatorName].config == "bandpass":
             ls.results[study].addTransferFunction("port_"+radiatorName, vp, ref2bem)
-        elif ls.enclosure[radiatorName].config == "bandpass_pr_":
+        
+        elif ls.enclosure[radiatorName].config == "bandpass_2":
+            ls.results[study].addTransferFunction("portf_"+radiatorName, vp, [ref2bem[0]])
+            ls.results[study].addTransferFunction("portb_"+radiatorName, vp2, [ref2bem[1]])
+
+        elif ls.enclosure[radiatorName].config == "bandpass_pr":
             ls.results[study].addTransferFunction("passive-radiator_"+radiatorName, vpr, ref2bem)
+        
+        elif ls.enclosure[radiatorName].config == "bandpass_pr_2":
+            ls.results[study].addTransferFunction("prf_"+radiatorName, vpr, [ref2bem[0]])
+            ls.results[study].addTransferFunction("prb_"+radiatorName, vpr2, [ref2bem[1]])
+            
     return None
 
 def apply_Velocity_From_EAD(loudspeakerSystem, study, radiatorName):
@@ -837,8 +850,8 @@ def apply_Velocity_From_PLV(loudspeakerSystem, study, radiatorName):
     :return:
     """
     ls = loudspeakerSystem
-    v = ls.laser_acc[radiatorName].v
-    ref2bem = ls.laser_acc[radiatorName].ref2bem
+    v = ls.vibrometry[radiatorName].v
+    ref2bem = ls.vibrometry[radiatorName].ref2bem
     if isinstance(ref2bem, int) is True:
         ls.results[study].addTransferFunction("unit_v_"+radiatorName, v, [ref2bem])
     elif isinstance(ref2bem, list) is True:

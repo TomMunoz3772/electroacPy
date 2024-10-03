@@ -168,7 +168,7 @@ class electroAcousticDriver:
         ax2.semilogx(self.f_array, np.angle(self.ZeTot), '--', 
                      label="phase")
         ax2.legend(loc='upper right')
-        ax2.set(ylabel="phase [rads]", ylim=[-pi/2, pi/2])
+        ax2.set(ylabel="phase [rads]", ylim=[-pi, pi])
         ax2.grid()
         plt.tight_layout()
         return plt.show()

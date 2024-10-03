@@ -8,7 +8,7 @@ from os.path import join
 from numpy import asanyarray as array
 from electroacPy import loudspeakerSystem
 from electroacPy.acousticSim.bem import bem
-from electroacPy.acousticSim.observations import observations as  obs
+from electroacPy.acousticSim.evaluations import evaluations as evs
 import bempp.api
 
 def save(projectPath, loudspeakerSystem):
@@ -32,19 +32,19 @@ def save(projectPath, loudspeakerSystem):
     np.savez(join(projectPath, 'LEM'),
              frequency=frequency,
              driver=sim.driver,
-             laser = sim.laser_acc,
+             laser=sim.vibrometry,
              crossover=sim.crossover,
              enclosure=sim.enclosure,
              radiator_id=sim.radiator_id,
              c=sim.c,
              rho=sim.rho)
 
-    # Save observations / bem
+    # Save evaluations / bem
     for study in sim.acoustic_study:
-        if bool(sim.observation) is True:
-            obsTmp = sim.observation[study]
+        if bool(sim.evaluation) is True:
+            obsTmp = sim.evaluation[study]
             # pressureArrayObs, nMic = storePressureMicResults(obsTmp)
-            np.savez(join(projectPath, 'obs_{}'.format(study)),
+            np.savez(join(projectPath, 'evs_{}'.format(study)),
                      frequency            = obsTmp.frequency,
                      setup                = obsTmp.setup,
                      referenceStudy       = obsTmp.referenceStudy,)
@@ -94,7 +94,7 @@ def load(pathToProject):
     # create loudspeaker system
     LS             = loudspeakerSystem(dataLEM['frequency'])
     LS.driver      = dataLEM['driver'].item()
-    LS.laser_acc   = dataLEM['laser'].item()
+    LS.vibrometry  = dataLEM['laser'].item()
     LS.enclosure   = dataLEM['enclosure'].item()
     LS.crossover   = dataLEM['crossover'].item()
     LS.radiator_id = dataLEM['radiator_id'].item()
@@ -105,10 +105,9 @@ def load(pathToProject):
         LS.c   = 343
         LS.rho = 1.22
 
-    # import studies and observations
+    # import studies and evaluations
     file_list  = os.listdir(pathToProject)
     acs_files  = [file for file in file_list if file.startswith('acs')]
-    obs_files  = [file for file in file_list if file.startswith('obs')]
     study_name = []
     for i in range(len(acs_files)):
         study_name.append(acs_files[i][4:-4])
@@ -143,21 +142,25 @@ def load(pathToProject):
         loadPressureMeshResults(physics_acs, data_acs['pressureArrayAcs'])
         LS.acoustic_study[study] = physics_acs
 
-        # load observations
+        # load evaluations
         try:
-            data_obs = np.load(join(pathToProject, 'obs_{}.npz'.format(study)), allow_pickle=True)
-            physics_obs = obs(physics_acs)
-            physics_obs.setup = data_obs["setup"].item()
-            physics_obs.frequency = data_obs["frequency"]
-            physics_obs.referenceStudy = data_obs["referenceStudy"].item()
-            LS.observation[study] = physics_obs
+            try:
+                data_evs = np.load(join(pathToProject, 'evs_{}.npz'.format(study)), allow_pickle=True)
+            except:
+                data_evs = np.load(join(pathToProject, 'obs_{}.npz'.format(study)), allow_pickle=True)
+                print("Legacy evs loaded")
+            physics_evs = evs(physics_acs)
+            physics_evs.setup = data_evs["setup"].item()
+            physics_evs.frequency = data_evs["frequency"]
+            physics_evs.referenceStudy = data_evs["referenceStudy"].item()
+            LS.evaluation[study] = physics_evs
         except:
-            print('No observation to load')
+            print('No evaluation to load')
     return LS
 
 
-def storePressureMicResults(observation):
-    obs = observation
+def storePressureMicResults(evaluation):
+    obs = evaluation
     nObs = len(obs.setup)
     Nfft = len(obs.bemObject.frequency)  # number of frequency bins
     nRad = obs.bemObject.Ns              # number of radiating surfaces

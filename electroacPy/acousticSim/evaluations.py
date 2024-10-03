@@ -15,15 +15,16 @@ directory_path = os.path.abspath(electroacPy.__file__)
 
 pi = np.pi
 
-class observations:
+class evaluations:
     """
-    Tools for creating and managing various types of acoustic observations using a Boundary Element Method (BEM) object.
+    Tools for creating and managing various types of acoustic evaluations 
+    using a Boundary Element Method (BEM) object.
 
-    Available observation types:
-    - Planar observations: Defined on a planar surface with specified dimensions.
-    - Polar observations: Defined along a circular path in a specified plane.
-    - Spherical observations: Defined on a spherical surface.
-    - Pressure response observations: Recorded pressure responses at specified microphone positions.
+    Available evaluation types:
+    - Planar evaluations: Defined on a planar surface with specified dimensions.
+    - Polar evaluations: Defined along a circular path in a specified plane.
+    - Spherical evaluations: Defined on a spherical surface.
+    - Pressure response evaluations: Recorded pressure responses at specified microphone positions.
 
     Parameters:
         bemObject (BEM object): A Boundary Element Method (BEM) object after computing pressure on the mesh.
@@ -31,32 +32,32 @@ class observations:
     Attributes:
         identifier (str): Class identifier.
         bemObject: The BEM object used for calculations.
-        observationName (list): Names of added observations.
-        observationType (list): Types of added observations.
-        computedObservations (list): Names of computed observations.
-        xMic (list): Microphone positions for each observation.
-        labels (list): Labels associated with observations.
-        L (list): Planar observation lengths.
-        W (list): Planar observation widths.
-        planarPlane (list): Planes on which planar observations are defined.
-        theta (list): Angles for polar observations.
-        polarPlane (list): Planes on which polar observations are defined.
-        DI (list): Directivity indices of polar observations.
-        pMic (list): Pressure data for each computed observation.
-        pMicArray (list): Pressure data for each computed observation with separate speakers.
+        evaluationName (list): Names of added evaluations.
+        evaluationType (list): Types of added evaluations.
+        computedevaluations (list): Names of computed evaluations.
+        xMic (list): Microphone positions for each evaluation.
+        labels (list): Labels associated with evaluations.
+        L (list): Planar evaluation lengths.
+        W (list): Planar evaluation widths.
+        planarPlane (list): Planes on which planar evaluations are defined.
+        theta (list): Angles for polar evaluations.
+        polarPlane (list): Planes on which polar evaluations are defined.
+        DI (list): Directivity indices of polar evaluations.
+        pMic (list): Pressure data for each computed evaluation.
+        pMicArray (list): Pressure data for each computed evaluation with separate speakers.
 
     Methods:
-        addPlanarObservation: Add a planar observation setup.
-        addPolarObservation: Add a polar observation setup.
-        addPressureResponse: Add a pressure response observation setup.
-        addSphericalObservation: Add a spherical observation setup.
-        computeObservations: Compute the added observations.
-        plot: Plot the computed observations.
-        plot_system: Plot the BEM mesh and observation points in 3D space.
-        get_pMic: Retrieve the pressure data of a specific observation.
-        get_directivityIndex: Compute and plot the directivity index of a polar observation.
-        deleteObservation: Delete a specified observation.
-        save: Save computed observations and related data to an .npz file.
+        addPlanarevaluation: Add a planar evaluation setup.
+        addPolarevaluation: Add a polar evaluation setup.
+        addPressureResponse: Add a pressure response evaluation setup.
+        addSphericalevaluation: Add a spherical evaluation setup.
+        computeevaluations: Compute added evaluations.
+        plot: Plot the computed evaluations.
+        plot_system: Plot the BEM mesh and evaluation points in 3D space.
+        get_pMic: Retrieve the pressure data of a specific evaluation.
+        get_directivityIndex: Compute and plot the directivity index of a polar evaluation.
+        deleteevaluation: Delete a specified evaluation.
+        save: Save computed evaluations and related data to an .npz file.
     """
     def __init__(self, bemObject):
         self.bemObject = bemObject
@@ -67,94 +68,94 @@ class observations:
         self.referenceStudy = None
     
     
-    def polarRadiation(self, observationName, minAngle: float, maxAngle: float,
+    def polarRadiation(self, evaluationName, minAngle: float, maxAngle: float,
                        step: float, on_axis: str, direction: str, 
                        radius: float = 5, offset: list = [0, 0, 0], **kwargs):
         
-        if observationName not in self.setup:
-            self.setup[observationName] = PolarRadiation(minAngle, maxAngle, 
+        if evaluationName not in self.setup:
+            self.setup[evaluationName] = PolarRadiation(minAngle, maxAngle, 
                                                          step, on_axis, direction,
                                                          radius, offset)
-        elif observationName in self.setup and "overwrite" in kwargs:
-            self.setup.pop(observationName)
-            self.setup[observationName] = PolarRadiation(minAngle, maxAngle, 
+        elif evaluationName in self.setup and "overwrite" in kwargs:
+            self.setup.pop(evaluationName)
+            self.setup[evaluationName] = PolarRadiation(minAngle, maxAngle, 
                                                          step, on_axis, direction,
                                                          radius, offset)
         else:
-             print("observation {} already exists. You can overwrite it using  \
-                   the 'overwrite' flag".format(observationName))   
+             print("evaluation {} already exists. You can overwrite it using  \
+                   the 'overwrite' flag".format(evaluationName))   
             
     
-    def pressureField(self, observationName, Length: float, Width: float,
+    def pressureField(self, evaluationName, Length: float, Width: float,
                       step: float, plane: str, offset: list = [0, 0, 0],
                       **kwargs):
         
-        if observationName not in self.setup:
-            self.setup[observationName] = PressureField(Length, Width, step, 
+        if evaluationName not in self.setup:
+            self.setup[evaluationName] = PressureField(Length, Width, step, 
                                                         plane, offset)
-        elif observationName in self.setup and "overwrite" in kwargs:
-            self.setup.pop(observationName)
-            self.setup[observationName] = PressureField(Length, Width, step, 
+        elif evaluationName in self.setup and "overwrite" in kwargs:
+            self.setup.pop(evaluationName)
+            self.setup[evaluationName] = PressureField(Length, Width, step, 
                                                         plane, offset)
         else:
-             print("observation {} already exists. You can overwrite it using \
-                   the 'overwrite' flag".format(observationName))
+             print("evaluation {} already exists. You can overwrite it using \
+                   the 'overwrite' flag".format(evaluationName))
 
         
-    def fieldPoint(self, observationName, microphonePosition, **kwargs):        
-        if observationName not in self.setup:
-            self.setup[observationName] = FieldPoint(microphonePosition, **kwargs)
+    def fieldPoint(self, evaluationName, microphonePosition, **kwargs):        
+        if evaluationName not in self.setup:
+            self.setup[evaluationName] = FieldPoint(microphonePosition, **kwargs)
 
-        elif observationName in self.setup and "overwrite" in kwargs:
-            self.setup.pop(observationName)
-            self.setup[observationName] = FieldPoint(microphonePosition, **kwargs)
+        elif evaluationName in self.setup and "overwrite" in kwargs:
+            self.setup.pop(evaluationName)
+            self.setup[evaluationName] = FieldPoint(microphonePosition, **kwargs)
 
         else:
-             print("observation {} already exists. You can overwrite it using \
-                   the 'overwrite' flag".format(observationName))   
+             print("evaluation {} already exists. You can overwrite it using \
+                   the 'overwrite' flag".format(evaluationName))   
 
 
-    def boundingBox(self, observationName, Lx, Ly, Lz,
+    def boundingBox(self, evaluationName, Lx, Ly, Lz,
                     step=1, offset=[0, 0, 0], **kwargs):
-        if observationName not in self.setup:
-            self.setup[observationName] = BoundingBox(Lx, Ly, Lz, step, offset)
+        if evaluationName not in self.setup:
+            self.setup[evaluationName] = BoundingBox(Lx, Ly, Lz, step, offset)
 
-        elif observationName in self.setup and "overwrite" in kwargs:
-            self.setup.pop(observationName)
-            self.setup[observationName] = BoundingBox(Lx, Ly, Lz, step, offset)
+        elif evaluationName in self.setup and "overwrite" in kwargs:
+            self.setup.pop(evaluationName)
+            self.setup[evaluationName] = BoundingBox(Lx, Ly, Lz, step, offset)
 
         else:
-             print("observation {} already exists. You can overwrite it using \
-                   the 'overwrite' flag".format(observationName))   
+             print("evaluation {} already exists. You can overwrite it using \
+                   the 'overwrite' flag".format(evaluationName))   
         
         
-    def sphericalRadiation(self, observationName, nMic, 
+    def sphericalRadiation(self, evaluationName, nMic, 
                            radius, offset=[0, 0, 0], **kwargs):
-        if observationName not in self.setup:
-            self.setup[observationName] = SphericalRadiation(nMic, radius, offset)
+        if evaluationName not in self.setup:
+            self.setup[evaluationName] = SphericalRadiation(nMic, radius, offset)
 
-        elif observationName in self.setup and "overwrite" in kwargs:
-            self.setup.pop(observationName)
-            self.setup[observationName] = SphericalRadiation(nMic, radius, offset)
+        elif evaluationName in self.setup and "overwrite" in kwargs:
+            self.setup.pop(evaluationName)
+            self.setup[evaluationName] = SphericalRadiation(nMic, radius, offset)
 
         else:
-             print("observation {} already exists. You can overwrite it using \
-                   the 'overwrite' flag".format(observationName))  
+             print("evaluation {} already exists. You can overwrite it using \
+                   the 'overwrite' flag".format(evaluationName))  
     
-    def solve(self, observation_name="all"):
-        if observation_name == "all":
+    def solve(self, evaluation_name="all"):
+        if evaluation_name == "all":
             obs_to_compute = [] #list(self.setup.keys())
             for key in self.setup:
                 if self.setup[key].isComputed is False:
                     obs_to_compute.append(key)
                 else:
                     pass
-        elif isinstance(observation_name, str):
-            obs_to_compute = [observation_name]
-        elif isinstance(observation_name, list):
-            obs_to_compute = observation_name
+        elif isinstance(evaluation_name, str):
+            obs_to_compute = [evaluation_name]
+        elif isinstance(evaluation_name, list):
+            obs_to_compute = evaluation_name
         else:
-            raise ValueError("observation_name should be a key in setup.")
+            raise ValueError("evaluation_name should be a key in setup.")
         
         # group microphones to compute in one step (faster for large numbers
         # of microphones)
@@ -271,7 +272,7 @@ class observations:
         """
         # Check input for which data to plot
         if bool(evaluations) is False:
-            # plot all observations
+            # plot all evaluations
             obs2plot = list(self.setup.keys())
         elif isinstance(evaluations, list):
             obs2plot = evaluations
@@ -297,7 +298,7 @@ class observations:
             elementCoeff = np.ones([len(self.frequency), len(element2plot)], 
                                    dtype=complex)
         
-        # Sort observations by type
+        # Sort evaluations by type
         polar, polarName = [], []
         field, pmicField, L, W, xMic = [], [], [], [], []
         point, pmicPoint = [], []
