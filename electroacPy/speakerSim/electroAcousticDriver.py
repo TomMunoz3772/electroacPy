@@ -117,23 +117,14 @@ class electroAcousticDriver:
         self.EBP = self.Fs/self.Qes
 
 
-        # Ref Signals #
+        # Ref Signals
         # Velocity
-        # av = [Mms*Le, Le*Rms + Mms*Re, Rms*Re + Le / Cms + Bl**2, Re/Cms]
-        # bv = [Bl, 0]
-        # _, self.Hv = freqs(bv, av, worN=f_array)
         self.Hv = Bl/self.Ze  / (self.Zms + Bl**2 / self.Ze)
 
         # Displacement
-        # ax = av
-        # bx = [Bl]
-        # _, self.Hx = freqs(bx, ax, worN=f_array)
         self.Hx = self.Hv / s
 
         # Acceleration
-        # aa = av
-        # ba = [Bl, 0, 0]
-        # _, self.Ha = freqs(ba, aa, worN=f_array)
         self.Ha = self.Hv * s
 
         # Acoustic simulation reference
@@ -149,7 +140,7 @@ class electroAcousticDriver:
         self.poly_data = False  # is class from polytech?
 
         
-    def plotZe(self):
+    def plotZe(self, **kwargs):
         """
         Plot the electrical impedance ZeTot in both modulus and phase.
 
@@ -158,22 +149,24 @@ class electroAcousticDriver:
         None
 
         """
-        fig, ax = plt.subplots()
-        ax.semilogx(self.f_array, np.abs(self.ZeTot), 
-                    label="modulus")
-        ax.legend(loc='upper left')
-        ax.grid(linestyle='dotted', which='both')
-        ax.set(ylabel="|Z| [Ohm]", xlabel="Frequency [Hz]")
-        ax2 = ax.twinx()
-        ax2.semilogx(self.f_array, np.angle(self.ZeTot), '--', 
-                     label="phase")
-        ax2.legend(loc='upper right')
-        ax2.set(ylabel="phase [rads]", ylim=[-pi, pi])
-        ax2.grid()
+        
+        if "figsize" in kwargs:
+            size=kwargs["figsize"]
+        else:
+            size=None
+        
+        fig, ax = plt.subplots(2, 1, figsize=size)
+        ax[0].semilogx(self.f_array, np.abs(self.ZeTot))
+        ax[0].set(ylabel="Magnitude [Ohm]")
+        
+        ax[1].semilogx(self.f_array, np.angle(self.ZeTot))
+        ax[1].set(xlabel="Frequency [Hz]", ylabel="Phase [rad]")
+        for i in range(2):
+            ax[i].grid(which="both", linestyle="dotted")
         plt.tight_layout()
         return plt.show()
     
-    def plotXVA(self):
+    def plotXVA(self, **kwargs):
         """
         Plot the displacement, velocity, and acceleration frequency responses.
 
@@ -182,7 +175,13 @@ class electroAcousticDriver:
         None
 
         """
-        fig, ax = plt.subplots(3, 1)
+        
+        if "figsize" in kwargs:
+            size=kwargs["figsize"]
+        else:
+            size=None
+        
+        fig, ax = plt.subplots(3, 1, figsize=size)
         ax[0].semilogx(self.f_array, np.abs(self.Hx*1e3), label='Displacement')
         ax[1].semilogx(self.f_array, np.abs(self.Hv), label='Velocity')
         ax[2].semilogx(self.f_array, np.abs(self.Ha), label='Acceleration')
@@ -191,7 +190,7 @@ class electroAcousticDriver:
         ax[1].set(ylabel="m/s")
         ax[2].set(ylabel="m/s^2")
         for i in range(3):
-            ax[i].grid(which='both')
+            ax[i].grid(which='both', linestyle="dotted")
             ax[i].legend(loc='best')
         plt.tight_layout()
         return plt.show()
@@ -506,8 +505,6 @@ class electroAcousticDriver:
             self.rp = np.sqrt(self.Sp / pi)  # radius of the port
 
             # box impedance
-            # Cab = Vb / rho / c ** 2  # compliance of the enclosure
-            # Rab = rho * c / eta / Vb
             self.Zbox = gtb.parallel(1 / s / self.Cab, self.Rab)
 
             # port impedance
@@ -572,58 +569,6 @@ class electroAcousticDriver:
         bSp.on_submit(updatePortSection)
         bSp.set_val(str(round(self.Sp * 1e4, 2)))  # 1e4 to set in cm^2
         return bVb, bLp, bRp, bSp, plt.show()
-
-# def loadLPM(lpmfile, freq_array, U=1, LeZero=False,
-#             number_of_drivers=1,
-#             wiring='parallel',
-#             c=air.c,
-#             rho=air.rho):
-#     """
-#     Return electro_acoustic_driver object from LPM file (Klippel measurements)
-#     :param lpmfile:
-#     :param freq_array:
-#     :param U:
-#     :param c:
-#     :param rho:
-#     :return:
-#     """
-#     data = pd.read_csv(lpmfile, sep="\t", header=0,
-#                        names=["Parameters", "value", "unit", "description"],
-#                        encoding='unicode_escape')
-#     idxRe = data.index[data['Parameters'] == 'Re'].to_list()[0]
-#     idxLe = data.index[data['Parameters'] == 'Le'].to_list()[0]
-#     idxCms = data.index[data['Parameters'] == 'Cms'].to_list()[0]
-#     idxMms = data.index[data['Parameters'] == 'Mms'].to_list()[0]
-#     idxRms = data.index[data['Parameters'] == 'Rms'].to_list()[0]
-#     idxSd = data.index[data['Parameters'] == 'Sd'].to_list()[0]
-#     idxBl = data.index[data['Parameters'] == 'Bl'].to_list()[0]
-
-#     # print('idxLe: ', idxLe)
-#     # print(type(data.iat[idxLe, 1]))
-
-#     Re = float(data.iat[idxRe, 1])
-#     Le = float(data.iat[idxLe, 1]) * 1e-3
-#     Mms = float(data.iat[idxMms, 1]) * 1e-3
-#     Rms = float(data.iat[idxRms, 1])
-#     Cms = float(data.iat[idxCms, 1]) * 1e-3
-#     Bl = float(data.iat[idxBl, 1])
-#     Sd = float(data.iat[idxSd, 1]) * 1e-4
-
-#     if LeZero is True:
-#         Le = 0
-
-#     if number_of_drivers > 1:
-#         if wiring == 'parallel':
-#             n = number_of_drivers
-#             drv = electroAcousticDriver(U, Le/n, Re/n, Cms/n, Mms*n, Rms*n, Bl, Sd*n, freq_array, c, rho)
-#         elif wiring == 'series':
-#             n = number_of_drivers
-#             drv = electroAcousticDriver(U, Le*n, Re*n, Cms/n, Mms*n, Rms*n, Bl*n, Sd*n, freq_array, c, rho)
-#         else:
-#             ValueError("'wiring' must be either 'parallel' or 'series'.")
-#     else:
-#         drv = electroAcousticDriver(U, Le, Re, Cms, Mms, Rms, Bl, Sd, freq_array, c, rho)
-#     return drv
 
 def loadLPM(lpmfile, freq_array, U=1, LeZero=False,
             number_of_drivers=1,

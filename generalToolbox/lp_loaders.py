@@ -125,7 +125,7 @@ def hornResp_lp_loader(file_path):
         "Bl": "Bl",
         "Cms": "Cms",
         "Rms": "Rms",
-        "Mmd": "Mmd",  # Using Mms instead of Mmd for consistency
+        "Mmd": "Mms",  # Using Mms instead of Mmd for consistency
         "Le": "Le",
         "Re": "Re"
     }

@@ -54,7 +54,7 @@ class loudspeakerSystem:
         self.vibrometry     = {}
         self.crossover      = {}
         self.acoustic_study = {}
-        self.evaluation    = {}
+        self.evaluation     = {}
         self.results        = {}
 
         # help
