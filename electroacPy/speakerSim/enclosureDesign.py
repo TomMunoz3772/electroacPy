@@ -366,7 +366,7 @@ class speakerBox:
         # extract data
         Q  = enclosure.getPotential(2) * RAD.Gs
         v  = enclosure.getFlow("v")
-        Ze = enclosure.getPotential(1) / enclosure.getFlow(1)
+        Ze = -enclosure.getPotential(1) / enclosure.getFlow(1)
         return Q, v, Ze
 
     def vented_box(self, driver):
@@ -395,7 +395,7 @@ class speakerBox:
         Qp = enclosure.getPotential(4) * RADP.Gs
         v  = enclosure.getFlow("v")
         vp =  Qp / self.Sp
-        Ze = enclosure.getPotential(1) / enclosure.getFlow(1)
+        Ze = -enclosure.getPotential(1) / enclosure.getFlow(1)
         return Q, Qp, v, vp, Ze
 
     def passive_radiator(self, driver):
@@ -424,7 +424,7 @@ class speakerBox:
         Qpr = enclosure.getPotential(4) * RADPR.Gs
         v   = enclosure.getFlow("v")
         vpr =  Qpr / self.Sd
-        Ze  = enclosure.getPotential(1) / enclosure.getFlow(1)
+        Ze  = -enclosure.getPotential(1) / enclosure.getFlow(1)
         return Q, Qpr, v, vpr, Ze
 
     def bandpass4_port(self, driver):
@@ -484,7 +484,7 @@ class speakerBox:
         Qp = enclosure.getPotential(3) * RADPF.Gs
         vp = Qp / self.Sp
         v  = enclosure.getFlow("v")
-        Ze = enclosure.getPotential(1) / enclosure.getFlow(1)
+        Ze = -enclosure.getPotential(1) / enclosure.getFlow(1)
         return Qp, vp, v, Ze
 
     def bandpass6_port(self, driver):
@@ -552,7 +552,7 @@ class speakerBox:
         Qp2 = enclosure.getPotential(5) * RADPB.Gs
         vp2 = Qp2 / self.Sp2
         v  = enclosure.getFlow("v")
-        Ze = enclosure.getPotential(1) / enclosure.getFlow(1)
+        Ze = -enclosure.getPotential(1) / enclosure.getFlow(1)
         return Qp, vp, Qp2, vp2, v, Ze
 
 
@@ -615,7 +615,7 @@ class speakerBox:
         Qpr = enclosure.getPotential(3) * RADPF.Gs
         vpr = Qpr / self.Sd
         v   = enclosure.getFlow("v")
-        Ze  = enclosure.getPotential(1) / enclosure.getFlow(1)
+        Ze  = -enclosure.getPotential(1) / enclosure.getFlow(1)
         return Qpr, vpr, v, Ze
     
     
@@ -644,7 +644,7 @@ class speakerBox:
         Qpr2 = enclosure.getPotential(5) * RADPB.Gs
         vpr2 = Qpr2 / self.Sd2
         v    = enclosure.getFlow("v")
-        Ze   = enclosure.getPotential(1) / enclosure.getFlow(1)
+        Ze   = -enclosure.getPotential(1) / enclosure.getFlow(1)
         return Qpr, vpr, Qpr2, vpr2, v, Ze
 
 
@@ -682,56 +682,61 @@ class speakerBox:
         return None
 
 
-    def plotZe(self):
+    def plotZe(self, **kwargs):
         """
-        Plot the electrical impedance ZeTot in both modulus and phase of driver in enclosure.
-
+        Plot the electrical impedance ZeTot in both modulus and phase.
+    
         Returns
         -------
-        Matplotlib figure
-
+        None
+    
         """
-        try:
-            fig, ax = plt.subplots()
-            ax.semilogx(self.frequencyRange, np.abs(self.Ze),
-                        label="modulus")
-            ax.legend(loc='upper left')
-            ax.grid(linestyle='dotted', which='both')
-            ax.set(ylabel="|Z| [Ohm]", xlabel="Frequency [Hz]")
-            ax2 = ax.twinx()
-            ax2.semilogx(self.frequencyRange, np.angle(self.Ze), '--',
-                         label="phase")
-            ax2.legend(loc='upper right')
-            ax2.set(ylabel="phase [rads]", ylim=[-pi, pi])
-            ax2.grid()
-            plt.tight_layout()
-        except:
-            print('No driver set in specified enclosure.')
+        
+        if "figsize" in kwargs:
+            size=kwargs["figsize"]
+        else:
+            size=None
+        
+        fig, ax = plt.subplots(2, 1, figsize=size)
+        ax[0].semilogx(self.frequencyRange, np.abs(self.Ze))
+        ax[0].set(ylabel="Magnitude [Ohm]")
+        
+        ax[1].semilogx(self.frequencyRange, np.angle(self.Ze))
+        ax[1].set(xlabel="Frequency [Hz]", ylabel="Phase [rad]")
+        for i in range(2):
+            ax[i].grid(which="both", linestyle="dotted")
+        plt.tight_layout()
         return plt.show()
-
-    def plotXVA(self):
+    
+    def plotXVA(self, **kwargs):
         """
-        Plot displacement, velocity and acceleration response of driver in enclosure
-
+        Plot the displacement, velocity, and acceleration frequency responses.
+    
         Returns
         -------
-        Matplotlib figure
+        None
+    
         """
-        w = self.frequencyRange * 2 * pi
-        try:
-            fig, ax = plt.subplots(3, 1)
-            ax[0].semilogx(self.frequencyRange, np.abs(self.v/1j/w * 1e3), label='Displacement')
-            ax[1].semilogx(self.frequencyRange, np.abs(self.v), label='Velocity')
-            ax[2].semilogx(self.frequencyRange, np.abs(self.v*1j*w), label='Acceleration')
-            ax[2].set(xlabel="Frequency [Hz]")
-            ax[0].set(ylabel="mm")
-            ax[1].set(ylabel="m/s")
-            ax[2].set(ylabel="m/s^2")
-            for i in range(3):
-                ax[i].grid(which='both')
-                ax[i].legend(loc='best')
-            plt.tight_layout()
-        except:
-            print('No driver set in specified enclosure.')
-        return None
-
+        
+        if "figsize" in kwargs:
+            size=kwargs["figsize"]
+        else:
+            size=None
+        
+        
+        x = self.v / laplace(self.frequencyRange)
+        a = self.v * laplace(self.frequencyRange)
+        
+        fig, ax = plt.subplots(3, 1, figsize=size)
+        ax[0].semilogx(self.frequencyRange, np.abs(x), label='Displacement')
+        ax[1].semilogx(self.frequencyRange, np.abs(self.v), label='Velocity')
+        ax[2].semilogx(self.frequencyRange, np.abs(a), label='Acceleration')
+        ax[2].set(xlabel="Frequency [Hz]")
+        ax[0].set(ylabel="mm")
+        ax[1].set(ylabel="m/s")
+        ax[2].set(ylabel="m/s^2")
+        for i in range(3):
+            ax[i].grid(which='both', linestyle="dotted")
+            ax[i].legend(loc='best')
+        plt.tight_layout()
+        return plt.show()

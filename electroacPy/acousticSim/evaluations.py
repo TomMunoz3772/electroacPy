@@ -191,7 +191,7 @@ class evaluations:
             else:
                 colors.append([128, 128, 128])  # gray color for non-radiating
         mesh.cell_data['colors'] = colors
-        center = mesh.center
+        # center = mesh.center
 
         # create plotter
         pl = pyvista.Plotter()
@@ -226,7 +226,13 @@ class evaluations:
         x_width = bounds[1] - bounds[0]  # Width along the x-axis
         y_width = bounds[3] - bounds[2]  # Width along the y-axis
         z_width = bounds[5] - bounds[4]  # Width along the z-axis
-        plane_size = (x_width, y_width, z_width)
+        
+        if bool(self.setup) is False:   
+            p_coeff = 2  # make infinite boundary a bit bigger if no eval is set 
+        else:
+            p_coeff = 1
+        
+        plane_size = (x_width*p_coeff, y_width*p_coeff, z_width*p_coeff)
         # add floor if infinite boundary conditions are present in bemObject
         bemObject = self.bemObject
         if bemObject.boundary_conditions is not None:
@@ -244,8 +250,10 @@ class evaluations:
             else:
                 pass
 
+        if bool(self.setup) is True:   
+            pl.add_legend(face='circle', bcolor=None)
+
         pl.add_axes(color='black')
-        pl.add_legend(face='circle', bcolor=None)
         pl.background_color = 'white'
 
         _ = pl.show_grid(color='k')

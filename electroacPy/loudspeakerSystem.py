@@ -361,7 +361,6 @@ class loudspeakerSystem:
                            min_angle: float,
                            max_angle: float,
                            step: float,
-                           # plane: str,
                            on_axis: str,
                            direction: str,
                            radius: float = 5,
@@ -508,11 +507,11 @@ class loudspeakerSystem:
             else:
                 None
             
-        if bool(self.evaluation) is True:
-            for obs in self.evaluation:
+        for obs in self.evaluation:
+            if bool(self.evaluation[obs].setup) is True:
                 self.evaluation[obs].solve()
-        else:
-            print("No evaluation to evaluate.")
+            else:
+                print("No evaluation to compute for study {}.".format(obs))
         return None
 
     ## PLOT

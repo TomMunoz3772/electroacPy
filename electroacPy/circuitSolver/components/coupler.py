@@ -112,7 +112,7 @@ class CCVS:
             self.stamp_G[maxNode+nbsource+1, nm1-1] = -1 
         
         # Bl factor
-        self.stamp_G[maxNode+nbsource, maxNode+nbsource+1] = self.value
+        self.stamp_G[maxNode+nbsource+1, maxNode+nbsource] = -self.value
                 
         # Y stamp
         self.stamp_I = zeros([maxNode+M, 1], dtype=complex)

@@ -285,7 +285,6 @@ class cavity:
         if np != 0 and nm != 0:
             self.stamp_G[np - 1, nm - 1] = -1
             self.stamp_G[nm - 1, np - 1] = -1
-            
 
 class port:
     def __init__(self, np, nm, Lp, rp, rho=1.22, c=343):
