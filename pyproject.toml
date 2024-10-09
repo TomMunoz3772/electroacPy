@@ -18,7 +18,7 @@ classifiers = [
 dependencies = ["numpy", "pandas", "pyarrow", "matplotlib",
             "tqdm", "numba", "meshio", "scipy", "pyvista",
             "pyuff", "gmsh", "plotly", "siphash24", "pyopencl",
-            "intel-opencl-rt"
+            "intel-opencl-rt",
 ]
 
 
