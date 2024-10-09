@@ -6,7 +6,7 @@ Created on Tue Oct  3 15:56:03 2023
 @author: tom.munoz
 """
 
-from electroacPy.globalVariables import air
+from electroacPy.global_ import air
 from electroacPy.speakerSim.electroAcousticDriver import electroAcousticDriver as ead
 from generalToolbox.freqop import freq_log10 as f10
 from generalToolbox.freqop import laplace

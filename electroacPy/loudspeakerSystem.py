@@ -27,7 +27,7 @@ from electroacPy.speakerSim.filterDesign import xovers
 from electroacPy.measurements.laserVibrometry import laserVibrometry as laser_v
 
 # general
-from electroacPy.globalVariables import air
+from electroacPy.global_ import air
 from generalToolbox.freqop import freq_log10
 from generalToolbox.gain import dB
 
@@ -622,7 +622,8 @@ class loudspeakerSystem:
         print(maxTot * "#")
         return None
 
-    def get_pMic(self, studyName, evaluationName, radiatingElement=[], bypass_xover=False):
+    def get_pMic(self, studyName, evaluationName, 
+                 radiatingElement=[], bypass_xover=False):
         """
         Return pressure at microphone points for defined studies, evaluation and radiating surfaces.
 

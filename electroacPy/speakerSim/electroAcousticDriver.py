@@ -6,7 +6,7 @@ Created on Tue Oct  3 15:50:43 2023
 @author: tom.munoz
 """
 import numpy as np
-from electroacPy.globalVariables import air
+from electroacPy.global_ import air
 import matplotlib.pyplot as plt
 import generalToolbox as gtb
 import generalToolbox.lp_loaders as lpl
