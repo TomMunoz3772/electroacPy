@@ -8,10 +8,23 @@ Created on Tue Sep  3 11:26:36 2024
 from numpy import unique, zeros, squeeze, linalg, concatenate, int16
 from numpy import max as nmax
 from copy import copy
-
+from tqdm import tqdm
     
 class circuit:
     def __init__(self, frequency):
+        """
+        Create a circuit object.
+
+        Parameters
+        ----------
+        frequency : numpy array
+            Range of simulation.
+
+        Returns
+        -------
+        None.
+
+        """
         self.frequency = frequency
         self.Nfft = len(frequency)
         self.G_m = None
@@ -51,6 +64,21 @@ class circuit:
             self.checkNodes(comp)
                 
     def checkNodes(self, component):
+        """
+        Looks for already existing node in circuit (stored in node_id). If none
+        is found, add a new key to the node_id dictionary.
+
+        Parameters
+        ----------
+        component : component object
+            Electric, mechanic or acoustic components.
+
+        Returns
+        -------
+        None.
+
+        """
+        
         # Check 'np' key and assign node if it doesn't exist
         if component.np != '0' and component.np not in self.node_id:
             self.node_id[component.np] = self.node_count
@@ -93,6 +121,14 @@ class circuit:
 
                 
     def countNodesAndSources(self):                   
+        """
+        Count and identify nodes and sources present in the circuits.
+
+        Returns
+        -------
+        None.
+
+        """
         self.N = len(self.node_id)        
         self.Nc = len(self.components)
         
@@ -102,12 +138,14 @@ class circuit:
         
         nbsource = 0
         for comp in self.components:
-            if comp.vsource == 0:
+            if "Is" not in comp.contribute:
                 comp.update_stamp(self.node_id, self.M)
-            elif comp.vsource != 0:
+            elif "Is" in comp.contribute:
                 comp.update_stamp(self.node_id, self.M, nbsource)
                 nbsource += comp.vsource  # add number of sources
-                if nbsource == 2:
+                # print("nbsource", nbsource)
+                # print("comp.np", comp.np)
+                if comp.vsource == 2:
                     self.source_id[comp.np] = nbsource-1
                     self.source_id[comp.np1] = nbsource
                 else:
@@ -116,16 +154,16 @@ class circuit:
     def build_G(self, nf):
         G = zeros([self.N+self.M, self.M+self.N], dtype=complex)
         for comp in self.components:
-            G += comp.stamp_G * comp.Gs[nf]
-            if "Ys" in comp.__dict__:
-                G += comp.stamp_Y * comp.Ys[nf]             
+            if "G" in comp.contribute:
+                G += comp.stamp_G * comp.Gs[nf]
+                if "Ys" in comp.__dict__:
+                    G += comp.stamp_Y * comp.Ys[nf]             
         return G
     
     def build_Is(self, nf):
         I = zeros([self.N + self.M, 1], dtype=complex)
-        
         for comp in self.components:
-            if comp.vsource == 1:
+            if "Is" in comp.contribute:
                 I += comp.stamp_I * comp.Gs[nf]
         return I
     
@@ -133,17 +171,28 @@ class circuit:
         self.countNodesAndSources()
         self.X = zeros([self.N+self.M, self.Nfft], dtype=complex)
         
-        for nf in range(self.Nfft):
+        print("Solving network...")
+        for nf in tqdm(range(self.Nfft)):
             self.G_m = self.build_G(nf)
             self.I_s = self.build_Is(nf)
             self.X[:, nf] = squeeze(linalg.inv(self.G_m) @ self.I_s)
     
     def getPotential(self, node_id):
         """
-        Return the potential or current (if connected to voltage source) at given node
-        :param node_number:
-        :return:
+        Return the potential at given node.
+
+        Parameters
+        ----------
+        node_id : int or str
+            Node at which the potential is probed.
+
+        Returns
+        -------
+        out : numpy array
+            Voltage at node "node_id".
+
         """
+
         if isinstance(node_id, int):
             node_id = str(node_id)
         node_number = self.node_id[node_id]
@@ -157,13 +206,23 @@ class circuit:
     
     def getFlow(self, source_id):
         """
-        Return the flow at given source. The source_number corresponds to its position in addComponent().
-        :param source_number:
-        :return:
+        Return the flow at given source.
+
+        Parameters
+        ----------
+        source_id : int or str
+            Node of source, as defined by the user when creating the component.
+
+        Returns
+        -------
+        out : numpy array
+            Current at source "source_id".
+
         """
+
         if isinstance(source_id, int):
             source_id = str(source_id)
-        source_number = self.source_id[source_id]#self.node_id[source_id]
+        source_number = self.source_id[source_id]
         
         if self.X is not None:
             if source_number <= self.M:

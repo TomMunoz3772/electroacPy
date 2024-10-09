@@ -5,14 +5,16 @@ Created on Tue Oct  3 15:50:43 2023
 
 @author: tom.munoz
 """
-import electroacPy.speakerSim.electroAcousticDriver
 import numpy as np
-from scipy.signal import freqs
 from electroacPy.globalVariables import air
 import matplotlib.pyplot as plt
-import pandas as pd
-from matplotlib.widgets import Cursor, Slider, TextBox, Button
 import generalToolbox as gtb
+import generalToolbox.lp_loaders as lpl
+import tkinter as tk
+from tkinter import ttk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+import os
 from copy import copy
 
 pi = np.pi
@@ -118,23 +120,14 @@ class electroAcousticDriver:
         self.EBP = self.Fs/self.Qes
 
 
-        # Ref Signals #
+        # Ref Signals
         # Velocity
-        # av = [Mms*Le, Le*Rms + Mms*Re, Rms*Re + Le / Cms + Bl**2, Re/Cms]
-        # bv = [Bl, 0]
-        # _, self.Hv = freqs(bv, av, worN=f_array)
         self.Hv = Bl/self.Ze  / (self.Zms + Bl**2 / self.Ze)
 
         # Displacement
-        # ax = av
-        # bx = [Bl]
-        # _, self.Hx = freqs(bx, ax, worN=f_array)
         self.Hx = self.Hv / s
 
         # Acceleration
-        # aa = av
-        # ba = [Bl, 0, 0]
-        # _, self.Ha = freqs(ba, aa, worN=f_array)
         self.Ha = self.Hv * s
 
         # Acoustic simulation reference
@@ -150,7 +143,7 @@ class electroAcousticDriver:
         self.poly_data = False  # is class from polytech?
 
         
-    def plotZe(self):
+    def plotZe(self, **kwargs):
         """
         Plot the electrical impedance ZeTot in both modulus and phase.
 
@@ -159,22 +152,24 @@ class electroAcousticDriver:
         None
 
         """
-        fig, ax = plt.subplots()
-        ax.semilogx(self.f_array, np.abs(self.ZeTot), 
-                    label="modulus")
-        ax.legend(loc='upper left')
-        ax.grid(linestyle='dotted', which='both')
-        ax.set(ylabel="|Z| [Ohm]", xlabel="Frequency [Hz]")
-        ax2 = ax.twinx()
-        ax2.semilogx(self.f_array, np.angle(self.ZeTot), '--', 
-                     label="phase")
-        ax2.legend(loc='upper right')
-        ax2.set(ylabel="phase [rads]", ylim=[-pi/2, pi/2])
-        ax2.grid()
+        
+        if "figsize" in kwargs:
+            size=kwargs["figsize"]
+        else:
+            size=None
+        
+        fig, ax = plt.subplots(2, 1, figsize=size)
+        ax[0].semilogx(self.f_array, np.abs(self.ZeTot))
+        ax[0].set(ylabel="Magnitude [Ohm]")
+        
+        ax[1].semilogx(self.f_array, np.angle(self.ZeTot))
+        ax[1].set(xlabel="Frequency [Hz]", ylabel="Phase [rad]")
+        for i in range(2):
+            ax[i].grid(which="both", linestyle="dotted")
         plt.tight_layout()
         return plt.show()
     
-    def plotXVA(self):
+    def plotXVA(self, **kwargs):
         """
         Plot the displacement, velocity, and acceleration frequency responses.
 
@@ -183,7 +178,13 @@ class electroAcousticDriver:
         None
 
         """
-        fig, ax = plt.subplots(3, 1)
+        
+        if "figsize" in kwargs:
+            size=kwargs["figsize"]
+        else:
+            size=None
+        
+        fig, ax = plt.subplots(3, 1, figsize=size)
         ax[0].semilogx(self.f_array, np.abs(self.Hx*1e3), label='Displacement')
         ax[1].semilogx(self.f_array, np.abs(self.Hv), label='Velocity')
         ax[2].semilogx(self.f_array, np.abs(self.Ha), label='Acceleration')
@@ -192,7 +193,7 @@ class electroAcousticDriver:
         ax[1].set(ylabel="m/s")
         ax[2].set(ylabel="m/s^2")
         for i in range(3):
-            ax[i].grid(which='both')
+            ax[i].grid(which='both', linestyle="dotted")
             ax[i].legend(loc='best')
         plt.tight_layout()
         return plt.show()
@@ -230,11 +231,11 @@ class electroAcousticDriver:
         print("Fs = ", round(self.Fs, 2), " Hz")
         print("Vas = ", self.Vas, " m^3")
         return None
-
+    
     def sealedAlignment(self):
         """
-        Compute Volume from Qtc value
-
+        Compute Volume from Qtc value using Tkinter instead of Matplotlib widgets
+    
         Parameters
         ----------
         driver : class
@@ -242,386 +243,383 @@ class electroAcousticDriver:
         Qtc : total quality factor (mechanical, electrical, acoustical)
         c : speed of sound. The default is air.c.
         rho : air density. The default is air.rho.
-
+    
         Returns
         -------
         Vb : sealed enclosure volume.
         fc : resonance frequency of the driver inside the enclosure (without radiation mass)
         """
+        
         driver = self
         c = self.c
         rho = self.rho
-
+    
         ## box parameters
         Vb = driver.Vas
         fc = driver.Fs * np.sqrt(driver.Vas / Vb + 1)
         Qtc = fc / driver.Fs * driver.Qts
         Cab = Vb / rho / c**2
-
+    
         ## radiated pressure at 1 m
         f_axis = driver.f_array
-        omega = 2*np.pi*f_axis
-        k = omega/c
-
+        omega = 2 * np.pi * f_axis
+        k = omega / c
+    
         Zac = driver.Zac
         Zas = driver.Zas
-        Zaf = driver.Zaf
-        Zab = 1/1j/omega/Cab
+        Zab = 1 / 1j / omega / Cab
         Ps = driver.Ps
-        Qs = Ps / (Zac + Zas + Zab) # removed Zaf
-
-        p = 1j*k*rho*c*Qs * np.exp(-1j*k*1) / (2 * np.pi * 1)
-        Ze = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd ** 2 * (Zab))# + driver.Zaf))
-
-        ## data plot
-        fig, ax = plt.subplots(2, 1)
-        ax[0].semilogx(f_axis, gtb.gain.SPL(p), label='SPL')
-        ax[1].semilogx(f_axis, np.abs(Ze), label='Magnitude')
-
-        ax[1].set(xlabel='Frequency [Hz]', ylabel='impedance')
-        ax[0].set(ylabel='SPL [dB] at 1 meter')
-        ax[0].legend(loc='best')
-        ax[1].legend(loc='best')
-        for i in range(2):
-            ax[i].grid(which='both')
-
-        plt.subplots_adjust(bottom=0.25)
-
-        # creation of text boxes
+        Qs = Ps / (Zac + Zas + Zab)  # removed Zaf
+    
+        p = 1j * k * rho * c * Qs * np.exp(-1j * k * 1) / (2 * np.pi * 1)
+        Ze = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd ** 2 * (Zab))
+    
+        # Setup Tkinter window
+        root = tk.Tk()
+        root.title("Sealed Alignment")
+    
+        # Create figure (using matplotlib's Figure class, not plt.subplots)
+        fig = Figure(figsize=(6, 4))
+        ax1 = fig.add_subplot(211)
+        ax2 = fig.add_subplot(212)
+        
+        # Initial plot (SPL and Magnitude)
+        ax1.semilogx(f_axis, gtb.gain.SPL(p), label='SPL')
+        ax2.semilogx(f_axis, np.abs(Ze), label='Magnitude')
+    
+        ax2.set(xlabel='Frequency [Hz]', ylabel='Impedance')
+        ax1.set(ylabel='SPL [dB] at 1 meter')
+        ax1.legend(loc='best')
+        ax2.legend(loc='best')
+    
+        for ax in [ax1, ax2]:
+            ax.grid(which='both')
+    
+        # Embed the plot into Tkinter
+        canvas = FigureCanvasTkAgg(fig, master=root)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+    
+        # Create Labels and Entry fields
         defaultQtc = round(Qtc, 4)
-        graphBox = fig.add_axes([0.2, 0.05, 0.1, 0.075])
-        bQtc = TextBox(graphBox, "Qtc: ")
-
-        volumeBox = fig.add_axes([0.4, 0.05, 0.1, 0.075])
-        bVb = TextBox(volumeBox, "Vb (L): ")
-
-        def update(expr):
-            # update Cab value and [p, Ze]
-            Qtc = float(expr)
-            fc = Qtc / driver.Qts * driver.Fs
-            Vb = driver.Vas / ((fc/driver.Fs)**2 - 1)
-            Cab = Vb / rho / c ** 2
-            Zab = 1 / 1j / omega / Cab
-
-            Qs = Ps / (Zac + Zas + Zab)  # remove Zaf
-            p = 1j * k * rho * c * Qs * np.exp(1j * k * 1) / (2 * np.pi * 1)
-            Ze = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd ** 2 * (Zab)) #+ driver.Zaf))
-
-            ax[0].clear()
-            ax[1].clear()
-
-            ax[0].semilogx(f_axis, gtb.gain.SPL(p), label='SPL')
-            ax[1].semilogx(f_axis, np.abs(Ze), label='Magnitude')
-            ax[1].set(xlabel='Frequency [Hz]', ylabel='Impedance [Ohm]')
-            ax[0].set(ylabel='SPL [dB] at 1 meter')
-            ax[0].legend(loc='best')
-            ax[1].legend(loc='upper left')
-            for i in range(2):
-                ax[i].grid(which='both')
-            plt.draw()
-            bVb.set_val(str(round(Vb*1e3, 4)))
-
-        def updateVolume(expr):
-            Vbexpr = float(expr)*1e-3
-            fc = driver.Fs * np.sqrt(driver.Vas / Vbexpr + 1)
-            Qtc = fc/driver.Fs * driver.Qts
-            bQtc.set_val(str(round(Qtc, 4)))
-
-        # Qtc box
-        bQtc.on_submit(update)
-        bQtc.set_val(str(defaultQtc))  # set default value
-
-        # volume box (input in L)
-        bVb.on_submit(updateVolume)
-        bVb.set_val(str(round(Vb*1e3, 4)))
-        return bQtc, bVb, plt.show()
-
+    
+        label_qtc = ttk.Label(root, text="Qtc:")
+        label_qtc.pack(side=tk.LEFT, padx=5)
+        
+        entry_qtc = ttk.Entry(root, width=10)
+        entry_qtc.pack(side=tk.LEFT, padx=5)
+        entry_qtc.insert(0, str(defaultQtc))
+    
+        label_vb = ttk.Label(root, text="Vb (L):")
+        label_vb.pack(side=tk.LEFT, padx=5)
+        
+        entry_vb = ttk.Entry(root, width=10)
+        entry_vb.pack(side=tk.LEFT, padx=5)
+        entry_vb.insert(0, str(round(Vb * 1e3, 4)))
+    
+        # Function to update the plot based on Qtc entry
+        def update_plot():
+            try:
+                Qtc_value = float(entry_qtc.get())
+                fc = Qtc_value / driver.Qts * driver.Fs
+                Vb_new = driver.Vas / ((fc / driver.Fs)**2 - 1)
+                Cab_new = Vb_new / rho / c**2
+                Zab_new = 1 / 1j / omega / Cab_new
+    
+                Qs_new = Ps / (Zac + Zas + Zab_new)
+                p_new = 1j * k * rho * c * Qs_new * np.exp(-1j * k * 1) / (2 * np.pi * 1)
+                Ze_new = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd ** 2 * Zab_new)
+    
+                # Clear and update the plots
+                ax1.clear()
+                ax2.clear()
+    
+                ax1.semilogx(f_axis, gtb.gain.SPL(p_new), label='SPL')
+                ax2.semilogx(f_axis, np.abs(Ze_new), label='Magnitude')
+    
+                ax2.set(xlabel='Frequency [Hz]', ylabel='Impedance [Ohm]')
+                ax1.set(ylabel='SPL [dB] at 1 meter')
+                ax1.legend(loc='best')
+                ax2.legend(loc='upper left')
+    
+                for ax in [ax1, ax2]:
+                    ax.grid(which='both')
+    
+                canvas.draw()
+    
+                # Update volume value in the entry box
+                entry_vb.delete(0, tk.END)
+                entry_vb.insert(0, str(round(Vb_new * 1e3, 4)))
+    
+            except ValueError:
+                pass  # Prevent the function from crashing if non-numeric input is entered
+    
+        # Function to update Qtc based on Volume entry
+        def update_qtc():
+            try:
+                Vb_value = float(entry_vb.get()) * 1e-3  # Convert from liters to cubic meters
+                fc_new = driver.Fs * np.sqrt(driver.Vas / Vb_value + 1)
+                Qtc_new = fc_new / driver.Fs * driver.Qts
+    
+                # Update Qtc value in the entry box
+                entry_qtc.delete(0, tk.END)
+                entry_qtc.insert(0, str(round(Qtc_new, 4)))
+    
+                update_plot()  # Automatically update plot with new values
+    
+            except ValueError:
+                pass  # Handle non-numeric input
+    
+        # Bind events to update the plot automatically when the user presses Enter or leaves the entry field
+        entry_qtc.bind("<Return>", lambda event: update_plot())
+        entry_qtc.bind("<FocusOut>", lambda event: update_plot())
+        
+        entry_vb.bind("<Return>", lambda event: update_qtc())
+        entry_vb.bind("<FocusOut>", lambda event: update_qtc())
+    
+        root.mainloop()
+     
+    
     def portedAlignment(self):
-        """
-        Adjust ported box alignment and plot results.
-
-        Returns:
-        -------
-        None
-        """
-
         driver = copy(self)
         c = self.c
         rho = self.rho
-
-        ## load data
         f_axis = driver.f_array
         omega = 2 * np.pi * f_axis
         k = omega / c
         s = 1j * omega
-
-        ## default box parameters
-        self.Vb = copy(driver.Vas)
-
-        fc = driver.Fs * np.sqrt(driver.Vas / self.Vb + 1)
-        Qtc = fc / driver.Fs * driver.Qts
-
         eta = 1e-5
+    
+        # Default parameters
+        self.Vb = copy(driver.Vas)
+        self.Lp = 343 / driver.Fs / 100  # Length in meters
+        self.rp = self.Lp / 2  # Radius in meters
+        self.Sp = np.pi * self.rp ** 2  # Port cross-sectional area
+    
+        # Create input widgets
+        default_volume = str(round(self.Vb * 1e3, 2))
+        default_length = str(round(self.Lp * 1e2, 2))
+        default_radius = str(round(self.rp * 1e2, 2))
+        default_section = str(round(self.Sp * 1e4, 2))
+    
+        # GUI creation
+        root = tk.Tk()
+        root.title("Ported Alignment")
+    
+        # Create a matplotlib figure
+        fig = Figure(figsize=(6, 4))
+        ax_spl = fig.add_subplot(211)
+        ax_imp = fig.add_subplot(212)
+        
+        
+        # Create canvas for the plot and add to the tkinter window
+        canvas = FigureCanvasTkAgg(fig, master=root)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+    
+        # Create textboxes in a horizontal row at the bottom
+        volume_label = ttk.Label(root, text="Vb (L):")
+        volume_label.pack(side=tk.LEFT, padx=5)
+        volume_entry = ttk.Entry(root, width=10)
+        volume_entry.pack(side=tk.LEFT, padx=5)
+        volume_entry.insert(0, default_volume)
+        
+        length_label = ttk.Label(root, text="Lp (cm):")
+        length_label.pack(side=tk.LEFT, padx=5)
+        length_entry = ttk.Entry(root, width=10)
+        length_entry.pack(side=tk.LEFT, padx=5)
+        length_entry.insert(0, default_length)
+        
+        radius_label = ttk.Label(root, text="rp (cm):")
+        radius_label.pack(side=tk.LEFT, padx=5)
+        radius_entry = ttk.Entry(root, width=10)
+        radius_entry.pack(side=tk.LEFT, padx=5)
+        radius_entry.insert(0, default_radius)
+       
+        section_label = ttk.Label(root, text=r"Sp (cm²):")
+        section_label.pack(side=tk.LEFT, padx=5)
+        section_entry = ttk.Entry(root, width=10)
+        section_entry.pack(side=tk.LEFT, padx=5)
+        section_entry.insert(0, default_section)
+        
+        def update_plot():
+            try:
+                # box impedance
+                self.Cab = self.Vb / rho / c ** 2
+                self.Rab = rho * c / eta / self.Vb
+                self.Zbox = gtb.parallel(1 / s / self.Cab, self.Rab)
+        
+                # port impedance
+                self.Map = rho * self.Lp / self.Sp
+                self.Mal = 0.85 * 2 * self.rp
+                self.Map += self.Mal
+                Pp = 2 * np.pi * self.rp
+                alpha = np.sqrt(f_axis) * (0.95e-5 + 2.03e-5) * Pp / 2 / self.Sp
+                kl = k * (1 + alpha * (1 - 1j))
+                d0 = (0.6133 + 0.85) * self.rp
+                self.Zrad = rho * c / self.Sp * (1 / 4 * (kl * self.rp) ** 2 + 1j * kl * d0)
+                self.Zp = s * self.Map + self.Zrad
+                # self.Zab = 1 / (s * self.Cab) + self.Rab + self.Zp
+                self.Zab = gtb.parallel(1 / s / self.Cab, self.Rab, s * self.Map + self.Zrad)
+    
+                # Calculate total system
+                ZaTot = driver.Zs
+                Ps = driver.Ps
+                Qs = Ps / (ZaTot + self.Zab)
+                Qp = Qs * self.Zbox / (self.Zbox + self.Zp)
+    
+                p = 1j * k * rho * c * (Qs - Qp) * np.exp(-1j * k * 1) / (2 * np.pi * 1)
+                Ze = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd**2 * (self.Zab + driver.Zaf))
+        
+                # Clear the axes and plot new data
+                ax_spl.clear()
+                ax_imp.clear()
+                ax_spl.semilogx(f_axis, gtb.gain.SPL(p), label='SPL')
+                ax_imp.semilogx(f_axis, np.abs(Ze), label='Impedance')
+                ax_spl.set_ylabel('SPL [dB]')
+                ax_imp.set_ylabel('Impedance [Ohm]')
+                ax_imp.set_xlabel('Frequency [Hz]')
+                ax_spl.grid(which='both')
+                ax_imp.grid(which='both')
+                ax_spl.legend(loc='best')
+                ax_imp.legend(loc='best')
+                canvas.draw()
+            except ValueError:
+                pass
+                
+                
+        def update_volume():
+            try:
+                self.Vb = float(volume_entry.get()) * 1e-3  # Convert L to m^3
+                update_plot()
+            except ValueError:
+                print("Invalid input for volume. Please enter a numeric value.")
+        
+        def update_length():
+            try:
+                self.Lp = float(length_entry.get()) * 1e-2  # Convert cm to m
+                update_plot()
+            except ValueError:
+                print("Invalid input for length. Please enter a numeric value.")
+        
+        def update_radius():
+            try:
+                self.rp = float(radius_entry.get()) * 1e-2  # Convert cm to m
+                self.Sp = np.pi * self.rp ** 2
+                section_entry.delete(0, "end")
+                section_entry.insert(0, str(round(self.Sp * 1e4, 2)))  # Update section box in cm^2
+                update_plot()
+            except ValueError:
+                print("Invalid input for radius. Please enter a numeric value.")
+    
+        def update_section():
+            try:
+                self.Sp = float(section_entry.get()) * 1e-4  # Convert cm² to m²
+                self.rp = np.sqrt(self.Sp / np.pi)
+                radius_entry.delete(0, "end")
+                radius_entry.insert(0, str(round(self.rp * 1e2, 2)))  # Update radius box in cm
+                update_plot()
+            except ValueError:
+                print("Invalid input for section. Please enter a numeric value.")
+        
+    
+        # bind Return and FocusOut
+        volume_entry.bind("<Return>", lambda event: update_volume())  # Bind Enter key
+        volume_entry.bind("<FocusOut>", lambda event: update_volume())
+        length_entry.bind("<Return>", lambda event: update_length())  # Bind Enter key
+        length_entry.bind("<FocusOut>", lambda event: update_length())
+        radius_entry.bind("<Return>", lambda event: update_radius())
+        radius_entry.bind("<FocusOut>", lambda event: update_radius())
+        section_entry.bind("<Return>", lambda event: update_section())
+        section_entry.bind("<FocusOut>", lambda event: update_section())
+      
+        # Initial plot
+        update_plot()
+    
+        # Run the tkinter loop
+        root.mainloop()
+    
 
-        # ports dimensions
-        self.Lp = 343 / driver.Fs / 100  # default and arbitrary length
-        self.rp = self.Lp / 2  # default and arbitrary radius
-        self.Sp = np.pi * self.rp ** 2
-
-        # box impedance
-        self.Cab = self.Vb / rho / c ** 2  # compliance of the enclosure
-        self.Rab = rho * c / eta / self.Vb
-        self.Zbox = gtb.parallel(1 / s / self.Cab, self.Rab)
-
-        # port impedance
-        self.Map = rho * self.Lp / self.Sp  # acoustical mass of the port
-        self.Mal = 0.85 * 2 * self.rp  # length correction
-        self.Map += self.Mal
-
-        # radiation impedance (port)
-        Pp = 2 * np.pi * self.rp  # perimeter of the port
-        alpha = np.sqrt(f_axis) * (0.95e-5 + 2.03e-5) * Pp / 2 / self.Sp
-        kl = k * (1 + alpha * (1 - 1j))
-        d0 = (0.6133 + 0.85) * self.rp  # length correction
-        self.Zrad = rho * c / self.Sp * (1 / 4 * (kl * self.rp) ** 2 + 1j * kl * d0)
-        self.Zp = s * self.Map + self.Zrad  # total impedance of the port (tube + radiation)
-
-        # enclosure impedance
-        self.Zab = gtb.parallel(1 / s / self.Cab, self.Rab, s * self.Map + self.Zrad)
-
-        # total system impedance calculation
-        ZaTot = driver.Zs
-        Ps = driver.Ps
-
-        # compute volume velocities
-        Qs = Ps / (ZaTot + self.Zab)
-        Qp = Qs * self.Zbox / (self.Zbox + self.Zp)
-
-        p = 1j * k * rho * c * (Qs - Qp) * np.exp(-1j * k * 1) / 2 / np.pi / 1
-
-        # total electrical impedance
-        Ze = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd ** 2 * (self.Zab + driver.Zaf))
-
-        ## data plot
-        fig, ax = plt.subplots(2, 1)
-        ax[0].semilogx(f_axis, gtb.gain.SPL(p), label='SPL')
-        ax[1].semilogx(f_axis, np.abs(Ze), label='Magnitude')
-
-        ax[1].set(xlabel='Frequency [Hz]', ylabel='Impedance [Ohm]')
-        ax[0].set(ylabel='SPL [dB] at 1 meter')
-        ax[0].legend(loc='best')
-        ax[1].legend(loc='best')
-        for i in range(2):
-            ax[i].grid(which='both')
-        plt.subplots_adjust(bottom=0.25)
-
-        # creation of text boxes
-        volumeBox = fig.add_axes([0.2, 0.05, 0.075, 0.075])
-        bVb = TextBox(volumeBox, "Vb (L): ")
-
-        lengthBox = fig.add_axes([0.4, 0.05, 0.075, 0.075])
-        bLp = TextBox(lengthBox, "Lp (cm): ")
-
-        radiusBox = fig.add_axes([0.6, 0.05, 0.075, 0.075])
-        bRp = TextBox(radiusBox, "rp (cm): ")
-
-        sectionBox = fig.add_axes([0.8, 0.05, 0.075, 0.075])
-        bSp = TextBox(sectionBox, r"Sp (cm$^2$): ")
-
-        def updateVolume(expr):
-            self.Vb = float(expr) * 1e-3  # back in m^3
-
-            # box impedance
-            self.Cab = self.Vb / rho / c ** 2  # compliance of the enclosure
-            self.Rab = rho * c / eta / self.Vb
-            self.Zbox = gtb.parallel(1 / s / self.Cab, self.Rab)
-
-            # enclosure impedance
-            self.Zab = gtb.parallel(1 / s / self.Cab, self.Rab, s * self.Map + self.Zrad)
-
-            # update data
-            updateZab(self.Zab, self.Zbox, self.Zp)
-            return None
-
-        def updatePortLength(expr):
-            self.Lp = float(expr) * 1e-2  # back in m
-
-            # box impedance
-            # Cab = Vb / rho / c ** 2  # compliance of the enclosure
-            # Rab = rho * c / eta / Vb
-            # Zbox = parallel(1 / s / Cab, Rab)
-
-            # port impedance
-            self.rp = np.sqrt(self.Sp / pi)  # radius of the port
-            self.Map = rho * self.Lp / self.Sp  # acoustical mass of the port
-            self.Mal = 0.85 * 2 * self.rp  # length correction
-            self.Map += self.Mal
-
-            # radiation impedance (port)
-            Pp = 2 * np.pi * self.rp  # perimeter of the port
-            alpha = np.sqrt(f_axis) * (0.95e-5 + 2.03e-5) * Pp / 2 / self.Sp
-            kl = k * (1 + alpha * (1 - 1j))
-            d0 = (0.6133 + 0.85) * self.rp  # length correction
-            self.Zrad = rho * c / self.Sp * (1 / 4 * (kl * self.rp) ** 2 + 1j * kl * d0)
-            self.Zp = s * self.Map + self.Zrad  # total impedance of the port (tube + radiation)
-
-            # enclosure impedance
-            self.Zab = gtb.parallel(1 / s / self.Cab, self.Rab, s * self.Map + self.Zrad)
-
-            # update data
-            updateZab(self.Zab, self.Zbox, self.Zp)
-            return None
-
-        def updatePortRadius(expr):
-            self.rp = float(expr) * 1e-2  # back in m
-            self.Sp = np.pi * self.rp ** 2
-
-            # # box impedance
-            # Cab = Vb / rho / c ** 2  # compliance of the enclosure
-            # Rab = rho * c / eta / Vb
-            self.Zbox = gtb.parallel(1 / s / self.Cab, self.Rab)
-
-            # port impedance
-            self.Map = rho * self.Lp / self.Sp  # acoustical mass of the port
-            self.Mal = 0.85 * 2 * self.rp  # length correction
-            self.Map += self.Mal
-
-            # radiation impedance (port)
-            Pp = 2 * np.pi * self.rp  # perimeter of the port
-            alpha = np.sqrt(f_axis) * (0.95e-5 + 2.03e-5) * Pp / 2 / self.Sp
-            kl = k * (1 + alpha * (1 - 1j))
-            d0 = (0.6133 + 0.85) * self.rp  # length correction
-            self.Zrad = rho * c / self.Sp * (1 / 4 * (kl * self.rp) ** 2 + 1j * kl * d0)
-            self.Zp = s * self.Map + self.Zrad  # total impedance of the port (tube + radiation)
-
-            # enclosure impedance
-            self.Zab = gtb.parallel(1 / s / self.Cab, self.Rab, s * self.Map + self.Zrad)
-
-            # update data
-            bSp.set_val(str(round(self.Sp * 1e4, 2)))
-            updateZab(self.Zab, self.Zbox, self.Zp)
-            return None
-
-        def updatePortSection(expr):
-            self.Sp = float(expr) * 1e-4  # back in m^2
-            self.rp = np.sqrt(self.Sp / pi)  # radius of the port
-
-            # box impedance
-            # Cab = Vb / rho / c ** 2  # compliance of the enclosure
-            # Rab = rho * c / eta / Vb
-            self.Zbox = gtb.parallel(1 / s / self.Cab, self.Rab)
-
-            # port impedance
-            self.Map = rho * self.Lp / self.Sp  # acoustical mass of the port
-            self.Mal = 0.85 * 2 * self.rp  # length correction
-            self.Map += self.Mal
-
-            # radiation impedance (port)
-            Pp = 2 * np.pi * self.rp  # perimeter of the port
-            alpha = np.sqrt(f_axis) * (0.95e-5 + 2.03e-5) * Pp / 2 / self.Sp
-            kl = k * (1 + alpha * (1 - 1j))
-            d0 = (0.6133 + 0.85) * self.rp  # length correction
-            self.Zrad = rho * c / self.Sp * (1 / 4 * (kl * self.rp) ** 2 + 1j * kl * d0)
-            self.Zp = s * self.Map + self.Zrad  # total impedance of the port (tube + radiation)
-
-            # enclosure impedance
-            self.Zab = gtb.parallel(1 / s / self.Cab, self.Rab, s * self.Map + self.Zrad)
-
-            # update data
-            bRp.set_val(str(round(self.rp * 1e2, 2)))
-            updateZab(self.Zab, self.Zbox, self.Zp)
-            return None
-
-        def updateZab(Zab, Zbox, Zp):
-            # compute volume velocities
-            Qs = Ps / (ZaTot + Zab)
-            Qp = Qs * Zbox / (Zbox + Zp)
-
-            p = 1j * k * rho * c * (Qs - Qp) * np.exp(-1j * k * 1) / (2 * np.pi * 1)
-
-            # total electrical impedance
-            Ze = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd ** 2 * (Zab + driver.Zaf))
-
-            ## data plot
-            ax[0].clear()
-            ax[1].clear()
-            ax[0].semilogx(f_axis, gtb.gain.SPL(p), label='SPL')
-            ax[1].semilogx(f_axis, np.abs(Ze), label='Magnitude')
-
-            ax[1].set(xlabel='Frequency [Hz]', ylabel='Impedance [Ohm]')
-            ax[0].set(ylabel='SPL [dB] at 1 meter')
-            ax[0].legend(loc='best')
-            ax[1].legend(loc='best')
-            for i in range(2):
-                ax[i].grid(which='both')
-            plt.subplots_adjust(bottom=0.25)
-            return None
-
-        # volume box (input in L)
-        bVb.on_submit(updateVolume)
-        bVb.set_val(str(round(self.Vb * 1e3, 2)))  # 1e3 to set in L
-
-        # length box (input in cm)
-        bLp.on_submit(updatePortLength)
-        bLp.set_val(str(round(self.Lp * 1e2, 2)))  # 1e2 to set in cm
-
-        # radius box (input in cm)
-        bRp.on_submit(updatePortRadius)
-        bRp.set_val(str(round(self.rp * 1e2, 2)))  # 1e2 to set in cm
-
-        # section box (input in cm^2)
-        bSp.on_submit(updatePortSection)
-        bSp.set_val(str(round(self.Sp * 1e4, 2)))  # 1e4 to set in cm^2
-        return bVb, bLp, bRp, bSp, plt.show()
+    
 
 def loadLPM(lpmfile, freq_array, U=1, LeZero=False,
             number_of_drivers=1,
             wiring='parallel',
             c=air.c,
             rho=air.rho):
-    """
-    Return electro_acoustic_driver object from LPM file (Klippel measurements)
-    :param lpmfile:
-    :param freq_array:
-    :param U:
-    :param c:
-    :param rho:
-    :return:
-    """
-    data = pd.read_csv(lpmfile, sep="\t", header=0,
-                       names=["Parameters", "value", "unit", "description"],
-                       encoding='unicode_escape')
-    idxRe = data.index[data['Parameters'] == 'Re'].to_list()[0]
-    idxLe = data.index[data['Parameters'] == 'Le'].to_list()[0]
-    idxCms = data.index[data['Parameters'] == 'Cms'].to_list()[0]
-    idxMms = data.index[data['Parameters'] == 'Mms'].to_list()[0]
-    idxRms = data.index[data['Parameters'] == 'Rms'].to_list()[0]
-    idxSd = data.index[data['Parameters'] == 'Sd'].to_list()[0]
-    idxBl = data.index[data['Parameters'] == 'Bl'].to_list()[0]
-
-    # print('idxLe: ', idxLe)
-    # print(type(data.iat[idxLe, 1]))
-
-    Re = float(data.iat[idxRe, 1])
-    Le = float(data.iat[idxLe, 1]) * 1e-3
-    Mms = float(data.iat[idxMms, 1]) * 1e-3
-    Rms = float(data.iat[idxRms, 1])
-    Cms = float(data.iat[idxCms, 1]) * 1e-3
-    Bl = float(data.iat[idxBl, 1])
-    Sd = float(data.iat[idxSd, 1]) * 1e-4
-
+    
+    # define loader based on extension
+    _, extension = os.path.splitext(lpmfile)
+    if extension == ".qsp":
+        loader    = lpl.qspeaker_lp_loader
+        weight_Le  = 1e-3
+        weight_Sd  = 1
+        weight_Mms = 1
+        weight_Cms = 1
+    elif extension == ".sdrv":
+        loader = lpl.speakerSim_lp_loader
+        weight_Le  = 1
+        weight_Sd  = 1
+        weight_Mms = 1
+        weight_Cms = 1
+    elif extension == ".wdr":
+        loader = lpl.winSd_lp_loader
+        weight_Le  = 1
+        weight_Sd  = 1
+        weight_Mms = 1
+        weight_Cms = 1
+    elif extension == ".bastaelement":
+        loader = lpl.basta_lp_loader
+        weight_Le  = 1
+        weight_Sd  = 1
+        weight_Mms = 1
+        weight_Cms = 1
+    elif extension == ".txt":
+        with open(lpmfile, 'r') as file:
+            first_line = file.readline().strip()
+        if first_line == 'Electrical Parameters':
+            loader = lpl.klippel_lp_loader
+            weight_Le  = 1e-3
+            weight_Sd  = 1e-4
+            weight_Mms = 1e-3
+            weight_Cms = 1e-3
+        else:
+            loader = lpl.hornResp_lp_loader
+            weight_Le  = 1e-3
+            weight_Sd  = 1e-4
+            weight_Mms = 1e-3
+            weight_Cms = 1
+    
+    # create driver object
+    data = loader(lpmfile)
+    Le = data["Le"] * weight_Le
+    Re = data["Re"]
+    Cms = data["Cms"] * weight_Cms
+    Mms = data["Mms"] * weight_Mms
+    Rms = data["Rms"]
+    Bl = data["Bl"]
+    Sd = data["Sd"] * weight_Sd
+    
     if LeZero is True:
         Le = 0
-
+    
+    
     if number_of_drivers > 1:
         if wiring == 'parallel':
             n = number_of_drivers
-            drv = electroAcousticDriver(U, Le/n, Re/n, Cms/n, Mms*n, Rms*n, Bl, Sd*n, freq_array, c, rho)
+            drv = electroAcousticDriver(U, Le/n, Re/n, Cms/n, Mms*n, 
+                                        Rms*n, Bl, Sd*n, freq_array, c, rho)
         elif wiring == 'series':
             n = number_of_drivers
-            drv = electroAcousticDriver(U, Le*n, Re*n, Cms/n, Mms*n, Rms*n, Bl*n, Sd*n, freq_array, c, rho)
+            drv = electroAcousticDriver(U, Le*n, Re*n, Cms/n, 
+                                        Mms*n, Rms*n, Bl*n, Sd*n, 
+                                        freq_array, c, rho)
         else:
             ValueError("'wiring' must be either 'parallel' or 'series'.")
     else:
-        drv = electroAcousticDriver(U, Le, Re, Cms, Mms, Rms, Bl, Sd, freq_array, c, rho)
+        drv = electroAcousticDriver(U, Le, Re, Cms, Mms, Rms, 
+                                    Bl, Sd, freq_array, c, rho)
     return drv
+    
+    
+    

@@ -45,7 +45,7 @@ class pressureSource:
     
         
     def init_component(self, frequency):
-        self.Gs = self.G * ones(len(frequency)) 
+        self.Gs = 1 * ones(len(frequency)) 
         
     
     def update_stamp(self, node_id, M, nbsource):
@@ -77,15 +77,16 @@ class pressureSource:
         # G stamp
         self.stamp_G = zeros([maxNode+M, maxNode+M], dtype=complex)
         
-        if self.np != 0:
-            self.stamp_G[np-1, maxNode+nbsource] = 1
-            self.stamp_G[maxNode+nbsource, np-1] = 1
-        if self.nm != 0:
-            self.stamp_G[maxNode+nbsource, nm-1] = -1        
+        if np != 0:
+            self.stamp_G[maxNode+nbsource, np-1] = 1  # sub mat B
+            self.stamp_G[np-1, maxNode+nbsource] = 1  # sub mat C
+        if nm != 0:
+            self.stamp_G[maxNode+nbsource, nm-1] = -1 # sub mat B
+            self.stamp_G[nm-1, maxNode+nbsource] = -1 # sub mat C     
         
         # I stamp
         self.stamp_I = zeros([maxNode+M, 1], dtype=complex) 
-        self.stamp_I[maxNode+nbsource] = 1
+        self.stamp_I[maxNode+nbsource] = self.value #1
 
 
 #%% loudspeaker relared components
@@ -284,7 +285,6 @@ class cavity:
         if np != 0 and nm != 0:
             self.stamp_G[np - 1, nm - 1] = -1
             self.stamp_G[nm - 1, np - 1] = -1
-            
 
 class port:
     def __init__(self, np, nm, Lp, rp, rho=1.22, c=343):
@@ -421,7 +421,7 @@ class membrane:
        """
        s = laplace(frequency)
        
-       Za = s*self.Ma + self.Ca/s + self.Ra
+       Za = s*self.Ma + 1/self.Ca/s + self.Ra
        self.Gs = 1 / Za # conductance
        
        
@@ -500,6 +500,7 @@ class closed_line:
         self.G = 1
         self.Gs = None
         self.stamp_G = None
+        self.contribute = ["G"]        
         
         self.vsource = 0
         
@@ -582,6 +583,7 @@ class open_line_T:
         self.Ys = None
         self.stamp_G = None
         self.stamp_Y = None
+        self.contribute = ["G"]        
         
         self.vsource = 0
 

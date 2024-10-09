@@ -4,3 +4,6 @@ __pycache__
 app_ui
 *.nbi
 *.pyc
+/bempp/api/space/__pycache__
+/electroacPy/circuitSolver/components/__pycache__
+/bempp/api/space/__pycache__

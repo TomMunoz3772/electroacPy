@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "electroacPy"
-version = "2024.08.01"
+version = "2024.10.09"
 authors = [
   { name="Tom Munoz", email="munozt@outlook.fr" },
 ]
@@ -17,8 +17,8 @@ classifiers = [
 ]
 dependencies = ["numpy", "pandas", "pyarrow", "matplotlib",
             "tqdm", "numba", "meshio", "scipy", "pyvista",
-            "pyuff", "gmsh", "plotly", "siphash24", "pyopencl", 
-            "intel-opencl-rt"
+            "pyuff", "gmsh", "plotly", "siphash24", "pyopencl",
+            "intel-opencl-rt",
 ]
 
 
