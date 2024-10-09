@@ -502,8 +502,11 @@ def get_group_points(grid, group_number):
 
 #%% boundary conditions
 class boundaryConditions:
-    def __init__(self):
+    def __init__(self, rho=1.22, c=343):
         self.parameters = {}
+        self.c = c
+        self.rho = rho
+        self.Zc = rho*c
     
     def addInfiniteBoundary(self, normal, offset=0, **kwargs):
         if normal not in ["x", "y", "z", "X", "Y", "Z"]:
@@ -526,6 +529,7 @@ class boundaryConditions:
         self.parameters[name]["type"] = "surface_impedance"
         if "absorption" in kwargs:
             self.parameters[name]["absorption"] = kwargs["absorption"]
+            self.parameters[name]["impedance"] = self.Zc * (2-kwargs["absorption"])/kwargs["absorption"]
         elif "impedance" in kwargs:
             self.parameters[name]["impedance"] = kwargs["impedance"]    
         if "frequency" in kwargs:

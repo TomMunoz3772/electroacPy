@@ -204,7 +204,6 @@ class evaluations:
                                  rgb=True, rotation_enabled=False)
         light = pyvista.Light(light_type='headlight')
         pl.add_light(light)
-        # pl.camera.focal_point = center
 
         
         # add evaluation points
@@ -217,6 +216,12 @@ class evaluations:
             if setup.type == "box":
                 pl.add_mesh(point_cloud_tmp.outline(), color=colour[i],
                             render_points_as_spheres=True, label=key, point_size=6)
+            elif setup.type == "pressure_field":
+                grid = pyvista.StructuredGrid()
+                grid.points = xMic
+                grid.dimensions = [setup.nx, setup.ny, setup.nz]
+                pl.add_mesh(grid, show_edges=True, 
+                            style='wireframe', color=colour[i], label=key)
             else:
                 pl.add_mesh(point_cloud_tmp, color=colour[i],
                             render_points_as_spheres=True, label=key, point_size=6)
@@ -458,7 +463,27 @@ class PressureField:
         from generalToolbox.geometry import create_planar_array
         self.xMic, self.L, self.W = create_planar_array(Length, Width, 
                                                         step, plane, offset)        
+        
         self.nMic = len(self.xMic)
+            
+        # help with dimensions - might need to change
+        self.nx, self.ny, self.nz = 0, 0, 0
+        L, W = len(self.L), len(self.W)
+        
+        # Mapping planes to dimensions
+        plane_mapping = {
+            ('x', 'y'): (L, W, 1),
+            ('x', 'z'): (L, 1, W),
+            ('y', 'x'): (W, L, 1),
+            ('y', 'z'): (1, L, W),
+            ('z', 'x'): (W, 1, L),
+            ('z', 'y'): (1, W, L)
+        }
+        
+        # Set dimensions based on the selected plane
+        self.nx, self.ny, self.nz = plane_mapping.get((self.plane[0], 
+                                                       self.plane[1]), 
+                                                      (0, 0, 0))
 
         # edit evaluationParameters
         self.type = "pressure_field"
@@ -500,56 +525,6 @@ class SphericalRadiation:
         self.pMic = None
     
 #%% Plotting help
-import pyvista as pv
-import numpy as np
-
-# def create_boundary_planes(boundary, offset, plane_size=1e6):
-#     """
-#     Create PyVista PolyData for boundaries in the plotter based on the provided normals and offsets.
-    
-#     Parameters:
-#         boundary (list): List of boundary normals (e.g., ["x", "y", "z"]).
-#         offset (list): List of offsets corresponding to each boundary normal.
-#         plane_size (float): Size of the plane to be created, extending equally in both directions.
-    
-#     Returns:
-#         pyvista.PolyData: PolyData object representing the boundary planes.
-#     """
-    
-#     if len(boundary) != len(offset):
-#         raise ValueError("The boundary and offset lists must have the same length.")
-    
-#     # Initialize an empty PolyData object to collect all the planes
-#     planes = pv.PolyData()
-    
-#     # Loop through each boundary and create a corresponding plane
-#     for i, axis in enumerate(boundary):
-#         # Create the points for the plane depending on the axis
-#         if axis == "x":
-#             # Plane orthogonal to the x-axis (yz-plane)
-#             point = [offset[i], 0, 0]  # Plane is located at x = offset[i]
-#             normal = [1, 0, 0]  # Normal vector in x-direction
-#             plane = pv.Plane(center=point, direction=normal, i_size=plane_size, j_size=plane_size)
-        
-#         elif axis == "y":
-#             # Plane orthogonal to the y-axis (xz-plane)
-#             point = [0, offset[i], 0]  # Plane is located at y = offset[i]
-#             normal = [0, 1, 0]  # Normal vector in y-direction
-#             plane = pv.Plane(center=point, direction=normal, i_size=plane_size, j_size=plane_size)
-        
-#         elif axis == "z":
-#             # Plane orthogonal to the z-axis (xy-plane)
-#             point = [0, 0, offset[i]]  # Plane is located at z = offset[i]
-#             normal = [0, 0, 1]  # Normal vector in z-direction
-#             plane = pv.Plane(center=point, direction=normal, i_size=plane_size, j_size=plane_size)
-        
-#         else:
-#             raise ValueError(f"Unknown boundary axis: {axis}. Must be 'x', 'y', or 'z'.")
-        
-#         # Append the generated plane to the overall PolyData object
-#         planes += plane
-    
-#     return planes
 
 def create_boundary_planes(boundary, offset, plane_size=10):
     """
@@ -568,7 +543,7 @@ def create_boundary_planes(boundary, offset, plane_size=10):
         raise ValueError("The boundary and offset lists must have the same length.")
     
     # Initialize an empty PolyData object to collect all the planes
-    planes = pv.PolyData()
+    planes = pyvista.PolyData()
     
     # Define default plane extent (10m by 10m)    
 
@@ -602,7 +577,7 @@ def create_boundary_planes(boundary, offset, plane_size=10):
             point = [x_center, y_center, z_center]  # Plane's center
             normal = [1, 0, 0]  # Normal vector in x-direction
             
-            plane = pv.Plane(center=point, direction=normal, 
+            plane = pyvista.Plane(center=point, direction=normal, 
                              i_size=plane_size[2]-z_offset, 
                              j_size=plane_size[1]-y_offset)
         
@@ -633,7 +608,7 @@ def create_boundary_planes(boundary, offset, plane_size=10):
             point = [x_center, y_center, z_center]  # Plane's center
             normal = [0, 1, 0]  # Normal vector in x-direction
             
-            plane = pv.Plane(center=point, direction=normal, 
+            plane = pyvista.Plane(center=point, direction=normal, 
                              i_size=plane_size[2]-z_offset, 
                              j_size=plane_size[0]-x_offset)
         
@@ -664,7 +639,7 @@ def create_boundary_planes(boundary, offset, plane_size=10):
             point = [x_center, y_center, z_center]  # Plane's center
             normal = [0, 0, 1]  # Normal vector in x-direction
             
-            plane = pv.Plane(center=point, direction=normal, 
+            plane = pyvista.Plane(center=point, direction=normal, 
                              i_size=plane_size[0]-x_offset,
                              j_size=plane_size[1]-y_offset)
         
