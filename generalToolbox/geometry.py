@@ -87,7 +87,6 @@ def points_within_radius(R_ref, R_meas, radius, v_meas, Nfft):
     
     indices_within_radius = []
     coefficients = np.zeros([len(R_ref), Nfft], dtype=complex)
-    # v_meas = acc_measured / gtb.freqop.laplace(freq_axis)
 
     for ind_point, ref_point in enumerate(R_ref):
         inc = 0
@@ -102,11 +101,9 @@ def points_within_radius(R_ref, R_meas, radius, v_meas, Nfft):
         within_radius_indices = np.array([])
         while len(within_radius_indices) == 0:
             within_radius_indices = np.where(distances <= radius + inc)[0]
-            # print("current radius = ", radius + inc)
             inc += 5e-4
         weight = 1 - distances[within_radius_indices] / radius
         weighted_average = np.sum(weight)
-        # print(within_radius_indices)
 
         # Add indices to the list
         indices_within_radius.append(within_radius_indices)

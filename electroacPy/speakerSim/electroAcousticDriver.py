@@ -601,7 +601,7 @@ def loadLPM(lpmfile, freq_array, U=1, LeZero=False,
     Sd = data["Sd"] * weight_Sd
     
     if LeZero is True:
-        Le = 0
+        Le = 1e-12     # otherwise it doesn't work with circuitSolver()
     
     
     if number_of_drivers > 1:

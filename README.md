@@ -103,4 +103,4 @@ If you encounter any issues or have suggestions for improvements, please feel fr
 
 # Acknowledgments
 
-This toolbox uses the BEMPP-CL library for Boundary Element Method computations, which is provided directly (due to some minor modifications) in this repo. Thanks a lot to its authors. 
+This toolbox uses the BEMPP-CL library for Boundary Element Method computations, which is provided directly (due to some minor modifications) in this repo. Thanks a lot to its authors.
