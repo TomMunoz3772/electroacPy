@@ -238,7 +238,9 @@ class cavity:
 
         """
         s = laplace(frequency)
-
+        # Lb = (self.Vb)**(1/3) / 3
+        # Sb = self.Vb / Lb
+        
         Cb = self.Vb / self.rho / self.c**2
         Rb = self.rho * self.c / self.eta / self.Vb
         if self.losses is True:
@@ -287,7 +289,7 @@ class cavity:
             self.stamp_G[nm - 1, np - 1] = -1
 
 class port:
-    def __init__(self, np, nm, Lp, rp, rho=1.22, c=343):
+    def __init__(self, np, nm, Lp, rp, rho=1.22, c=343, mu=1.86e-5):
         """
         Create a resistor component.
 
@@ -313,6 +315,7 @@ class port:
         self.Sp = pi * rp**2
         self.rho = rho
         self.c = c
+        self.mu = mu
         self.G = 1
         self.Gs = None
         
@@ -338,10 +341,18 @@ class port:
         om = 2 * pi * frequency
         s = laplace(frequency)
         
-        ll = 2 * self.rp / pi
-        Rp = sqrt(self.rho*2*om*1.86e-5) / self.Sp * (ll / self.rp + 0.7)
-        Mp = (self.Lp + 0.64*self.rp) * self.rho / self.Sp
-        Zp = Rp + s*Mp
+        # Len' = 0.4250·dD	The duct terminates at a large baffle.
+        # Len' = 0.3065·dD
+        
+        # ll = 2 * self.rp / pi
+        # Rp = sqrt(self.rho*2*om*1.86e-5) / self.Sp * (ll / self.rp + 0.7)
+        # Mp = (self.Lp + 0.73*self.rp*2) * self.rho / self.Sp
+        # Zp = Rp + s*Mp
+        Lt = self.Lp + 0.73*self.rp*2
+        
+        Mp = Lt*self.rho / (self.Sp)
+        Rp = (2*om*self.rho*self.mu)/self.Sp * (Lt/self.rp + 1*0.7)
+        Zp = s*Mp + Rp
         self.Gs = 1 / Zp # conductance
         
         
@@ -578,6 +589,7 @@ class open_line_T:
         self.rho = rho
         self.c = c   
         
+        
         self.G = 1
         self.Gs = None
         self.Ys = None
@@ -602,12 +614,14 @@ class open_line_T:
        None.
 
        """
+       
+       LL = self.Lp #+ 0.73*self.rp*2
        om = 2 * pi * frequency
        k = om / self.c
        Zc = self.rho * self.c / self.Sp
-       kl = kloss(self.Sp, self.Pp, k, self.rho, self.c)
-       Zt =  1j * Zc * tan(kl*self.Lp/2)
-       Yt = 1j * sin(kl*self.Lp) / Zc
+       kl = kloss(self.Sp, self.Pp, k, self.rho, self.c) # k - 1j*self.eta #
+       Zt =  1j * Zc * tan(kl*LL/2)
+       Yt = 1j * sin(kl*LL) / Zc
        self.Gs = 1 / Zt
        self.Ys = Yt
 

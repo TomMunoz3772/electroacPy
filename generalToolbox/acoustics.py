@@ -291,7 +291,7 @@ def export_directivity(folder_name, frequency_array, angle_array, pmic_array):
         # Save the data to the text file using np.savetxt with the correct header
         np.savetxt(file_name, data_to_save, header="frequency  SPL  phase", fmt="%.3e")
         
-        print(f"Saved data to {file_name}")
+        # print(f"Saved data to {file_name}")
 
 
 

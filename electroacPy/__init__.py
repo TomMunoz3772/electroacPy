@@ -11,7 +11,18 @@ Toolbox for electroacoustic simulations
 # =============================================================================
 # Initialisation file
 # =============================================================================
-#%% modules
+#%% loudspeakerSystem modules
 from electroacPy.loudspeakerSystem import loudspeakerSystem
 from electroacPy.io import save, load
+
+#%% circuitSolver modules
+from electroacPy.circuitSolver.solver import circuit
+# from electroacPy.circuitSolver.components import electric as cse
+# from electroacPy.circuitSolver.components import acoustic as csa
+# from electroacPy.circuitSolver.blocks import electric as cbe
+# from electroacPy.circuitSolver.blocks import acoustic as cba
+# from electroacPy.circuitSolver.blocks import electrodynamic as cbed
+
+from electroacPy.circuitSolver import components as csc
+from electroacPy.circuitSolver import blocks as csb
 

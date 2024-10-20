@@ -96,6 +96,9 @@ def FRF(freq, H, transformation="SPL", logx=True, legend=None, **kwargs):  #logx
     elif transformation == "phase":
         tr = np.angle
         tr_str = "Phase [rad]"
+    elif transformation == "unwrap_phase":
+        tr = lambda x: np.unwrap(np.angle(x))
+        tr_str = "Phase [rad]"
     else:
         raise Exception("transformation not understood, "
                         "available transformations: 'SPL', 'dB', 'abs', 'phase', 'real', 'imag'")
@@ -603,11 +606,12 @@ class pyvista_spkPlotter:
             for i in range(self.nObs):
                 maxPressure.append(np.max(np.real(self.pMicData[i])))
                 minPressure.append(np.min(np.real(self.pMicData[i])))
-            minPressure = np.min(minPressure)
-            maxPressure = np.max(maxPressure)
-            pressureCoeff_system = sumPressureArray(self.bemOBJ, self.radiatingElement)
-            pressureCoeff_system = gtb.normMinMax(np.real(pressureCoeff_system), minPressure, maxPressure)
-            title_arg = 'Real(Pressure), Pa - '
+            minPressure = -1 #np.min(minPressure)
+            maxPressure = 1  #np.max(maxPressure)
+            pressureCoeff_system = sumPressureArray(self.bemOBJ, 
+                                                    self.radiatingElement)
+            pressureCoeff_system = np.real(pressureCoeff_system)/10
+            title_arg = 'Real(Pressure), normalized - '
             cmap_d = 'seismic'
         else:
             for i in range(self.nObs):
@@ -698,7 +702,8 @@ class pyvista_spkPlotter:
 
             # def real or SPL pressure plot
             if real is True:
-                pMicToPlot = gtb.normMinMax(np.real(pMicRes), minPressure, maxPressure)
+                # pMicToPlot = gtb.normMinMax(np.real(pMicRes), minPressure, maxPressure)
+                pMicToPlot = np.real(pMicRes)
             else:
                 pMicToPlot = gtb.gain.SPL(pMicRes)
 

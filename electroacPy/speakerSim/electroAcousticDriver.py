@@ -122,7 +122,7 @@ class electroAcousticDriver:
 
         # Ref Signals
         # Velocity
-        self.Hv = Bl/self.Ze  / (self.Zms + Bl**2 / self.Ze)
+        self.Hv = Bl/self.Ze  / (self.Zms + Bl**2 / self.Ze) * self.U
 
         # Displacement
         self.Hx = self.Hv / s
@@ -136,7 +136,7 @@ class electroAcousticDriver:
         # in box velocity and impedance
         self.inBox    = False
         self.isPorted = False  # easier to manage if radiator in study_ is not a speakerBox object
-        self.v        = self.Hv
+        self.v        = self.Hv 
 
         # references
         self.ref2bem   = False
@@ -459,7 +459,6 @@ class electroAcousticDriver:
                 d0 = (0.6133 + 0.85) * self.rp
                 self.Zrad = rho * c / self.Sp * (1 / 4 * (kl * self.rp) ** 2 + 1j * kl * d0)
                 self.Zp = s * self.Map + self.Zrad
-                # self.Zab = 1 / (s * self.Cab) + self.Rab + self.Zp
                 self.Zab = gtb.parallel(1 / s / self.Cab, self.Rab, s * self.Map + self.Zrad)
     
                 # Calculate total system
@@ -468,15 +467,20 @@ class electroAcousticDriver:
                 Qs = Ps / (ZaTot + self.Zab)
                 Qp = Qs * self.Zbox / (self.Zbox + self.Zp)
     
-                p = 1j * k * rho * c * (Qs - Qp) * np.exp(-1j * k * 1) / (2 * np.pi * 1)
+                p_s = 1j * k * rho * c * Qs * np.exp(-1j * k * 1) / (2 * np.pi * 1)
+                p_p = -1j * k * rho * c * Qp * np.exp(-1j * k * 1) / (2 * np.pi * 1)
                 Ze = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd**2 * (self.Zab + driver.Zaf))
         
                 # Clear the axes and plot new data
                 ax_spl.clear()
                 ax_imp.clear()
-                ax_spl.semilogx(f_axis, gtb.gain.SPL(p), label='SPL')
+                ax_spl.semilogx(f_axis, gtb.gain.SPL(p_s), label='driver')
+                ax_spl.semilogx(f_axis, gtb.gain.SPL(p_p), label='port')
+                ax_spl.semilogx(f_axis, gtb.gain.SPL(p_s+p_p), label='total')
                 ax_imp.semilogx(f_axis, np.abs(Ze), label='Impedance')
                 ax_spl.set_ylabel('SPL [dB]')
+                ax_spl.set_ylim(np.min(gtb.gain.SPL(p_s+p_p)), 
+                                np.max(gtb.gain.SPL(p_s+p_p))+6)
                 ax_imp.set_ylabel('Impedance [Ohm]')
                 ax_imp.set_xlabel('Frequency [Hz]')
                 ax_spl.grid(which='both')
@@ -539,6 +543,14 @@ class electroAcousticDriver:
         # Run the tkinter loop
         root.mainloop()
     
+    def exportZe(self, filename):
+        module = np.abs(self.ZeTot)
+        phase = np.angle(self.ZeTot, deg=True)
+        np.savetxt(filename, np.array([self.f_array, module, phase]).T,
+                   fmt="%.3f", 
+                   header="Freq[Hz]  Imp[Ohm]  Phase[Deg]",
+                   delimiter=',',
+                   comments='')
 
     
 

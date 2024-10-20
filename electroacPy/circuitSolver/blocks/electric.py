@@ -160,7 +160,7 @@ class highpass_butter:
 
         if self.order == 1:
             self.network = {"C1": capacitance(np, nm, C)}
-            self.L = L
+            self.C = C
         
         elif self.order == 2:
             L1 = 2 * L

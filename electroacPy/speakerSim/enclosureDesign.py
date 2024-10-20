@@ -181,174 +181,9 @@ class speakerBox:
             self.Za_in, self.Zab, self.Zaf, self.Zapr = self.bp4_pr_box()
         return None
 
-    # def sealed_box(self,):
-    #     """
-    #     Create a sealed enclosure.
-    #     :return:
-    #     """
-    #     # Cab = self.Vb / self.rho / self.c ** 2          # compliance of the enclosure
-    #     # Rab = self.rho * self.c / self.eta / self.Vb    # losses through leakage
-    #     # Zab = parallel(1 / self.s / Cab, Rab)
-        
-    #     enclosure = circuit(self.frequencyRange)
-    #     Ps  = compa.pressureSource(1, 0, 1)
-    #     box = compa.cavity(1, 0, self.Vb)
-        
-    #     enclosure.addComponent(Ps, box)
-    #     enclosure.run()
-        
-        
-    #     return Zab
-
-    # def vented_box(self,):
-    #     """
-    #     Create ported enclosure.
-    #     :return:
-    #     """
-    #     w = 2*np.pi*self.frequencyRange
-
-    #     # box impedance
-    #     Cab = self.Vb / self.rho / self.c ** 2  # compliance of the enclosure
-    #     Rab = self.rho * self.c / self.eta / self.Vb
-    #     Zab = parallel(1 / self.s / Cab, Rab)
-
-    #     # port impedance
-    #     # if flanged is True:
-    #     #     ll = 8 * self.rp / 3 / np.pi
-    #     # else:
-    #     #     ll = 2 * self.rp / np.pi
-    #     ll = 2 * self.rp / np.pi
-    #     Map = (self.Lp + 0.64 * self.rp) * self.rho / self.Sp
-    #     Rap = np.sqrt(2 * w * self.rho * 1.86e-5) / self.Sp * (ll / self.rp + 0.7)
-
-    #     # port radiation
-    #     RAR2 = 0.159 * w ** 2 * self.rho / self.c
-    #     MAR2 = 0.270 * self.rho / self.rp
-    #     Zap = self.s * MAR2 + RAR2 + self.s * Map + Rap
-
-    #     # total enclosure impedance
-    #     Za_in = parallel(Zap, Zab)  # total acoustic impedance
-    #     return Za_in, Zab, Zap
-
-    # def pr_box(self,):
-    #     """
-    #     Create a passive radiator enclosure.
-    #     :return:
-    #     """
-    #     w = 2 * np.pi * self.frequencyRange
-
-    #     # box impedance
-    #     Cab = self.Vb / self.rho / self.c ** 2  # compliance of the enclosure
-    #     Rab = self.rho * self.c / self.eta / self.Vb
-    #     Zab = parallel(1 / self.s / Cab, Rab)
-
-    #     # passive radiator's impedance
-    #     RAR = 0.159 * w ** 2 * self.rho / self.c         # piston's radiation impedance - air resistance
-    #     MAR = 0.270 * self.rho / np.sqrt(self.Sd/np.pi)  # piston's radiation impedance - air mass
-    #     Zapr = ((self.Rmd + self.s * self.Mmd + 1 / (self.s * self.Cmd)) / self.Sd ** 2) + self.s * MAR + RAR
-
-    #     # total enclosure impedance
-    #     Za_in = parallel(Zapr, Zab)  # total acoustic impedance
-    #     return Za_in, Zab, Zapr
-
-    # def bp4_box(self,):
-    #     """
-    #     Create a 4th order bandpass enclosure (ports).
-    #     :return:
-    #     """
-
-    #     w = 2 * np.pi * self.frequencyRange
-
-    #     # back enclosure impedance
-    #     Cab = self.Vb / self.rho / self.c ** 2  # compliance of the enclosure
-    #     Rab = self.rho * self.c / self.eta / self.Vb
-    #     Zab = parallel(1 / self.s / Cab, Rab)
-
-    #     # front enclosure impedance
-    #     Caf = self.Vf / self.rho / self.c**2
-    #     Raf = self.rho * self.c / self.eta / self.Vf
-    #     Zaf = parallel(1/self.s/Caf, Raf)
-    #     ll = 2 * self.rp / np.pi
-    #     Map = (self.Lp + 0.64 * self.rp) * self.rho / self.Sp
-    #     Rap = np.sqrt(2 * w * self.rho * 1.86e-5) / self.Sp * (ll / self.rp + 0.7)
-
-    #     # port radiation
-    #     RAR = 0.159 * w ** 2 * self.rho / self.c
-    #     MAR = 0.270 * self.rho / self.rp
-    #     Zap = self.s * MAR + RAR + self.s * Map + Rap
-    #     Za_front = parallel(Zap, Zaf)
-    #     Za_in = parallel(Za_front, Zab)
-    #     return Za_in, Zab, Zaf, Zap
-
-    # def bp6_box(self,):
-    #     """
-    #     Create a 6th order bandpass enclosure (ports).
-    #     :return:
-    #     """
-    #     w = 2 * np.pi * self.frequencyRange
-
-    #     # back enclosure impedance
-    #     Cab = self.Vb / self.rho / self.c ** 2  # compliance of the enclosure
-    #     Rab = self.rho * self.c / self.eta / self.Vb
-    #     Zab = parallel(1 / self.s / Cab, Rab)
-    #     ll2 = 2 * self.rp2 / np.pi
-    #     Map2 = (self.Lp2 + 0.64 * self.rp2) * self.rho / self.Sp2
-    #     Rap2 = np.sqrt(2 * w * self.rho * 1.86e-5) / self.Sp2 * (ll2 / self.rp2 + 0.7)
-    #     RAR2 = 0.159 * w ** 2 * self.rho / self.c
-    #     MAR2 = 0.270 * self.rho / self.rp2
-    #     Zap2 = self.s * MAR2 + RAR2 + self.s * Map2 + Rap2
-
-    #     # front enclosure impedance
-    #     Caf = self.Vf / self.rho / self.c**2
-    #     Raf = self.rho * self.c / self.eta / self.Vf
-    #     Zaf = parallel(1/self.s/Caf, Raf)
-    #     ll = 2 * self.rp / np.pi
-    #     Map = (self.Lp + 0.64 * self.rp) * self.rho / self.Sp
-    #     Rap = np.sqrt(2 * w * self.rho * 1.86e-5) / self.Sp * (ll / self.rp + 0.7)
-
-    #     # port radiation
-    #     RAR = 0.159 * w ** 2 * self.rho / self.c
-    #     MAR = 0.270 * self.rho / self.rp
-    #     Zap = self.s * MAR + RAR + self.s * Map + Rap
-    #     Za_front = parallel(Zap, Zaf)
-    #     Za_back = parallel(Zap2, Zab)
-    #     Za_in = parallel(Za_front, Zab)
-    #     return Za_in, Zab, Zaf, Zap, Zap2
-
-    # def bp4_pr_box(self, ):
-    #     """
-    #     Create a 4th order bandpass enclosure (passive radiator).
-    #     :return:
-    #     """
-
-    #     w = 2 * np.pi * self.frequencyRange
-
-    #     # box impedance - front
-    #     Caf = self.Vf / self.rho / self.c ** 2  # compliance of the enclosure
-    #     Raf = self.rho * self.c / self.eta / self.Vf
-    #     Zaf = parallel(1 / self.s / Caf, Raf)
-
-    #     # box impedance - back
-    #     Cab = self.Vb / self.rho / self.c ** 2  # compliance of the enclosure
-    #     Rab = self.rho * self.c / self.eta / self.Vb
-    #     Zab = parallel(1 / self.s / Cab, Rab)
-
-    #     # passive radiator's impedance
-    #     RAR = 0.159 * w ** 2 * self.rho / self.c         # piston's radiation impedance - air resistance
-    #     MAR = 0.270 * self.rho / np.sqrt(self.Sd/np.pi)  # piston's radiation impedance - air mass
-    #     Zapr = ((self.Rmd + self.s * self.Mmd + 1 / (self.s * self.Cmd)) / self.Sd ** 2) + self.s * MAR + RAR
-
-    #     # total enclosure impedance
-    #     Za_front = parallel(Zapr, Zaf)
-    #     Za_in = parallel(Za_front, Zab)
-    #     return Za_in, Zab, Zaf, Zapr
-
     ### ======================================
     ## IMPEDANCE AND VOLUME VELOCITY FUNCTIONS
-    def sealed_box(self, driver):
-        # Q = driver.Ps / (driver.Zs + self.Za_in)
-        # Ze = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd ** 2 * (self.Za_in + driver.Zaf))
-        
+    def sealed_box(self, driver):   
         # define components
         enclosure = circuit(self.frequencyRange)
         U   = compe.voltageSource(1, 0, driver.U)
@@ -369,11 +204,7 @@ class speakerBox:
         Ze = -enclosure.getPotential(1) / enclosure.getFlow(1)
         return Q, v, Ze
 
-    def vented_box(self, driver):
-        # Q = driver.Ps / (driver.Zs + self.Za_in)
-        # Qp = - Q * self.Zab / (self.Zab + self.Zap)
-        # Ze = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd ** 2 * (self.Za_in + driver.Zaf))
-        
+    def vented_box(self, driver):   
         # define component
         enclosure = circuit(self.frequencyRange)
         U    = compe.voltageSource(1, 0, driver.U)
@@ -381,6 +212,7 @@ class speakerBox:
                    driver.Cms, driver.Mms, driver.Rms, 
                    driver.Bl, driver.Sd, v_probe="v") 
         BOX  = compa.cavity(3, 0, self.Vb, self.eta, self.rho, self.c)
+       
         RAD  = compa.radiator(2, 0, driver.Sd, self.rho, self.c)
         PORT = compa.port(3, 4, self.Lp, self.rp, self.rho, self.c)
         RADP = compa.radiator(4, 0, self.Sp, self.rho, self.c)
@@ -399,10 +231,6 @@ class speakerBox:
         return Q, Qp, v, vp, Ze
 
     def passive_radiator(self, driver):
-        # Q = driver.Ps / (driver.Zs + self.Za_in)
-        # Qpr = - Q * self.Zab / (self.Zab + self.Zapr)
-        # Ze = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd ** 2 * (self.Za_in + driver.Zaf))
-        
         # define components
         enclosure = circuit(self.frequencyRange)
         U     = compe.voltageSource(1, 0, driver.U)
@@ -428,42 +256,6 @@ class speakerBox:
         return Q, Qpr, v, vpr, Ze
 
     def bandpass4_port(self, driver):
-    #     Ze = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd ** 2 *
-    #                                        (self.Za_in + driver.Zac + driver.Zas))
-    #     # MNA approach -- we solve AX=Z
-    #     M = 1 # number of independant voltage source (1 driver)
-    #     N = 4 # number of nodes
-
-    #     # matrix initialization (see QUCS' online documentation)
-    #     A = np.zeros([M+N, M+N], dtype=complex)
-    #     G = np.zeros([N, N], dtype=complex)
-    #     Q = np.zeros(len(self.frequencyRange), dtype=complex)
-    #     Qp = np.zeros(len(self.frequencyRange), dtype=complex)
-
-    #     # let's solve the system
-    #     for i in range(len(self.frequencyRange)):
-    #         Zad = driver.Zac[i]+driver.Zas[i]
-    #         Zap, Zab, Zaf = self.Zap[i], self.Zab[i], self.Zaf[i]
-    #         Ps = driver.Ps[i]
-    #         G[0, 0] = 1/Zad
-    #         G[1, 1] = 1/Zad + 1/Zaf + 1/Zap
-    #         G[2, 2] = 1/Zad
-    #         G[3, 3] = 1/Zad + 1/Zab
-    #         G[0, 1], G[1, 0] = -1/Zad, -1/Zad
-    #         G[2, 3], G[3, 2] = -1/Zad, -1/Zad
-    #         B = np.array([[1, 0, -1, 0]]).T
-    #         C = B.T
-    #         D = 0
-    #         Z = np.array([[0, 0, 0, 0, Ps]]).T
-    #         A[0:4, 0:4] = G
-    #         A[0:4, -1:] = B
-    #         A[-1:, 0:4] = C
-    #         A[-1, -1] = D
-    #         # print(A)
-    #         X = np.linalg.inv(A)@Z
-    #         Qp[i] = X[1, 0] / Zap
-    #         Q[i] = X[-1, 0]
-    
         # define component
         enclosure = circuit(self.frequencyRange)
         U     = compe.voltageSource(1, 0, driver.U)
@@ -488,45 +280,6 @@ class speakerBox:
         return Qp, vp, v, Ze
 
     def bandpass6_port(self, driver):
-        # Ze = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd ** 2 *
-        #                                    (self.Za_in + driver.Zac + driver.Zas))
-
-        # # MNA approach -- we solve AX=Z
-        # M = 1  # number of independant voltage source (1 driver)
-        # N = 4  # number of nodes
-
-        # # matrix initialization (see QUCS' online documentation)
-        # A = np.zeros([M + N, M + N], dtype=complex)
-        # G = np.zeros([N, N], dtype=complex)
-        # Q = np.zeros(len(self.frequencyRange), dtype=complex)
-        # Qp = np.zeros(len(self.frequencyRange), dtype=complex)
-        # Qp2 = np.zeros(len(self.frequencyRange), dtype=complex)
-
-        # # let's solve the system
-        # for i in range(len(self.frequencyRange)):
-        #     Zad = driver.Zac[i] + driver.Zas[i]
-        #     Zap, Zap2, Zab, Zaf = self.Zap[i], self.Zap2[i], self.Zab[i], self.Zaf[i]
-        #     Ps = driver.Ps[i]
-        #     G[0, 0] = 1 / Zad
-        #     G[1, 1] = 1 / Zad + 1 / Zaf + 1 / Zap
-        #     G[2, 2] = 1 / Zad
-        #     G[3, 3] = 1 / Zad + 1 / Zab + 1 / Zap2
-        #     G[0, 1], G[1, 0] = -1 / Zad, -1 / Zad
-        #     G[2, 3], G[3, 2] = -1 / Zad, -1 / Zad
-        #     B = np.array([[1, 0, -1, 0]]).T
-        #     C = B.T
-        #     D = 0
-        #     Z = np.array([[0, 0, 0, 0, Ps]]).T
-        #     A[0:4, 0:4] = G
-        #     A[0:4, -1:] = B
-        #     A[-1:, 0:4] = C
-        #     A[-1, -1] = D
-
-        #     X = np.linalg.inv(A) @ Z
-        #     Qp[i] = X[1, 0] / Zap
-        #     Qp2[i] = X[3, 0] / Zap2
-        #     Q[i] = X[-1, 0]
-
         # define component
         enclosure = circuit(self.frequencyRange)
         U     = compe.voltageSource(1, 0, driver.U)
@@ -557,44 +310,6 @@ class speakerBox:
 
 
     def bandpass4_passive_radiator(self, driver):
-        # # MNA approach -- we solve AX=Z
-        # M = 1  # number of independant voltage source (1 driver)
-        # N = 4  # number of nodes
-
-        # # matrix initialization (see QUCS' online documentation)
-        # A = np.zeros([M + N, M + N], dtype=complex)
-        # G = np.zeros([N, N], dtype=complex)
-        # Q = np.zeros(len(self.frequencyRange), dtype=complex)
-        # Qpr = np.zeros(len(self.frequencyRange), dtype=complex)
-
-        # # let's solve the system
-        # for i in range(len(self.frequencyRange)):
-        #     Zad = driver.Zac[i] + driver.Zas[i]
-        #     Zapr, Zab, Zaf = self.Zapr[i], self.Zab[i], self.Zaf[i]
-        #     Ps = driver.Ps[i]
-        #     G[0, 0] = 1 / Zad
-        #     G[1, 1] = 1 / Zad + 1 / Zaf + 1 / Zapr
-        #     G[2, 2] = 1 / Zad
-        #     G[3, 3] = 1 / Zad + 1 / Zab
-        #     G[0, 1], G[1, 0] = -1 / Zad, -1 / Zad
-        #     G[2, 3], G[3, 2] = -1 / Zad, -1 / Zad
-        #     B = np.array([[1, 0, -1, 0]]).T
-        #     C = B.T
-        #     D = 0
-        #     Z = np.array([[0, 0, 0, 0, Ps]]).T
-        #     A[0:4, 0:4] = G
-        #     A[0:4, -1:] = B
-        #     A[-1:, 0:4] = C
-        #     A[-1, -1] = D
-        #     # print(A)
-        #     X = np.linalg.inv(A) @ Z
-        #     Qpr[i] = X[1, 0] / Zapr
-        #     Q[i] = X[-1, 0]
-
-        # Za_in = Ps / Q
-        # Ze = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd ** 2 *
-        #                                    (Za_in + driver.Zac + driver.Zas))
-        
         # define component
         enclosure = circuit(self.frequencyRange)
         U     = compe.voltageSource(1, 0, driver.U)
@@ -724,19 +439,92 @@ class speakerBox:
             size=None
         
         
+        # convert velocity into displacement and acceleration
         x = self.v / laplace(self.frequencyRange)
         a = self.v * laplace(self.frequencyRange)
+        
+        xp   = self.vp / laplace(self.frequencyRange)
+        ap   = self.vp * laplace(self.frequencyRange)
+        xp2  = self.vp2 / laplace(self.frequencyRange)
+        ap2  = self.vp2 * laplace(self.frequencyRange)
+        xpr  = self.vpr / laplace(self.frequencyRange)
+        apr  = self.vpr * laplace(self.frequencyRange)
+        xpr2 = self.vpr2 / laplace(self.frequencyRange)
+        apr2 = self.vpr2 * laplace(self.frequencyRange)
         
         fig, ax = plt.subplots(3, 1, figsize=size)
         ax[0].semilogx(self.frequencyRange, np.abs(x), label='Displacement')
         ax[1].semilogx(self.frequencyRange, np.abs(self.v), label='Velocity')
         ax[2].semilogx(self.frequencyRange, np.abs(a), label='Acceleration')
         ax[2].set(xlabel="Frequency [Hz]")
-        ax[0].set(ylabel="mm")
+        ax[0].set(ylabel="mm", title="Driver")
         ax[1].set(ylabel="m/s")
-        ax[2].set(ylabel="m/s^2")
+        ax[2].set(ylabel="m/s^2", xlabel="Frequency [Hz]")
         for i in range(3):
             ax[i].grid(which='both', linestyle="dotted")
             ax[i].legend(loc='best')
         plt.tight_layout()
+        
+        if np.all(self.vp != 0):
+            fig, ax = plt.subplots(3, 1, figsize=size)
+            ax[0].semilogx(self.frequencyRange, np.abs(xp), label='Displacement')
+            ax[1].semilogx(self.frequencyRange, np.abs(self.vp), label='Velocity')
+            ax[2].semilogx(self.frequencyRange, np.abs(ap), label='Acceleration')
+            ax[0].set(ylabel="mm", title="Port")
+            ax[1].set(ylabel="m/s")
+            ax[2].set(ylabel="m/s^2", xlabel="Frequency [Hz]")
+            for i in range(3):
+                ax[i].grid(which='both', linestyle="dotted")
+                ax[i].legend(loc='best')
+            plt.tight_layout()
+        if np.all(self.vp2 != 0):
+            fig, ax = plt.subplots(3, 1, figsize=size)
+            ax[0].semilogx(self.frequencyRange, np.abs(xp2), label='Displacement')
+            ax[1].semilogx(self.frequencyRange, np.abs(self.vp2), label='Velocity')
+            ax[2].semilogx(self.frequencyRange, np.abs(ap2), label='Acceleration')
+            ax[0].set(ylabel="mm", title="Port - 2")
+            ax[1].set(ylabel="m/s")
+            ax[2].set(ylabel="m/s^2", xlabel="Frequency [Hz]")
+            for i in range(3):
+                ax[i].grid(which='both', linestyle="dotted")
+                ax[i].legend(loc='best')
+            plt.tight_layout()
+        if np.all(self.vpr != 0):
+            fig, ax = plt.subplots(3, 1, figsize=size)
+            ax[0].semilogx(self.frequencyRange, np.abs(xpr), label='Displacement')
+            ax[1].semilogx(self.frequencyRange, np.abs(self.vpr), label='Velocity')
+            ax[2].semilogx(self.frequencyRange, np.abs(apr), label='Acceleration')
+            ax[0].set(ylabel="mm", title="Passive-radiator")
+            ax[1].set(ylabel="m/s")
+            ax[2].set(ylabel="m/s^2", xlabel="Frequency [Hz]")
+            for i in range(3):
+                ax[i].grid(which='both', linestyle="dotted")
+                ax[i].legend(loc='best')  
+            plt.tight_layout()
+        if np.all(self.vpr2 != 0):
+            fig, ax = plt.subplots(3, 1, figsize=size)
+            ax[0].semilogx(self.frequencyRange, np.abs(xpr2), label='Displacement')
+            ax[1].semilogx(self.frequencyRange, np.abs(self.vpr2), label='Velocity')
+            ax[2].semilogx(self.frequencyRange, np.abs(apr2), label='Acceleration')
+            ax[0].set(ylabel="mm", title="Passive-radiator - 2")
+            ax[1].set(ylabel="m/s")
+            ax[2].set(ylabel="m/s^2", xlabel="Frequency [Hz]")
+            for i in range(3):
+                ax[i].grid(which='both', linestyle="dotted")
+                ax[i].legend(loc='best')   
+            plt.tight_layout()
         return plt.show()
+    
+    def exportZe(self, filename):
+        module = np.abs(self.Ze)
+        phase = np.angle(self.Ze, deg=True)
+        np.savetxt(filename, np.array([self.frequencyRange, module, phase]).T,
+                   fmt="%.3f",
+                   header="Freq[Hz]  Imp[Ohm]  Phase[Deg]",
+                   delimiter=',',
+                   comments='')
+        
+        
+        
+        
+        

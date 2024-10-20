@@ -515,26 +515,26 @@ class loudspeakerSystem:
         return None
 
     ## PLOT
-    def plot_results(self, study_to_plot='all', 
+    def plot_results(self, study=[], 
                      evaluation=[], radiatingElement=[], bypass_xover=False):
         
         # update solutions
         if isinstance(radiatingElement, int) is True: # avoid possible error if only one rad surf is selected
             radiatingElement = [radiatingElement]
                 
-        if study_to_plot == 'all':
-            for study in self.acoustic_study:
-                _ = updateResults(self, study, bypass_xover)
-                _ = self.evaluation[study].plot(evaluation, radiatingElement, 
-                                             processing=self.results[study])
+        if bool(study) is False:
+            for s in self.acoustic_study:
+                _ = updateResults(self, s, bypass_xover)
+                _ = self.evaluation[s].plot(evaluation, radiatingElement, 
+                                             processing=self.results[s])
         else:
-            _ = updateResults(self, study_to_plot, bypass_xover)
-            _ = self.evaluation[study_to_plot].plot(evaluation, radiatingElement,
-                                                 processing=self.results[study_to_plot])
+            _ = updateResults(self, study, bypass_xover)
+            _ = self.evaluation[study].plot(evaluation, radiatingElement,
+                                                 processing=self.results[study])
         return None
 
-    def plot_system(self, study_to_plot):
-        self.evaluation[study_to_plot].plot_system()
+    def plot_system(self, study):
+        self.evaluation[study].plot_system()
         return None
 
     def plot_xovers(self, networks, split=True, amplitude=64):
@@ -662,6 +662,63 @@ class loudspeakerSystem:
         out = getPressure(pmic, self.acoustic_study[studyName].radiatingElement,
                                 radiatingElement, elementCoeff)
         return out
+    
+    
+    def export_directivity(self, folder_name, 
+                           study, evaluation, radiatingElement=[], 
+                           bypass_xover=False):
+        """
+        Export directivity results.
+
+        Parameters
+        ----------
+        folder_name : str
+            where data are saved.
+        study : str
+            name of study to export.
+        evaluation : str
+            evaluation to export.
+        radiatingElement : int or list of int,
+            extract specific element.
+        bypass_xover : bool, 
+            if True, will export filtered response.
+
+        Returns
+        -------
+        None.
+
+        """
+        from generalToolbox.acoustics import export_directivity
+        
+        pmic = self.get_pMic(study, evaluation, radiatingElement, bypass_xover)
+        theta = self.evaluation[study].setup[evaluation].theta
+        frequency = self.frequency
+        export_directivity(folder_name, frequency, theta, pmic)
+        
+        
+    def export_impedance(self, filename, objName):
+        """
+        Export impedance into .txt file
+
+        Parameters
+        ----------
+        filename : str
+            export file.
+        objName : str
+            enclosure or driver object to export.
+
+        Returns
+        -------
+        None.
+
+        """
+        if objName in self.enclosure:
+            self.enclosure[objName].exportZe(filename + ".txt")
+        elif objName in self.driver:
+            self.driver[objName].exportZe(filename + ".txt")
+
+        
+        
 
 def create_polarRadiation_dataframe(data_array, angle_array, freq_array):
     import pandas as pd
@@ -739,6 +796,7 @@ def groupSurfaces2Export(loudspeakerSystem):
                 radiatorName.append(radname)
                 radiatingSurface.append(loudspeakerSystem.driver[radname].ref2bem)
     return radiatorName, radiatingSurface
+
 
 ## =======================
 # %% post-processing tools
