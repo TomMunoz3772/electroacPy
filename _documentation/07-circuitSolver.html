@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>3.1 circuitSolver | ElectroacPy</title>
+  <meta name="description" content="<p>ElectroacPy Handbook.
+The HTML output format for this example is bookdown::gitbook,
+set in the _output.yml file.</p>" />
+  <meta name="generator" content="bookdown 0.40 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="3.1 circuitSolver | ElectroacPy" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="<p>ElectroacPy Handbook.
+The HTML output format for this example is bookdown::gitbook,
+set in the _output.yml file.</p>" />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="3.1 circuitSolver | ElectroacPy" />
+  
+  <meta name="twitter:description" content="<p>ElectroacPy Handbook.
+The HTML output format for this example is bookdown::gitbook,
+set in the _output.yml file.</p>" />
+  
+
+<meta name="author" content="Tom Munoz" />
+
+
+<meta name="date" content="2024-10-21" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="06-back_end.html"/>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">ElectroacPy</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="01-introduction.html"><a href="01-introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="01-introduction.html"><a href="01-introduction.html#installation"><i class="fa fa-check"></i><b>1.1</b> Installation</a></li>
+<li class="chapter" data-level="1.2" data-path="01-introduction.html"><a href="01-introduction.html#notation"><i class="fa fa-check"></i><b>1.2</b> Notation</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="02-loudspeaker_system.html"><a href="02-loudspeaker_system.html"><i class="fa fa-check"></i><b>2</b> loudspeakerSystem</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html"><i class="fa fa-check"></i><b>2.1</b> Lumped Element Modeler</a>
+<ul>
+<li class="chapter" data-level="2.1.1" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html#driver"><i class="fa fa-check"></i><b>2.1.1</b> <code>.driver[]</code></a></li>
+<li class="chapter" data-level="2.1.2" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html#enclosure"><i class="fa fa-check"></i><b>2.1.2</b> <code>.enclosure[]</code></a></li>
+<li class="chapter" data-level="2.1.3" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html#code-summary"><i class="fa fa-check"></i><b>2.1.3</b> Code summary</a></li>
+</ul></li>
+<li class="chapter" data-level="2.2" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html"><i class="fa fa-check"></i><b>2.2</b> Boundary Element Modeler</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html#acoustic_study"><i class="fa fa-check"></i><b>2.2.1</b> <code>.acoustic_study[]</code></a></li>
+<li class="chapter" data-level="2.2.2" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html#evaluation"><i class="fa fa-check"></i><b>2.2.2</b> <code>.evaluation[]</code></a></li>
+<li class="chapter" data-level="2.2.3" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html#code-summary-1"><i class="fa fa-check"></i><b>2.2.3</b> Code Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="05-post_processing.html"><a href="05-post_processing.html"><i class="fa fa-check"></i><b>2.3</b> Post-processing</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="05-post_processing.html"><a href="05-post_processing.html#crossover"><i class="fa fa-check"></i><b>2.3.1</b> <code>.crossover[]</code></a></li>
+<li class="chapter" data-level="2.3.2" data-path="05-post_processing.html"><a href="05-post_processing.html#export-simulation-data"><i class="fa fa-check"></i><b>2.3.2</b> Export simulation data</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="06-back_end.html"><a href="06-back_end.html"><i class="fa fa-check"></i><b>3</b> Back-end</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="07-circuitSolver.html"><a href="07-circuitSolver.html"><i class="fa fa-check"></i><b>3.1</b> circuitSolver</a>
+<ul>
+<li class="chapter" data-level="3.1.1" data-path="07-circuitSolver.html"><a href="07-circuitSolver.html#components"><i class="fa fa-check"></i><b>3.1.1</b> Components</a></li>
+<li class="chapter" data-level="3.1.2" data-path="07-circuitSolver.html"><a href="07-circuitSolver.html#blocks"><i class="fa fa-check"></i><b>3.1.2</b> Blocks</a></li>
+</ul></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">ElectroacPy</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="circuitSolver" class="section level2 hasAnchor" number="3.1">
+<h2><span class="header-section-number">3.1</span> circuitSolver<a href="07-circuitSolver.html#circuitSolver" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Before diving into the lumped-element wrappers, it is best to present the <strong>circuitSolver</strong> class. It lets the user create electrical networks and uses (a relatively simplified) Modified Nodal Analysis (MNA) to solve nodes potential and sources current in the frequency domain. It is the basis on which electroacPy’s lumped-element classes are built. Using networks through <strong>circuitSolver</strong> allows much more flexibility when describing electro-acoustic networks — as long as you know how to describe your system with lumped-elements.</p>
+<p>Networks are initialized by creating a <strong>circuit</strong> object:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="07-circuitSolver.html#cb1-1" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="07-circuitSolver.html#cb1-2" tabindex="-1"></a><span class="im">from</span> circuitSolver.solver <span class="im">import</span> circuit</span>
+<span id="cb1-3"><a href="07-circuitSolver.html#cb1-3" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="07-circuitSolver.html#cb1-4" tabindex="-1"></a>frequency <span class="op">=</span> np.arange(<span class="dv">10</span>, <span class="dv">10000</span>, <span class="dv">1</span>) <span class="co"># frequency axis</span></span>
+<span id="cb1-5"><a href="07-circuitSolver.html#cb1-5" tabindex="-1"></a>network   <span class="op">=</span> circuit(frequency)      <span class="co"># circuit object</span></span></code></pre></div>
+<p>Five methods are then available to the user:</p>
+<ul>
+<li><code>.addComponent()</code>, add one or several 2-port elements,</li>
+<li><code>.addBlock()</code>, add one or several multi-port elements,</li>
+<li><code>.run()</code>, solve the circuit</li>
+<li><code>.getPotential()</code>, extract potential at given node,</li>
+<li><code>.getFlow()</code>, extract current of given source.</li>
+</ul>
+<p>For those interested in MNA, <a href="https://qucs.sourceforge.net/tech/node14.html">QUCS</a> documentation does a really good job explaining its functioning.</p>
+<div id="components" class="section level3 hasAnchor" number="3.1.1">
+<h3><span class="header-section-number">3.1.1</span> Components<a href="07-circuitSolver.html#components" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="electric" class="section level4 hasAnchor" number="3.1.1.1">
+<h4><span class="header-section-number">3.1.1.1</span> electric<a href="07-circuitSolver.html#electric" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The five basic electrical components are given in figures <a href="07-circuitSolver.html#fig:cir-esource">3.1</a> and <a href="07-circuitSolver.html#fig:cir-ecomponents">3.2</a>. These are defined by their positive and negative nodes (<code>np</code> and <code>nm</code>, respectively) and associated value in either Volt, Ampere, Ohm, Henry or Farad.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:cir-esource"></span>
+<img src="svg_circuitikz/electric_sources.svg" alt="**voltageSource(np, nm, value)** and **currentSource(np, nm, value)**." width="25%" />
+<p class="caption">
+Figure 3.1: <strong>voltageSource(np, nm, value)</strong> and <strong>currentSource(np, nm, value)</strong>.
+</p>
+</div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:cir-ecomponents"></span>
+<img src="svg_circuitikz/electric_components.svg" alt="From left to right: **resistance(np, nm, value=Ohm)**, **inductance(np, nm, value=H)**, **capacitance(np, nm, value=F)**." width="30%" />
+<p class="caption">
+Figure 3.2: From left to right: <strong>resistance(np, nm, value=Ohm)</strong>, <strong>inductance(np, nm, value=H)</strong>, <strong>capacitance(np, nm, value=F)</strong>.
+</p>
+</div>
+<p>The code below shows how to create a 2nd order lowpass filter. Resulting transfer function is shown in Figure <a href="07-circuitSolver.html#fig:cir-2nd-order-lp">3.3</a>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="07-circuitSolver.html#cb2-1" tabindex="-1"></a><span class="co"># here, we use the previous network object</span></span>
+<span id="cb2-2"><a href="07-circuitSolver.html#cb2-2" tabindex="-1"></a><span class="im">from</span> numpy <span class="im">import</span> pi, arange</span>
+<span id="cb2-3"><a href="07-circuitSolver.html#cb2-3" tabindex="-1"></a><span class="im">from</span> electroacPy <span class="im">import</span> csc       <span class="co"># circuitSolver.components</span></span>
+<span id="cb2-4"><a href="07-circuitSolver.html#cb2-4" tabindex="-1"></a><span class="im">from</span> electroacPy <span class="im">import</span> circuit</span>
+<span id="cb2-5"><a href="07-circuitSolver.html#cb2-5" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="07-circuitSolver.html#cb2-6" tabindex="-1"></a>frequency <span class="op">=</span> arange(<span class="dv">10</span>, <span class="fl">10e3</span>, <span class="dv">1</span>)</span>
+<span id="cb2-7"><a href="07-circuitSolver.html#cb2-7" tabindex="-1"></a>LP <span class="op">=</span> circuit(frequency)</span>
+<span id="cb2-8"><a href="07-circuitSolver.html#cb2-8" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="07-circuitSolver.html#cb2-9" tabindex="-1"></a><span class="co">#%% Definition of components and cut-off frequency</span></span>
+<span id="cb2-10"><a href="07-circuitSolver.html#cb2-10" tabindex="-1"></a><span class="co"># Low pass for a loudspeaker with nominal impedance of 8 Ohm</span></span>
+<span id="cb2-11"><a href="07-circuitSolver.html#cb2-11" tabindex="-1"></a>f0 <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb2-12"><a href="07-circuitSolver.html#cb2-12" tabindex="-1"></a>w0 <span class="op">=</span> <span class="dv">2</span><span class="op">*</span>pi<span class="op">*</span>f0</span>
+<span id="cb2-13"><a href="07-circuitSolver.html#cb2-13" tabindex="-1"></a>Re <span class="op">=</span> <span class="dv">8</span></span>
+<span id="cb2-14"><a href="07-circuitSolver.html#cb2-14" tabindex="-1"></a>L  <span class="op">=</span> Re <span class="op">/</span> w0</span>
+<span id="cb2-15"><a href="07-circuitSolver.html#cb2-15" tabindex="-1"></a>C  <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> w0 <span class="op">/</span> Re</span>
+<span id="cb2-16"><a href="07-circuitSolver.html#cb2-16" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="07-circuitSolver.html#cb2-17" tabindex="-1"></a><span class="co">#%% Create network</span></span>
+<span id="cb2-18"><a href="07-circuitSolver.html#cb2-18" tabindex="-1"></a>Vs <span class="op">=</span> csc.electric.voltageSource(<span class="dv">1</span>, <span class="dv">0</span>, <span class="fl">2.83</span>)</span>
+<span id="cb2-19"><a href="07-circuitSolver.html#cb2-19" tabindex="-1"></a>L1 <span class="op">=</span> csc.electric.inductance(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span><span class="op">*</span>L)</span>
+<span id="cb2-20"><a href="07-circuitSolver.html#cb2-20" tabindex="-1"></a>C1 <span class="op">=</span> csc.electric.capacitance(<span class="dv">2</span>, <span class="dv">0</span>, <span class="fl">0.5</span><span class="op">*</span>C)</span>
+<span id="cb2-21"><a href="07-circuitSolver.html#cb2-21" tabindex="-1"></a>R  <span class="op">=</span> csc.electric.resistance(<span class="dv">2</span>, <span class="dv">0</span>, Re)</span>
+<span id="cb2-22"><a href="07-circuitSolver.html#cb2-22" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="07-circuitSolver.html#cb2-23" tabindex="-1"></a>LP.addComponent(Vs, L1, C1, R)</span>
+<span id="cb2-24"><a href="07-circuitSolver.html#cb2-24" tabindex="-1"></a>LP.run()</span>
+<span id="cb2-25"><a href="07-circuitSolver.html#cb2-25" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="07-circuitSolver.html#cb2-26" tabindex="-1"></a><span class="co">#%% Plot data</span></span>
+<span id="cb2-27"><a href="07-circuitSolver.html#cb2-27" tabindex="-1"></a>H <span class="op">=</span> LP.getPotential(<span class="dv">2</span>) <span class="op">/</span> LP.getPotential(<span class="dv">1</span>)</span>
+<span id="cb2-28"><a href="07-circuitSolver.html#cb2-28" tabindex="-1"></a></span>
+<span id="cb2-29"><a href="07-circuitSolver.html#cb2-29" tabindex="-1"></a>gtb.plot.FRF(frequency, H, <span class="st">&quot;dB&quot;</span>, ylim<span class="op">=</span>(<span class="op">-</span><span class="dv">20</span>, <span class="dv">3</span>),</span>
+<span id="cb2-30"><a href="07-circuitSolver.html#cb2-30" tabindex="-1"></a>             title<span class="op">=</span><span class="st">&quot;Transfer function&quot;</span>,</span>
+<span id="cb2-31"><a href="07-circuitSolver.html#cb2-31" tabindex="-1"></a>             ylabel<span class="op">=</span><span class="st">&quot;P_out / P_in [dB]&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:cir-2nd-order-lp"></span>
+<img src="circuitSolver_images/2nd_order_lp.svg" alt="Transfer function of lowpass filter." width="80%" />
+<p class="caption">
+Figure 3.3: Transfer function of lowpass filter.
+</p>
+</div>
+</div>
+<div id="acoustic" class="section level4 hasAnchor" number="3.1.1.2">
+<h4><span class="header-section-number">3.1.1.2</span> acoustic<a href="07-circuitSolver.html#acoustic" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Because the three basic acoustic analogies<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> can be represented using electric resistance, capacitance and inductance, the acoustic elements discussed here are more complex and use combinations of these smaller components. The pressure source remains similar to the voltage source, this duplicate was made to “simplify” the reading of acoustic circuits.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:cir-psource"></span>
+<img src="svg_circuitikz/acoustic_source.svg" alt="**pressureSource(np, nm, value)**." width="10%" />
+<p class="caption">
+Figure 3.4: <strong>pressureSource(np, nm, value)</strong>.
+</p>
+</div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:cir-cavity"></span>
+<img src="svg_circuitikz/acoustic_cavity.svg" alt="**cavity(np, nm, Vb, eta=1e-5, rho=1.22, c=343)**. With `Vb` the cavity volume (in m$^3$), `eta` the loss factor and (`rho`, `c`) the air density and speed of sound. The acoustic compliance is represented by Cb, acoustic leaks are defined by Rl. Generally, nm is connected to ground (node 0)." width="20%" />
+<p class="caption">
+Figure 3.5: <strong>cavity(np, nm, Vb, eta=1e-5, rho=1.22, c=343)</strong>. With <code>Vb</code> the cavity volume (in m<span class="math inline">\(^3\)</span>), <code>eta</code> the loss factor and (<code>rho</code>, <code>c</code>) the air density and speed of sound. The acoustic compliance is represented by Cb, acoustic leaks are defined by Rl. Generally, nm is connected to ground (node 0).
+</p>
+</div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:cir-port"></span>
+<img src="svg_circuitikz/acoustic_port.svg" alt="**port(np, nm, Lp, Sp, rho=1.22, c=343)**. With `Lp` the port length and `rp` its radius --- both expressed in meters. In that component, Mp and Rp are the acoustic mass and losses, respectively." width="30%" />
+<p class="caption">
+Figure 3.6: <strong>port(np, nm, Lp, Sp, rho=1.22, c=343)</strong>. With <code>Lp</code> the port length and <code>rp</code> its radius — both expressed in meters. In that component, Mp and Rp are the acoustic mass and losses, respectively.
+</p>
+</div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:cir-membrane"></span>
+<img src="svg_circuitikz/acoustic_membrane.svg" alt="**membrane(np, nm, Cm, Mm, Rm, Sd, rho=1.22, c=343)**. With `Cm`, `Rm` the suspension compliance and losses, and `Mm` the moving mass. To convert these mechanical data to the acoustic domain, the radiating surface `Sd` is used. Hence we get the associated components Cma, Mma and Rma." width="40%" />
+<p class="caption">
+Figure 3.7: <strong>membrane(np, nm, Cm, Mm, Rm, Sd, rho=1.22, c=343)</strong>. With <code>Cm</code>, <code>Rm</code> the suspension compliance and losses, and <code>Mm</code> the moving mass. To convert these mechanical data to the acoustic domain, the radiating surface <code>Sd</code> is used. Hence we get the associated components Cma, Mma and Rma.
+</p>
+</div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:cir-radiator"></span>
+<img src="svg_circuitikz/acoustic_radiator.svg" alt="**radiator(np, nm, Sd, rho=1.22, c=343)**. With `Sd` the radiating surface. This element computes the complex radiating impedance of a circular piston. It should be possible to approximate the radiation of a rectangular surface using this component without to much error. The negative node nm is usually connected to ground. A radiator can be a loudspeaker as well as a port, vibrating plate, etc." width="10%" />
+<p class="caption">
+Figure 3.8: <strong>radiator(np, nm, Sd, rho=1.22, c=343)</strong>. With <code>Sd</code> the radiating surface. This element computes the complex radiating impedance of a circular piston. It should be possible to approximate the radiation of a rectangular surface using this component without to much error. The negative node nm is usually connected to ground. A radiator can be a loudspeaker as well as a port, vibrating plate, etc.
+</p>
+</div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:cir-cline"></span>
+<img src="svg_circuitikz/acoustic_generic.svg" alt="**closed_line(np, nm, Lp, Sp, rho=1.22, c=343)**. With `Lp` the line length and `Sp` its cross-sectional. Similarly to the    extbf{cavity}, nm is connected to ground. The closed line element uses transmission line impedance to get the resonances present within a cavity / line." width="5%" />
+<p class="caption">
+Figure 3.9: <strong>closed_line(np, nm, Lp, Sp, rho=1.22, c=343)</strong>. With <code>Lp</code> the line length and <code>Sp</code> its cross-sectional. Similarly to the extbf{cavity}, nm is connected to ground. The closed line element uses transmission line impedance to get the resonances present within a cavity / line.
+</p>
+</div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:cir-tline"></span>
+<img src="svg_circuitikz/acoustic_tline.svg" alt="**open_line_T(np0, np1, np2, nm, Lp, Sp, rho=1.22, c=343)**. With `Lp` the line length and `Sp` its cross-sectional area. Similarly to `cavity` and `closed_line`, `nm` is connected to ground. This component uses transmission line analogies as well, with Zt and Yt computed from Lp and Sp." width="40%" />
+<p class="caption">
+Figure 3.10: <strong>open_line_T(np0, np1, np2, nm, Lp, Sp, rho=1.22, c=343)</strong>. With <code>Lp</code> the line length and <code>Sp</code> its cross-sectional area. Similarly to <code>cavity</code> and <code>closed_line</code>, <code>nm</code> is connected to ground. This component uses transmission line analogies as well, with Zt and Yt computed from Lp and Sp.
+</p>
+</div>
+<p>The following code demonstrates how to simulate the sound transmission within a duct split by a membrane. Figure <a href="07-circuitSolver.html#fig:membrane-system">3.11</a> represents the simulated system while the resulting transfer function and membrane volume velocity are shown in Figure <a href="07-circuitSolver.html#fig:membrane-H">3.12</a> and <a href="07-circuitSolver.html#fig:membrane-Q">3.13</a>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="07-circuitSolver.html#cb3-1" tabindex="-1"></a><span class="im">from</span> electroacPy <span class="im">import</span> csc, circuit</span>
+<span id="cb3-2"><a href="07-circuitSolver.html#cb3-2" tabindex="-1"></a><span class="im">import</span> generalToolbox <span class="im">as</span> gtb</span>
+<span id="cb3-3"><a href="07-circuitSolver.html#cb3-3" tabindex="-1"></a><span class="im">from</span> numpy <span class="im">import</span> arange, pi</span>
+<span id="cb3-4"><a href="07-circuitSolver.html#cb3-4" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="07-circuitSolver.html#cb3-5" tabindex="-1"></a><span class="co">#%% Define study parameters</span></span>
+<span id="cb3-6"><a href="07-circuitSolver.html#cb3-6" tabindex="-1"></a>frequency <span class="op">=</span> arange(<span class="dv">10</span>, <span class="dv">10000</span>, <span class="dv">1</span>) </span>
+<span id="cb3-7"><a href="07-circuitSolver.html#cb3-7" tabindex="-1"></a>Lp1 <span class="op">=</span> <span class="fl">0.05</span></span>
+<span id="cb3-8"><a href="07-circuitSolver.html#cb3-8" tabindex="-1"></a>Lp2 <span class="op">=</span> <span class="fl">0.1</span></span>
+<span id="cb3-9"><a href="07-circuitSolver.html#cb3-9" tabindex="-1"></a>rp  <span class="op">=</span> <span class="fl">0.01</span></span>
+<span id="cb3-10"><a href="07-circuitSolver.html#cb3-10" tabindex="-1"></a>Sp  <span class="op">=</span> pi<span class="op">*</span>rp<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb3-11"><a href="07-circuitSolver.html#cb3-11" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="07-circuitSolver.html#cb3-12" tabindex="-1"></a><span class="co">#%% Initialize components</span></span>
+<span id="cb3-13"><a href="07-circuitSolver.html#cb3-13" tabindex="-1"></a>Is       <span class="op">=</span> csc.electric.currentSource(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb3-14"><a href="07-circuitSolver.html#cb3-14" tabindex="-1"></a>line1    <span class="op">=</span> csc.acoustic.open_line_T(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">0</span>, Lp1, Sp)</span>
+<span id="cb3-15"><a href="07-circuitSolver.html#cb3-15" tabindex="-1"></a>membrane <span class="op">=</span> csc.acoustic.membrane(<span class="dv">3</span>, <span class="dv">4</span>, <span class="fl">200e-6</span>, <span class="fl">3e-3</span>, <span class="fl">0.12</span>, Sp)</span>
+<span id="cb3-16"><a href="07-circuitSolver.html#cb3-16" tabindex="-1"></a>line2    <span class="op">=</span> csc.acoustic.closed_line(<span class="dv">4</span>, <span class="dv">0</span>, Lp2, Sp)</span>
+<span id="cb3-17"><a href="07-circuitSolver.html#cb3-17" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="07-circuitSolver.html#cb3-18" tabindex="-1"></a><span class="co">#%% Assemble circuit</span></span>
+<span id="cb3-19"><a href="07-circuitSolver.html#cb3-19" tabindex="-1"></a>cir <span class="op">=</span> circuit(frequency)</span>
+<span id="cb3-20"><a href="07-circuitSolver.html#cb3-20" tabindex="-1"></a>cir.addComponent(Is, line1, membrane, line2)</span>
+<span id="cb3-21"><a href="07-circuitSolver.html#cb3-21" tabindex="-1"></a>cir.run()</span>
+<span id="cb3-22"><a href="07-circuitSolver.html#cb3-22" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="07-circuitSolver.html#cb3-23" tabindex="-1"></a><span class="co">#%% Extract potentials and currents</span></span>
+<span id="cb3-24"><a href="07-circuitSolver.html#cb3-24" tabindex="-1"></a>p_out <span class="op">=</span> cir.getPotential(<span class="dv">4</span>)</span>
+<span id="cb3-25"><a href="07-circuitSolver.html#cb3-25" tabindex="-1"></a>p_in  <span class="op">=</span> cir.getPotential(<span class="dv">1</span>)</span>
+<span id="cb3-26"><a href="07-circuitSolver.html#cb3-26" tabindex="-1"></a>p_m   <span class="op">=</span> cir.getPotential(<span class="dv">3</span>)</span>
+<span id="cb3-27"><a href="07-circuitSolver.html#cb3-27" tabindex="-1"></a>H     <span class="op">=</span> p_out<span class="op">/</span>p_in</span>
+<span id="cb3-28"><a href="07-circuitSolver.html#cb3-28" tabindex="-1"></a>v_m   <span class="op">=</span> (p_m <span class="op">-</span> p_out) <span class="op">*</span> membrane.Gs</span>
+<span id="cb3-29"><a href="07-circuitSolver.html#cb3-29" tabindex="-1"></a></span>
+<span id="cb3-30"><a href="07-circuitSolver.html#cb3-30" tabindex="-1"></a><span class="co">#%% Plot</span></span>
+<span id="cb3-31"><a href="07-circuitSolver.html#cb3-31" tabindex="-1"></a>gtb.plot.FRF(frequency, (p_in, p_out), <span class="st">&quot;dB&quot;</span>, legend<span class="op">=</span>(<span class="st">&quot;p_in&quot;</span>, <span class="st">&quot;p_out&quot;</span>))</span>
+<span id="cb3-32"><a href="07-circuitSolver.html#cb3-32" tabindex="-1"></a>gtb.plot.FRF(frequency, H, <span class="st">&quot;dB&quot;</span>, ylabel<span class="op">=</span><span class="st">&quot;p_out / p_in&quot;</span>)</span>
+<span id="cb3-33"><a href="07-circuitSolver.html#cb3-33" tabindex="-1"></a>gtb.plot.FRF(frequency, v_m, <span class="st">&quot;dB&quot;</span>, ylabel<span class="op">=</span><span class="st">&quot;Volume velocity [dB]&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:membrane-system"></span>
+<img src="svg_circuitikz/acoustic_transmission.svg" alt="From top to bottom: system under study and lumped element analogy. Notice, from left to right: current source, T line, membrane and closed line." width="60%" />
+<p class="caption">
+Figure 3.11: From top to bottom: system under study and lumped element analogy. Notice, from left to right: current source, T line, membrane and closed line.
+</p>
+</div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:membrane-H"></span>
+<img src="circuitSolver_images/membrane_H.svg" alt="Sound transmission within the duct." width="80%" />
+<p class="caption">
+Figure 3.12: Sound transmission within the duct.
+</p>
+</div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:membrane-Q"></span>
+<img src="circuitSolver_images/membrane_Q.svg" alt="Volume velocity at membrane." width="80%" />
+<p class="caption">
+Figure 3.13: Volume velocity at membrane.
+</p>
+</div>
+</div>
+<div id="coupler-controlled-sources" class="section level4 hasAnchor" number="3.1.1.3">
+<h4><span class="header-section-number">3.1.1.3</span> Coupler / Controlled sources<a href="07-circuitSolver.html#coupler-controlled-sources" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>For now, a single controlled source as been implemented. In electro-acoustics, controlled sources are generally used as a way to link two different domains (e.g. electric to mechanic), hence the term “coupler”.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:coupler-ccvs"></span>
+<img src="svg_circuitikz/coupler_ccvs.svg" alt="Current controlled voltage source. **CCVS(np, nm, np1, nm1, value=R)**. Where `R` is the gain applied on the controlled voltage. In the CCVS definition, a zero Volt source is added to read the current of its branch." width="40%" />
+<p class="caption">
+Figure 3.14: Current controlled voltage source. <strong>CCVS(np, nm, np1, nm1, value=R)</strong>. Where <code>R</code> is the gain applied on the controlled voltage. In the CCVS definition, a zero Volt source is added to read the current of its branch.
+</p>
+</div>
+<p>As an example, we simulate a loudspeaker radiating in free-air (see Fig.<a href="07-circuitSolver.html#fig:coupler-spk">3.15</a>). The resulting impedance and membrane velocity are plot in Fig.<a href="07-circuitSolver.html#fig:lspk-modulus">3.16</a>-<a href="07-circuitSolver.html#fig:lspk-phase">3.17</a> and Fig.<a href="07-circuitSolver.html#fig:lspk-velocity">3.18</a>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="07-circuitSolver.html#cb4-1" tabindex="-1"></a><span class="im">import</span> generalToolbox <span class="im">as</span> gtb</span>
+<span id="cb4-2"><a href="07-circuitSolver.html#cb4-2" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb4-3"><a href="07-circuitSolver.html#cb4-3" tabindex="-1"></a><span class="im">from</span> electroacPy <span class="im">import</span> circuit</span>
+<span id="cb4-4"><a href="07-circuitSolver.html#cb4-4" tabindex="-1"></a><span class="im">from</span> electroacPy <span class="im">import</span> csc</span>
+<span id="cb4-5"><a href="07-circuitSolver.html#cb4-5" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="07-circuitSolver.html#cb4-6" tabindex="-1"></a><span class="co">#%% define components</span></span>
+<span id="cb4-7"><a href="07-circuitSolver.html#cb4-7" tabindex="-1"></a>U   <span class="op">=</span> csc.electric.voltageSource(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb4-8"><a href="07-circuitSolver.html#cb4-8" tabindex="-1"></a>Re  <span class="op">=</span> csc.electric.resistance(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">6</span>)</span>
+<span id="cb4-9"><a href="07-circuitSolver.html#cb4-9" tabindex="-1"></a>Le  <span class="op">=</span> csc.electric.inductance(<span class="dv">2</span>, <span class="dv">3</span>, <span class="fl">0.2e-3</span>)</span>
+<span id="cb4-10"><a href="07-circuitSolver.html#cb4-10" tabindex="-1"></a>Bli <span class="op">=</span> csc.coupler.CCVS(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="fl">7.8</span>)</span>
+<span id="cb4-11"><a href="07-circuitSolver.html#cb4-11" tabindex="-1"></a>Blv <span class="op">=</span> csc.coupler.CCVS(<span class="dv">6</span>, <span class="dv">0</span>, <span class="dv">4</span>, <span class="dv">0</span>, <span class="op">-</span><span class="fl">7.8</span>)</span>
+<span id="cb4-12"><a href="07-circuitSolver.html#cb4-12" tabindex="-1"></a>Cms <span class="op">=</span> csc.electric.capacitance(<span class="dv">5</span>, <span class="dv">7</span>, <span class="fl">1.35e-3</span>)</span>
+<span id="cb4-13"><a href="07-circuitSolver.html#cb4-13" tabindex="-1"></a>Mms <span class="op">=</span> csc.electric.inductance(<span class="dv">7</span>, <span class="dv">8</span>, <span class="fl">17.9e-3</span>)</span>
+<span id="cb4-14"><a href="07-circuitSolver.html#cb4-14" tabindex="-1"></a>Rms <span class="op">=</span> csc.electric.resistance(<span class="dv">8</span>, <span class="dv">0</span>, <span class="fl">0.9</span>)</span>
+<span id="cb4-15"><a href="07-circuitSolver.html#cb4-15" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="07-circuitSolver.html#cb4-16" tabindex="-1"></a><span class="co">#%% setup and run circuit</span></span>
+<span id="cb4-17"><a href="07-circuitSolver.html#cb4-17" tabindex="-1"></a>frequency <span class="op">=</span> np.arange(<span class="dv">10</span>, <span class="dv">10000</span>, <span class="dv">1</span>)</span>
+<span id="cb4-18"><a href="07-circuitSolver.html#cb4-18" tabindex="-1"></a>driver <span class="op">=</span> circuit(frequency)</span>
+<span id="cb4-19"><a href="07-circuitSolver.html#cb4-19" tabindex="-1"></a>driver.addComponent(U, Re, Le, Bli, Blv, Cms, Mms, Rms)</span>
+<span id="cb4-20"><a href="07-circuitSolver.html#cb4-20" tabindex="-1"></a>driver.run()</span>
+<span id="cb4-21"><a href="07-circuitSolver.html#cb4-21" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="07-circuitSolver.html#cb4-22" tabindex="-1"></a><span class="co">#%% extract and plot results</span></span>
+<span id="cb4-23"><a href="07-circuitSolver.html#cb4-23" tabindex="-1"></a>Ze <span class="op">=</span> <span class="op">-</span> driver.getPotential(<span class="dv">1</span>) <span class="op">/</span> driver.getFlow(<span class="dv">1</span>)</span>
+<span id="cb4-24"><a href="07-circuitSolver.html#cb4-24" tabindex="-1"></a>v  <span class="op">=</span> driver.getPotential(<span class="dv">8</span>) <span class="op">*</span> Rms.Gs</span>
+<span id="cb4-25"><a href="07-circuitSolver.html#cb4-25" tabindex="-1"></a>            </span>
+<span id="cb4-26"><a href="07-circuitSolver.html#cb4-26" tabindex="-1"></a>gtb.plot.FRF(frequency, Ze, <span class="st">&quot;abs&quot;</span>, ylabel<span class="op">=</span><span class="st">&quot;Impedance [Ohm]&quot;</span>)</span>
+<span id="cb4-27"><a href="07-circuitSolver.html#cb4-27" tabindex="-1"></a>gtb.plot.FRF(frequency, Ze, <span class="st">&quot;phase&quot;</span>, ylabel<span class="op">=</span><span class="st">&quot;Impedance [rad]&quot;</span>)</span>
+<span id="cb4-28"><a href="07-circuitSolver.html#cb4-28" tabindex="-1"></a>gtb.plot.FRF(frequency, v<span class="op">*</span><span class="fl">1e3</span>, <span class="st">&quot;abs&quot;</span>, ylabel<span class="op">=</span><span class="st">&quot;Velocity [mm/s]&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:coupler-spk"></span>
+<img src="svg_circuitikz/coupler_loudspeaker.svg" alt="Lumped network of a loudspeaker driver in free-air." width="80%" />
+<p class="caption">
+Figure 3.15: Lumped network of a loudspeaker driver in free-air.
+</p>
+</div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:lspk-modulus"></span>
+<img src="circuitSolver_images/coupler_loudspeaker_modulus.svg" alt="Free-air impedance, modulus." width="80%" />
+<p class="caption">
+Figure 3.16: Free-air impedance, modulus.
+</p>
+</div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:lspk-phase"></span>
+<img src="circuitSolver_images/coupler_loudspeaker_phase.svg" alt="Free-air impedance, phase." width="80%" />
+<p class="caption">
+Figure 3.17: Free-air impedance, phase.
+</p>
+</div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:lspk-velocity"></span>
+<img src="circuitSolver_images/coupler_loudspeaker_velocity.svg" alt="Free-air velocity." width="80%" />
+<p class="caption">
+Figure 3.18: Free-air velocity.
+</p>
+</div>
+</div>
+</div>
+<div id="blocks" class="section level3 hasAnchor" number="3.1.2">
+<h3><span class="header-section-number">3.1.2</span> Blocks<a href="07-circuitSolver.html#blocks" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Blocks regroup components into sub-circuits, allowing complex structures to be condensed into manageable 2- or 4-port modules for easier manipulation.</p>
+<div id="electric-1" class="section level4 hasAnchor" number="3.1.2.1">
+<h4><span class="header-section-number">3.1.2.1</span> electric<a href="07-circuitSolver.html#electric-1" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>At this stage of development, electric blocks are:</p>
+<ul>
+<li><code>.lowpass_butter(A, B, order, fc, Re)</code>,</li>
+<li><code>.highpass_butter(A, B, order, fc, Re)</code>.</li>
+</ul>
+<p>Both are built using the definitions of Butterworth high- and low-pass filters from <span class="citation">Beranek and Mellow (<a href="#ref-beranek2019acoustics">2019</a>)</span>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="07-circuitSolver.html#cb5-1" tabindex="-1"></a><span class="im">import</span> generalToolbox <span class="im">as</span> gtb</span>
+<span id="cb5-2"><a href="07-circuitSolver.html#cb5-2" tabindex="-1"></a><span class="im">from</span> numpy <span class="im">import</span> arange</span>
+<span id="cb5-3"><a href="07-circuitSolver.html#cb5-3" tabindex="-1"></a><span class="im">from</span> electroacPy <span class="im">import</span> csc, csb, circuit</span>
+<span id="cb5-4"><a href="07-circuitSolver.html#cb5-4" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="07-circuitSolver.html#cb5-5" tabindex="-1"></a>frequency <span class="op">=</span> arange(<span class="dv">10</span>, <span class="fl">10e3</span>, <span class="dv">1</span>)</span>
+<span id="cb5-6"><a href="07-circuitSolver.html#cb5-6" tabindex="-1"></a>cir <span class="op">=</span> circuit(frequency)</span>
+<span id="cb5-7"><a href="07-circuitSolver.html#cb5-7" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="07-circuitSolver.html#cb5-8" tabindex="-1"></a><span class="co">#%% Source + crossovers</span></span>
+<span id="cb5-9"><a href="07-circuitSolver.html#cb5-9" tabindex="-1"></a>Vs  <span class="op">=</span> csc.electric.voltageSource(<span class="dv">1</span>, <span class="dv">0</span>, <span class="fl">2.83</span>)</span>
+<span id="cb5-10"><a href="07-circuitSolver.html#cb5-10" tabindex="-1"></a>lp1 <span class="op">=</span> csb.electric.lowpass_butter(<span class="dv">1</span>, <span class="dv">2</span>, order<span class="op">=</span><span class="dv">3</span>, fc<span class="op">=</span><span class="dv">300</span>, Re<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb5-11"><a href="07-circuitSolver.html#cb5-11" tabindex="-1"></a>hp1 <span class="op">=</span> csb.electric.highpass_butter(<span class="dv">1</span>, <span class="dv">3</span>, order<span class="op">=</span><span class="dv">3</span>, fc<span class="op">=</span><span class="dv">300</span>, Re<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb5-12"><a href="07-circuitSolver.html#cb5-12" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="07-circuitSolver.html#cb5-13" tabindex="-1"></a><span class="co">#%% Electric load</span></span>
+<span id="cb5-14"><a href="07-circuitSolver.html#cb5-14" tabindex="-1"></a>Re8 <span class="op">=</span> csc.electric.resistance(<span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">8</span>)</span>
+<span id="cb5-15"><a href="07-circuitSolver.html#cb5-15" tabindex="-1"></a>Re4 <span class="op">=</span> csc.electric.resistance(<span class="dv">3</span>, <span class="dv">0</span>, <span class="dv">4</span>)</span>
+<span id="cb5-16"><a href="07-circuitSolver.html#cb5-16" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="07-circuitSolver.html#cb5-17" tabindex="-1"></a><span class="co">#%% setup and run </span></span>
+<span id="cb5-18"><a href="07-circuitSolver.html#cb5-18" tabindex="-1"></a>cir.addBlock(lp1, hp1)</span>
+<span id="cb5-19"><a href="07-circuitSolver.html#cb5-19" tabindex="-1"></a>cir.addComponent(Vs, Re8, Re4)</span>
+<span id="cb5-20"><a href="07-circuitSolver.html#cb5-20" tabindex="-1"></a>cir.run()</span>
+<span id="cb5-21"><a href="07-circuitSolver.html#cb5-21" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="07-circuitSolver.html#cb5-22" tabindex="-1"></a><span class="co">#%% extract FRF</span></span>
+<span id="cb5-23"><a href="07-circuitSolver.html#cb5-23" tabindex="-1"></a>H_lp <span class="op">=</span> cir.getPotential(<span class="dv">2</span>) <span class="op">/</span> cir.getPotential(<span class="dv">1</span>)  </span>
+<span id="cb5-24"><a href="07-circuitSolver.html#cb5-24" tabindex="-1"></a>H_hp <span class="op">=</span> cir.getPotential(<span class="dv">3</span>) <span class="op">/</span> cir.getPotential(<span class="dv">1</span>) </span>
+<span id="cb5-25"><a href="07-circuitSolver.html#cb5-25" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="07-circuitSolver.html#cb5-26" tabindex="-1"></a>gtb.plot.FRF(frequency, (H_lp, H_hp, H_lp<span class="op">+</span>H_hp), <span class="st">&quot;dB&quot;</span>,</span>
+<span id="cb5-27"><a href="07-circuitSolver.html#cb5-27" tabindex="-1"></a>             legend<span class="op">=</span>(<span class="st">&quot;H_lp&quot;</span>, <span class="st">&quot;H_hp&quot;</span>, <span class="st">&quot;sum&quot;</span>),</span>
+<span id="cb5-28"><a href="07-circuitSolver.html#cb5-28" tabindex="-1"></a>             ylim<span class="op">=</span>(<span class="op">-</span><span class="dv">20</span>, <span class="dv">3</span>))</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:block-hplp"></span>
+<img src="circuitSolver_images/block_hp_lp.svg" alt="Frequency-response-function of a 3rd order crossover stage." width="80%" />
+<p class="caption">
+Figure 3.19: Frequency-response-function of a 3rd order crossover stage.
+</p>
+</div>
+</div>
+<div id="electrodynamic" class="section level4 hasAnchor" number="3.1.2.2">
+<h4><span class="header-section-number">3.1.2.2</span> electrodynamic<a href="07-circuitSolver.html#electrodynamic" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Electro-dynamic blocks connect electrical to mechanical and/or acoustical domain. For now, only the electro-acoustic driver (EAD) block exists. It essentially regroup the network of Figure <a href="07-circuitSolver.html#fig:coupler-spk">3.15</a> with two additional ports in the acoustical domain: front and back load.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:block-ead"></span>
+<img src="svg_circuitikz/EAD_component.svg" alt="**EAD(A, B, C, D, Le, ..., Sd, v_probe:optional)**. Representative 4-port model of the electro-acoustic-driver block. With `A` and `B` being the positive and negative electrical connections; `C` and `D` the front and back acoustic load. If a *str* (text) is passed to the `v_probe` argument, cone velocity can be extracted using `circuit.get_Flow(your_str)`." width="40%" />
+<p class="caption">
+Figure 3.20: <strong>EAD(A, B, C, D, Le, …, Sd, v_probe:optional)</strong>. Representative 4-port model of the electro-acoustic-driver block. With <code>A</code> and <code>B</code> being the positive and negative electrical connections; <code>C</code> and <code>D</code> the front and back acoustic load. If a <em>str</em> (text) is passed to the <code>v_probe</code> argument, cone velocity can be extracted using <code>circuit.get_Flow(your_str)</code>.
+</p>
+</div>
+<p>In the next code, we compare different wiring combination of drive units (single speaker, 2-parallel, 2-series). Here, we consider equivalent input power across all three configuration.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="07-circuitSolver.html#cb6-1" tabindex="-1"></a><span class="im">import</span> generalToolbox <span class="im">as</span> gtb</span>
+<span id="cb6-2"><a href="07-circuitSolver.html#cb6-2" tabindex="-1"></a><span class="im">from</span> electroacPy <span class="im">import</span> csc, csb, circuit</span>
+<span id="cb6-3"><a href="07-circuitSolver.html#cb6-3" tabindex="-1"></a><span class="im">from</span> numpy <span class="im">import</span> arange, sqrt</span>
+<span id="cb6-4"><a href="07-circuitSolver.html#cb6-4" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="07-circuitSolver.html#cb6-5" tabindex="-1"></a><span class="co">#%% Initialization of circuits</span></span>
+<span id="cb6-6"><a href="07-circuitSolver.html#cb6-6" tabindex="-1"></a>frequency <span class="op">=</span> arange(<span class="dv">10</span>, <span class="fl">10e3</span>, <span class="dv">1</span>)</span>
+<span id="cb6-7"><a href="07-circuitSolver.html#cb6-7" tabindex="-1"></a>single   <span class="op">=</span> circuit(frequency)</span>
+<span id="cb6-8"><a href="07-circuitSolver.html#cb6-8" tabindex="-1"></a>parallel <span class="op">=</span> circuit(frequency)</span>
+<span id="cb6-9"><a href="07-circuitSolver.html#cb6-9" tabindex="-1"></a>series   <span class="op">=</span> circuit(frequency)</span>
+<span id="cb6-10"><a href="07-circuitSolver.html#cb6-10" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="07-circuitSolver.html#cb6-11" tabindex="-1"></a><span class="co">#%% driver parameters</span></span>
+<span id="cb6-12"><a href="07-circuitSolver.html#cb6-12" tabindex="-1"></a>Re  <span class="op">=</span> <span class="dv">6</span></span>
+<span id="cb6-13"><a href="07-circuitSolver.html#cb6-13" tabindex="-1"></a>Le  <span class="op">=</span> <span class="fl">0.2e-3</span></span>
+<span id="cb6-14"><a href="07-circuitSolver.html#cb6-14" tabindex="-1"></a>Cms <span class="op">=</span> <span class="fl">1.35e-3</span></span>
+<span id="cb6-15"><a href="07-circuitSolver.html#cb6-15" tabindex="-1"></a>Mms <span class="op">=</span> <span class="fl">17.9e-3</span></span>
+<span id="cb6-16"><a href="07-circuitSolver.html#cb6-16" tabindex="-1"></a>Rms <span class="op">=</span> <span class="fl">0.9</span></span>
+<span id="cb6-17"><a href="07-circuitSolver.html#cb6-17" tabindex="-1"></a>Bl  <span class="op">=</span> <span class="fl">7.8</span></span>
+<span id="cb6-18"><a href="07-circuitSolver.html#cb6-18" tabindex="-1"></a>Sd  <span class="op">=</span> <span class="fl">158e-4</span></span>
+<span id="cb6-19"><a href="07-circuitSolver.html#cb6-19" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="07-circuitSolver.html#cb6-20" tabindex="-1"></a><span class="co">#%% Estimate input voltage to get 1W of power</span></span>
+<span id="cb6-21"><a href="07-circuitSolver.html#cb6-21" tabindex="-1"></a>U_single   <span class="op">=</span> sqrt(Re)</span>
+<span id="cb6-22"><a href="07-circuitSolver.html#cb6-22" tabindex="-1"></a>U_parallel <span class="op">=</span> sqrt(Re<span class="op">/</span><span class="dv">2</span>)</span>
+<span id="cb6-23"><a href="07-circuitSolver.html#cb6-23" tabindex="-1"></a>U_series   <span class="op">=</span> sqrt(Re<span class="op">*</span><span class="dv">2</span>)</span>
+<span id="cb6-24"><a href="07-circuitSolver.html#cb6-24" tabindex="-1"></a></span>
+<span id="cb6-25"><a href="07-circuitSolver.html#cb6-25" tabindex="-1"></a><span class="co">#%% 1. single driver</span></span>
+<span id="cb6-26"><a href="07-circuitSolver.html#cb6-26" tabindex="-1"></a>Vs    <span class="op">=</span> csc.electric.voltageSource(<span class="dv">1</span>, <span class="dv">0</span>, U_single)</span>
+<span id="cb6-27"><a href="07-circuitSolver.html#cb6-27" tabindex="-1"></a>ead_1 <span class="op">=</span> csb.electrodynamic.EAD(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">0</span>, Le, Re, Cms, Mms, Rms, Bl, Sd, v_probe<span class="op">=</span><span class="st">&quot;v&quot;</span>)</span>
+<span id="cb6-28"><a href="07-circuitSolver.html#cb6-28" tabindex="-1"></a>rad_1 <span class="op">=</span> csc.acoustic.radiator(<span class="dv">2</span>, <span class="dv">0</span>, Sd)</span>
+<span id="cb6-29"><a href="07-circuitSolver.html#cb6-29" tabindex="-1"></a>single.addBlock(ead_1)</span>
+<span id="cb6-30"><a href="07-circuitSolver.html#cb6-30" tabindex="-1"></a>single.addComponent(Vs, rad_1)</span>
+<span id="cb6-31"><a href="07-circuitSolver.html#cb6-31" tabindex="-1"></a></span>
+<span id="cb6-32"><a href="07-circuitSolver.html#cb6-32" tabindex="-1"></a><span class="co">#%% 2. parallel drivers</span></span>
+<span id="cb6-33"><a href="07-circuitSolver.html#cb6-33" tabindex="-1"></a>Vs    <span class="op">=</span> csc.electric.voltageSource(<span class="dv">1</span>, <span class="dv">0</span>, U_parallel)</span>
+<span id="cb6-34"><a href="07-circuitSolver.html#cb6-34" tabindex="-1"></a>ead_1 <span class="op">=</span> csb.electrodynamic.EAD(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">0</span>, Le, Re, Cms, Mms, Rms, Bl, Sd, v_probe<span class="op">=</span><span class="st">&quot;v&quot;</span>)</span>
+<span id="cb6-35"><a href="07-circuitSolver.html#cb6-35" tabindex="-1"></a>rad_1 <span class="op">=</span> csc.acoustic.radiator(<span class="dv">2</span>, <span class="dv">0</span>, Sd)</span>
+<span id="cb6-36"><a href="07-circuitSolver.html#cb6-36" tabindex="-1"></a>ead_2 <span class="op">=</span> csb.electrodynamic.EAD(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">3</span>, <span class="dv">0</span>, Le, Re, Cms, Mms, Rms, Bl, Sd)</span>
+<span id="cb6-37"><a href="07-circuitSolver.html#cb6-37" tabindex="-1"></a>rad_2 <span class="op">=</span> csc.acoustic.radiator(<span class="dv">3</span>, <span class="dv">0</span>, Sd)</span>
+<span id="cb6-38"><a href="07-circuitSolver.html#cb6-38" tabindex="-1"></a>parallel.addBlock(ead_1, ead_2)</span>
+<span id="cb6-39"><a href="07-circuitSolver.html#cb6-39" tabindex="-1"></a>parallel.addComponent(Vs, rad_1, rad_2)</span>
+<span id="cb6-40"><a href="07-circuitSolver.html#cb6-40" tabindex="-1"></a></span>
+<span id="cb6-41"><a href="07-circuitSolver.html#cb6-41" tabindex="-1"></a><span class="co">#%% 3. Series drivers</span></span>
+<span id="cb6-42"><a href="07-circuitSolver.html#cb6-42" tabindex="-1"></a>Vs    <span class="op">=</span> csc.electric.voltageSource(<span class="dv">1</span>, <span class="dv">0</span>, U_series)</span>
+<span id="cb6-43"><a href="07-circuitSolver.html#cb6-43" tabindex="-1"></a>ead_1 <span class="op">=</span> csb.electrodynamic.EAD(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">0</span>, Le, Re, Cms, Mms, Rms, Bl, Sd, v_probe<span class="op">=</span><span class="st">&quot;v&quot;</span>)</span>
+<span id="cb6-44"><a href="07-circuitSolver.html#cb6-44" tabindex="-1"></a>rad_1 <span class="op">=</span> csc.acoustic.radiator(<span class="dv">3</span>, <span class="dv">0</span>, Sd)</span>
+<span id="cb6-45"><a href="07-circuitSolver.html#cb6-45" tabindex="-1"></a>ead_2 <span class="op">=</span> csb.electrodynamic.EAD(<span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">4</span>, <span class="dv">0</span>, Le, Re, Cms, Mms, Rms, Bl, Sd)</span>
+<span id="cb6-46"><a href="07-circuitSolver.html#cb6-46" tabindex="-1"></a>rad_2 <span class="op">=</span> csc.acoustic.radiator(<span class="dv">4</span>, <span class="dv">0</span>, Sd)</span>
+<span id="cb6-47"><a href="07-circuitSolver.html#cb6-47" tabindex="-1"></a>series.addBlock(ead_1, ead_2)</span>
+<span id="cb6-48"><a href="07-circuitSolver.html#cb6-48" tabindex="-1"></a>series.addComponent(Vs, rad_1, rad_2)</span>
+<span id="cb6-49"><a href="07-circuitSolver.html#cb6-49" tabindex="-1"></a></span>
+<span id="cb6-50"><a href="07-circuitSolver.html#cb6-50" tabindex="-1"></a><span class="co">#%% run simulations</span></span>
+<span id="cb6-51"><a href="07-circuitSolver.html#cb6-51" tabindex="-1"></a>single.run()</span>
+<span id="cb6-52"><a href="07-circuitSolver.html#cb6-52" tabindex="-1"></a>parallel.run()</span>
+<span id="cb6-53"><a href="07-circuitSolver.html#cb6-53" tabindex="-1"></a>series.run()</span>
+<span id="cb6-54"><a href="07-circuitSolver.html#cb6-54" tabindex="-1"></a></span>
+<span id="cb6-55"><a href="07-circuitSolver.html#cb6-55" tabindex="-1"></a><span class="co">#%% plot driver velocities</span></span>
+<span id="cb6-56"><a href="07-circuitSolver.html#cb6-56" tabindex="-1"></a>Z_single   <span class="op">=</span> <span class="op">-</span>single.getPotential(<span class="dv">1</span>) <span class="op">/</span> single.getFlow(<span class="dv">1</span>)</span>
+<span id="cb6-57"><a href="07-circuitSolver.html#cb6-57" tabindex="-1"></a>Z_parallel <span class="op">=</span> <span class="op">-</span>parallel.getPotential(<span class="dv">1</span>) <span class="op">/</span> parallel.getFlow(<span class="dv">1</span>)</span>
+<span id="cb6-58"><a href="07-circuitSolver.html#cb6-58" tabindex="-1"></a>Z_series   <span class="op">=</span> <span class="op">-</span>series.getPotential(<span class="dv">1</span>) <span class="op">/</span> series.getFlow(<span class="dv">1</span>)</span>
+<span id="cb6-59"><a href="07-circuitSolver.html#cb6-59" tabindex="-1"></a></span>
+<span id="cb6-60"><a href="07-circuitSolver.html#cb6-60" tabindex="-1"></a>v_single   <span class="op">=</span> single.getFlow(<span class="st">&quot;v&quot;</span>)   <span class="op">*</span> <span class="fl">1e3</span>   </span>
+<span id="cb6-61"><a href="07-circuitSolver.html#cb6-61" tabindex="-1"></a>v_parallel <span class="op">=</span> parallel.getFlow(<span class="st">&quot;v&quot;</span>) <span class="op">*</span> <span class="fl">1e3</span></span>
+<span id="cb6-62"><a href="07-circuitSolver.html#cb6-62" tabindex="-1"></a>v_series   <span class="op">=</span> series.getFlow(<span class="st">&quot;v&quot;</span>)   <span class="op">*</span> <span class="fl">1e3</span></span>
+<span id="cb6-63"><a href="07-circuitSolver.html#cb6-63" tabindex="-1"></a></span>
+<span id="cb6-64"><a href="07-circuitSolver.html#cb6-64" tabindex="-1"></a>gtb.plot.FRF(frequency, (Z_single, Z_parallel, Z_series), <span class="st">&quot;abs&quot;</span>,</span>
+<span id="cb6-65"><a href="07-circuitSolver.html#cb6-65" tabindex="-1"></a>             legend<span class="op">=</span>(<span class="st">&quot;single&quot;</span>, <span class="st">&quot;parallel&quot;</span>, <span class="st">&quot;series&quot;</span>),</span>
+<span id="cb6-66"><a href="07-circuitSolver.html#cb6-66" tabindex="-1"></a>             ylabel<span class="op">=</span><span class="st">&quot;Impedance [Ohm]&quot;</span>)</span>
+<span id="cb6-67"><a href="07-circuitSolver.html#cb6-67" tabindex="-1"></a></span>
+<span id="cb6-68"><a href="07-circuitSolver.html#cb6-68" tabindex="-1"></a>gtb.plot.FRF(frequency, (v_single, v_parallel, v_series), <span class="st">&quot;abs&quot;</span>,</span>
+<span id="cb6-69"><a href="07-circuitSolver.html#cb6-69" tabindex="-1"></a>             legend<span class="op">=</span>(<span class="st">&quot;single&quot;</span>, <span class="st">&quot;parallel&quot;</span>, <span class="st">&quot;series&quot;</span>),</span>
+<span id="cb6-70"><a href="07-circuitSolver.html#cb6-70" tabindex="-1"></a>             ylabel<span class="op">=</span><span class="st">&quot;Velocity [mm/s]&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:ead-impedance"></span>
+<img src="circuitSolver_images/impedance_comparison.svg" alt="Impedance comparison between single, parallel and series configuration." width="80%" />
+<p class="caption">
+Figure 3.21: Impedance comparison between single, parallel and series configuration.
+</p>
+</div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:ead-velocity"></span>
+<img src="circuitSolver_images/velocity_comparison.svg" alt="Velocity comparison between single, parallel and series configuration." width="80%" />
+<p class="caption">
+Figure 3.22: Velocity comparison between single, parallel and series configuration.
+</p>
+</div>
+
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div class="csl-entry">
+Beranek, L., and T. Mellow. 2019. <em>Acoustics: Sound Fields, Transducers and Vibration</em>. Elsevier Science. <a href="https://books.google.co.uk/books?id=rcopvQEACAAJ">https://books.google.co.uk/books?id=rcopvQEACAAJ</a>.
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+
+
+
+
+<h3>References</h3>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-beranek2019acoustics" class="csl-entry">
+Beranek, L., and T. Mellow. 2019. <em>Acoustics: Sound Fields, Transducers and Vibration</em>. Elsevier Science. <a href="https://books.google.co.uk/books?id=rcopvQEACAAJ">https://books.google.co.uk/books?id=rcopvQEACAAJ</a>.
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="1">
+<li id="fn1"><p>These are: acoustic mass, compliance, and loss.<a href="07-circuitSolver.html#fnref1" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="06-back_end.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/USERNAME/REPO/edit/BRANCH/07-circuitSolver.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["_main.pdf", "_main.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

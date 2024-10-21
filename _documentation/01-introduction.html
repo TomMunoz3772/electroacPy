@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 1 Introduction | ElectroacPy</title>
+  <meta name="description" content="<p>ElectroacPy Handbook.
+The HTML output format for this example is bookdown::gitbook,
+set in the _output.yml file.</p>" />
+  <meta name="generator" content="bookdown 0.40 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 1 Introduction | ElectroacPy" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="<p>ElectroacPy Handbook.
+The HTML output format for this example is bookdown::gitbook,
+set in the _output.yml file.</p>" />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 1 Introduction | ElectroacPy" />
+  
+  <meta name="twitter:description" content="<p>ElectroacPy Handbook.
+The HTML output format for this example is bookdown::gitbook,
+set in the _output.yml file.</p>" />
+  
+
+<meta name="author" content="Tom Munoz" />
+
+
+<meta name="date" content="2024-10-21" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="index.html"/>
+<link rel="next" href="02-loudspeaker_system.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">ElectroacPy</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="01-introduction.html"><a href="01-introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="01-introduction.html"><a href="01-introduction.html#installation"><i class="fa fa-check"></i><b>1.1</b> Installation</a></li>
+<li class="chapter" data-level="1.2" data-path="01-introduction.html"><a href="01-introduction.html#notation"><i class="fa fa-check"></i><b>1.2</b> Notation</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="02-loudspeaker_system.html"><a href="02-loudspeaker_system.html"><i class="fa fa-check"></i><b>2</b> loudspeakerSystem</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html"><i class="fa fa-check"></i><b>2.1</b> Lumped Element Modeler</a>
+<ul>
+<li class="chapter" data-level="2.1.1" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html#driver"><i class="fa fa-check"></i><b>2.1.1</b> <code>.driver[]</code></a></li>
+<li class="chapter" data-level="2.1.2" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html#enclosure"><i class="fa fa-check"></i><b>2.1.2</b> <code>.enclosure[]</code></a></li>
+<li class="chapter" data-level="2.1.3" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html#code-summary"><i class="fa fa-check"></i><b>2.1.3</b> Code summary</a></li>
+</ul></li>
+<li class="chapter" data-level="2.2" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html"><i class="fa fa-check"></i><b>2.2</b> Boundary Element Modeler</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html#acoustic_study"><i class="fa fa-check"></i><b>2.2.1</b> <code>.acoustic_study[]</code></a></li>
+<li class="chapter" data-level="2.2.2" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html#evaluation"><i class="fa fa-check"></i><b>2.2.2</b> <code>.evaluation[]</code></a></li>
+<li class="chapter" data-level="2.2.3" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html#code-summary-1"><i class="fa fa-check"></i><b>2.2.3</b> Code Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="05-post_processing.html"><a href="05-post_processing.html"><i class="fa fa-check"></i><b>2.3</b> Post-processing</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="05-post_processing.html"><a href="05-post_processing.html#crossover"><i class="fa fa-check"></i><b>2.3.1</b> <code>.crossover[]</code></a></li>
+<li class="chapter" data-level="2.3.2" data-path="05-post_processing.html"><a href="05-post_processing.html#export-simulation-data"><i class="fa fa-check"></i><b>2.3.2</b> Export simulation data</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="06-back_end.html"><a href="06-back_end.html"><i class="fa fa-check"></i><b>3</b> Back-end</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="07-circuitSolver.html"><a href="07-circuitSolver.html"><i class="fa fa-check"></i><b>3.1</b> circuitSolver</a>
+<ul>
+<li class="chapter" data-level="3.1.1" data-path="07-circuitSolver.html"><a href="07-circuitSolver.html#components"><i class="fa fa-check"></i><b>3.1.1</b> Components</a></li>
+<li class="chapter" data-level="3.1.2" data-path="07-circuitSolver.html"><a href="07-circuitSolver.html#blocks"><i class="fa fa-check"></i><b>3.1.2</b> Blocks</a></li>
+</ul></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">ElectroacPy</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="introduction" class="section level1 hasAnchor" number="1">
+<h1><span class="header-section-number">Chapter 1</span> Introduction<a href="01-introduction.html#introduction" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>The main idea behind this project is to provide an easy-to-use toolbox to solve simple acoustic studies using Python. It uses a mix of lumped-element-modeling (LEM) for drivers and boundary-element method (BEM) for interior and exterior acoustical radiation. This handbook provides multiple examples on how to simulate loudspeaker systems, which should go through most aspects of the toolbox. The first part shows how the front-end works: defining a lumped-element network, automate LEM drivers and enclosures creations, setting-up exterior and interior radiation studies; the second part dives into the back-end of the toolbox and how studies can be made bypassing the toolbox’s front-end. The BEM wrapper is implemented using bempp-cl which is installed alongside ElectroacPy. BEM simulations wouldn’t have been possible without the contributors of the bempp-cl project. Also, all codes and examples provided on the bempp-cl website should run without issues after installing ElectroacPy.</p>
+<div id="installation" class="section level2 hasAnchor" number="1.1">
+<h2><span class="header-section-number">1.1</span> Installation<a href="01-introduction.html#installation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="before-starting" class="section level4 unnumbered hasAnchor">
+<h4>Before Starting<a href="01-introduction.html#before-starting" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<ul>
+<li>The following steps have been verified on <strong>Windows</strong> and <strong>Linux</strong> for Python versions 3.9 to 3.11. For <strong>macOS</strong>, only version 3.9 has been tested. However, in theory, any version of Python should work as long as all dependencies are available.</li>
+<li>You may want to try out different Python versions by creating multiple Conda environments (see <strong>Step 1</strong>).</li>
+</ul>
+</div>
+<div id="setting-up-python-with-conda" class="section level4 unnumbered hasAnchor">
+<h4>Setting Up Python with Conda<a href="01-introduction.html#setting-up-python-with-conda" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The recommended installation method uses the <strong>Conda</strong> package manager for Python. You can install Conda through one of the following options:</p>
+<ol style="list-style-type: decimal">
+<li><a href="https://www.anaconda.com/download/">Anaconda</a>: A full Python development suite that includes Spyder (IDE), Jupyter Notebook/Lab, and other tools.
+<ul>
+<li><strong>Windows</strong>: Use the Anaconda Prompt to follow the installation steps.</li>
+<li><strong>macOS/Linux</strong>: Use your terminal (bash/zsh).</li>
+</ul></li>
+<li><a href="https://docs.anaconda.com/free/miniconda/miniconda-install/">Miniconda</a>: A minimal version of Anaconda, including only the necessary packages for managing environments.
+<ul>
+<li><strong>Windows</strong>: Use the Miniconda Prompt for installation.</li>
+<li><strong>macOS/Linux</strong>: Use your terminal (bash/zsh).</li>
+</ul></li>
+<li><a href="https://conda-forge.org/miniforge/">Miniforge</a>: A lightweight version similar to Miniconda, but community-driven, providing better architecture support (e.g., M1/M2 chips on macOS).
+<ul>
+<li><strong>Windows</strong>: Use the Miniforge Prompt for installation.</li>
+<li><strong>macOS/Linux</strong>: Use your terminal (bash/zsh).</li>
+</ul></li>
+</ol>
+</div>
+<div id="installation-steps" class="section level4 unnumbered hasAnchor">
+<h4>Installation Steps<a href="01-introduction.html#installation-steps" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<ol style="list-style-type: decimal">
+<li><strong>Create a new Conda environment</strong> (recommended but optional):</li>
+</ol>
+<pre class="shell"><code>conda create -n acoustic_sim</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li><strong>Activate the environment</strong>:</li>
+</ol>
+<pre class="shell"><code>conda activate acoustic_sim</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li><strong>Install Python 3.11 and pip</strong> (you can adjust the Python version if needed):</li>
+</ol>
+<pre class="shell"><code>conda install python=3.11 pip</code></pre>
+<ol start="4" style="list-style-type: decimal">
+<li><strong>Install electroacPy</strong>:</li>
+</ol>
+<ul>
+<li>For standard installation:
+<code>pip install /path/to/electroacPy</code></li>
+<li>For development (editable) installation:
+<code>pip install -e /path/to/electroacPy</code></li>
+</ul>
+</div>
+<div id="notes" class="section level4 unnumbered hasAnchor">
+<h4>Notes<a href="01-introduction.html#notes" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<ul>
+<li><strong>Using a separate environment</strong>: Installing ElectroacPy in its own Conda environment is recommended. This helps prevent conflicts during updates and allows easier management of dependencies.</li>
+<li><strong>Selecting environments</strong>: In Python IDEs like Spyder or PyCharm, you can choose the specific Conda environment where ElectroacPy is installed.</li>
+</ul>
+</div>
+<div id="additional-steps-for-spyder-users" class="section level4 unnumbered hasAnchor">
+<h4>Additional Steps for Spyder Users<a href="01-introduction.html#additional-steps-for-spyder-users" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>If you plan to use <strong>Spyder</strong>:
+- You’ll need to install <code>spyder-kernels</code> in the newly created environment:</p>
+<pre class="shell"><code>pip install spyder-kernels</code></pre>
+<ul>
+<li>Alternatively, you can install <strong>Spyder</strong> directly in the environment to avoid needing <code>spyder-kernels</code>:</li>
+</ul>
+<pre class="shell"><code>conda install spyder</code></pre>
+</div>
+<div id="post-install" class="section level4 unnumbered hasAnchor">
+<h4>Post install<a href="01-introduction.html#post-install" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>In Windows and Linux, you can actually use the OpenCL backend to reduce computing time. In the corresponding Conda environment:</p>
+<pre class="shell"><code>pip install pyopencl intel-opencl-rt</code></pre>
+<p>You’ll also need to install OpenCL drivers, which you’ll find <a href="https://www.intel.com/content/www/us/en/developer/articles/technical/intel-cpu-runtime-for-opencl-applications-with-sycl-support.html">here</a> for intel users. For more informations, you can follow the <strong>OpenCL</strong> section from <a href="https://bempp.com/installation.html">bempp-cl installation guide</a>.</p>
+</div>
+</div>
+<div id="notation" class="section level2 hasAnchor" number="1.2">
+<h2><span class="header-section-number">1.2</span> Notation<a href="01-introduction.html#notation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>In the following document, some conventions are used:</p>
+<ul>
+<li><strong>class</strong>, bold statements are used for classes,</li>
+<li><code>.function()</code>, inline code preceded by a dot and closed by parenthesis relates to functions,</li>
+<li><code>.dictionary[]</code>, inline code preceded by a dot and closed by square brackets refers to Python dictionaries,</li>
+<li><code>arg</code>, basic inline code is for variables and function arguments.</li>
+</ul>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="02-loudspeaker_system.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/USERNAME/REPO/edit/BRANCH/01-introduction.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["_main.pdf", "_main.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

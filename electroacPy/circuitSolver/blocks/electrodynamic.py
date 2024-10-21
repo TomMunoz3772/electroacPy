@@ -2,9 +2,6 @@
 Collection of electro-dynamic circuit blocks 
 
 """
-
-from electroacPy.circuitSolver.components.electric import resistance, inductance, capacitance
-from electroacPy.circuitSolver.components.coupler import CCVS 
 import random, string
 
 def randomblock_id(length):
@@ -48,6 +45,9 @@ class EAD:
         None.
 
         """
+        from electroacPy.circuitSolver.components.electric import resistance, inductance, capacitance
+        from electroacPy.circuitSolver.components.coupler import CCVS 
+        
         
         self.Re = Re
         self.Le = Le 
