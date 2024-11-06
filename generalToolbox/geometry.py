@@ -204,7 +204,7 @@ def compute_circle_point_cloud_surface_area(point_cloud):
 
 
 ## MICROPHONE ARRAY CREATION
-def create_circular_array(theta, on_axis, rotation, radius, offsets):
+def create_circular_array(theta, on_axis, rotation, radius, offset):
     # Initialize the points array
     points = np.zeros((len(theta), 3))
 
@@ -239,7 +239,7 @@ def create_circular_array(theta, on_axis, rotation, radius, offsets):
 
     # Apply the offsets
     for i in range(3):
-        points[:, i] += offsets[i]
+        points[:, i] += offset[i]
 
     return points
 

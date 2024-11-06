@@ -421,6 +421,11 @@ class speakerBox:
         for i in range(2):
             ax[i].grid(which="both", linestyle="dotted")
         plt.tight_layout()
+        
+        if "savefig" in kwargs:
+            path = kwargs["savefig"]
+            plt.savefig(path)
+      
         return plt.show()
     
     def plotXVA(self, **kwargs):
@@ -465,6 +470,11 @@ class speakerBox:
             ax[i].legend(loc='best')
         plt.tight_layout()
         
+        if "savefig" in kwargs:
+            path = kwargs["savefig"]
+            plt.savefig(path)
+      
+        
         if np.all(self.vp != 0):
             fig, ax = plt.subplots(3, 1, figsize=size)
             ax[0].semilogx(self.frequencyRange, np.abs(xp), label='Displacement')
@@ -477,6 +487,11 @@ class speakerBox:
                 ax[i].grid(which='both', linestyle="dotted")
                 ax[i].legend(loc='best')
             plt.tight_layout()
+            if "savefig" in kwargs:
+                path = kwargs["savefig"]
+                extension = path[-4:]
+                plt.savefig(path[:-4] + "_vp" + extension)       
+            
         if np.all(self.vp2 != 0):
             fig, ax = plt.subplots(3, 1, figsize=size)
             ax[0].semilogx(self.frequencyRange, np.abs(xp2), label='Displacement')
@@ -489,6 +504,11 @@ class speakerBox:
                 ax[i].grid(which='both', linestyle="dotted")
                 ax[i].legend(loc='best')
             plt.tight_layout()
+            if "savefig" in kwargs:
+                path = kwargs["savefig"]
+                extension = path[-4:]
+                plt.savefig(path[:-4] + "_vp2" + extension)
+            
         if np.all(self.vpr != 0):
             fig, ax = plt.subplots(3, 1, figsize=size)
             ax[0].semilogx(self.frequencyRange, np.abs(xpr), label='Displacement')
@@ -501,6 +521,11 @@ class speakerBox:
                 ax[i].grid(which='both', linestyle="dotted")
                 ax[i].legend(loc='best')  
             plt.tight_layout()
+            if "savefig" in kwargs:
+                path = kwargs["savefig"]
+                extension = path[-4:]
+                plt.savefig(path[:-4] + "_vpr" + extension)
+            
         if np.all(self.vpr2 != 0):
             fig, ax = plt.subplots(3, 1, figsize=size)
             ax[0].semilogx(self.frequencyRange, np.abs(xpr2), label='Displacement')
@@ -513,6 +538,11 @@ class speakerBox:
                 ax[i].grid(which='both', linestyle="dotted")
                 ax[i].legend(loc='best')   
             plt.tight_layout()
+            if "savefig" in kwargs:
+                path = kwargs["savefig"]
+                extension = path[-4:]
+                plt.savefig(path[:-4] + "_vpr2" + extension)
+        
         return plt.show()
     
     def exportZe(self, filename):

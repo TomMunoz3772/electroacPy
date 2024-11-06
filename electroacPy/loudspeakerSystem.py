@@ -17,7 +17,6 @@ from electroacPy.acousticSim.evaluations import evaluations as evs_bem
 from electroacPy.acousticSim.evaluations import getPressure
 from electroacPy.acousticSim.postProcessing import postProcess as pp
 
-
 # Lumped element
 from electroacPy.speakerSim.electroAcousticDriver import electroAcousticDriver, loadLPM
 from electroacPy.speakerSim.enclosureDesign import speakerBox

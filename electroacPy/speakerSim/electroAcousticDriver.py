@@ -167,7 +167,12 @@ class electroAcousticDriver:
         for i in range(2):
             ax[i].grid(which="both", linestyle="dotted")
         plt.tight_layout()
+        
+        if "savefig" in kwargs:
+            path = kwargs["savefig"]
+            plt.savefig(path)
         return plt.show()
+    
     
     def plotXVA(self, **kwargs):
         """
@@ -196,6 +201,11 @@ class electroAcousticDriver:
             ax[i].grid(which='both', linestyle="dotted")
             ax[i].legend(loc='best')
         plt.tight_layout()
+       
+        if "savefig" in kwargs:
+            path = kwargs["savefig"]
+            plt.savefig(path)
+      
         return plt.show()
 
     def getThieleSmallParam(self):
