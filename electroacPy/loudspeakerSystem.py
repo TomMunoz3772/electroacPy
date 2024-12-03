@@ -90,7 +90,7 @@ class loudspeakerSystem:
         self.radiator_id[name] = 'EAD'
         return None
 
-    def lem_driverFromFile(self, name, lpm_data, U=1, ref2bem=None, 
+    def lem_driverImport(self, name, lpm_data, U=1, ref2bem=None, 
                            LeZero=False):
         """
         Add electro-dynamic driver from a LPM file (Thiele/Small parameters from Klippel bench). Can act as a radiator
