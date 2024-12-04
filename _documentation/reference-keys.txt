@@ -1,4 +1,9 @@
 fig:unnamed-chunk-2
+fig:cad-model
+fig:sim-model
+fig:select-surface
+fig:mesh-1kHz
+fig:mesh-refined
 fig:unnamed-chunk-3
 fig:woofer-ze
 fig:woofer-xva
@@ -13,7 +18,6 @@ fig:plot-field-point
 fig:plot-dir
 fig:xover
 fig:xover-pressure
-fig:xover-phase
 fig:vituixcad-import
 fig:vituixcad-woofer
 fig:vituixcad-network
@@ -39,10 +43,14 @@ fig:block-hplp
 fig:block-ead
 fig:ead-impedance
 fig:ead-velocity
+fig:xover-rad-polar-hor
+fig:xover-rad-polar-ver
 introduction
 installation
 notation
-loudspeakersystem
+loudspeakerSystem
+system-overview-and-meshing
+mesh
 lumped-element-modeler
 driver
 enclosure
@@ -63,3 +71,4 @@ coupler-controlled-sources
 blocks
 electric-1
 electrodynamic
+monitorCrossover

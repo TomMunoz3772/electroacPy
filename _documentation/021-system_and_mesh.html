@@ -4,13 +4,13 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 3 Back-end | ElectroacPy</title>
+  <title>2.1 System overview and meshing | ElectroacPy</title>
   <meta name="description" content="<p>ElectroacPy Handbook.
 The HTML output format for this example is bookdown::gitbook,
 set in the _output.yml file.</p>" />
   <meta name="generator" content="bookdown 0.40 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 3 Back-end | ElectroacPy" />
+  <meta property="og:title" content="2.1 System overview and meshing | ElectroacPy" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="<p>ElectroacPy Handbook.
@@ -19,7 +19,7 @@ set in the _output.yml file.</p>" />
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 3 Back-end | ElectroacPy" />
+  <meta name="twitter:title" content="2.1 System overview and meshing | ElectroacPy" />
   
   <meta name="twitter:description" content="<p>ElectroacPy Handbook.
 The HTML output format for this example is bookdown::gitbook,
@@ -36,8 +36,8 @@ set in the _output.yml file.</p>" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="05-post_processing.html"/>
-<link rel="next" href="07-circuitSolver.html"/>
+<link rel="prev" href="02-loudspeaker_system.html"/>
+<link rel="next" href="03-lumped_modeler.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -227,17 +227,85 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="back-end" class="section level1 hasAnchor" number="3">
-<h1><span class="header-section-number">Chapter 3</span> Back-end<a href="06-back_end.html#back-end" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<p>The aim of this chapter is to provide more information to the user, so the toolbox can be used to its full capabilities. The first section is related to the <strong>circuitSolver</strong> class, which is used to build electro-acoustic lumped circuits. From that, we’ll go through the lumped-element modeler and finally the boundary element classes.</p>
+<div id="system-overview-and-meshing" class="section level2 hasAnchor" number="2.1">
+<h2><span class="header-section-number">2.1</span> System overview and meshing<a href="021-system_and_mesh.html#system-overview-and-meshing" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>In the following sections, a three-way monitor is taken as example. Figure <a href="021-system_and_mesh.html#fig:cad-model">2.2</a> show the system in its relatively complex CAD form: drivers are drawn in their entirety (cone, basket, motor, etc.) and the enclosure takes into account internal separations, port dimensions and each wall width to ensure that everything fits properly. In our specific case of study, this level of representation is not needed: lot of things won’t have any noticeable impact on the acoustic radiation. Hence, we simplify our system by simply keeping the outer shell, and representing each radiating element as flat surfaces — see Figure <a href="021-system_and_mesh.html#fig:sim-model">2.3</a>. These fairly important simplifications should still provide good insights on the acoustic radiation.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:cad-model"></span>
+<img src="system_images/studio_monitor.png" alt="CAD model." width="80%" />
+<p class="caption">
+Figure 2.2: CAD model.
+</p>
+</div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:sim-model"></span>
+<img src="system_images/studio_monitor_sim.png" alt="Simplified model for initial acoustic simulations." width="80%" />
+<p class="caption">
+Figure 2.3: Simplified model for initial acoustic simulations.
+</p>
+</div>
+<div id="mesh" class="section level3 hasAnchor" number="2.1.1">
+<h3><span class="header-section-number">2.1.1</span> Mesh<a href="021-system_and_mesh.html#mesh" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>A mesh of the system is required for simulation with bempp. As noted in the bempp documentation, mesh imports are handled with <a href="https://github.com/nschloe/meshio">meshio</a>. Compatible mesh formats are listed on its GitHub page. To simplify the process of meshing geometries, ElectroacPy provides a wrapper for the <a href="https://gmsh.info/">Gmsh</a> API. This is what we’ll use for our study.</p>
+<p>Once your geometry is exported as a <code>.step</code> file, you can create a <code>CAD</code> object with <code>generalToolbox</code>:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="021-system_and_mesh.html#cb9-1" tabindex="-1"></a><span class="im">import</span> generalToolbox <span class="im">as</span> gtb</span>
+<span id="cb9-2"><a href="021-system_and_mesh.html#cb9-2" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="021-system_and_mesh.html#cb9-3" tabindex="-1"></a>cad <span class="op">=</span> gtb.meshCAD(<span class="st">&quot;../geo/step_export/simulation_cad.step&quot;</span>)</span></code></pre></div>
+<p>By default, the maximum mesh size corresponds to approximately 6 elements per wavelength at a frequency of 1 kHz, which equals 57 mm for a sound speed of 343 m/s. The minimum mesh size is ten times smaller: 5.7 mm. You can change these values by passing the <code>minSize</code> and <code>maxSize</code> arguments when importing a geometry:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="021-system_and_mesh.html#cb10-1" tabindex="-1"></a>cad <span class="op">=</span> gtb.meshCAD(<span class="st">&quot;../geo/step_export/simulation_cad.step&quot;</span>, minSize<span class="op">=</span><span class="dv">343</span><span class="op">/</span><span class="dv">2500</span><span class="op">/</span><span class="dv">60</span>, </span>
+<span id="cb10-2"><a href="021-system_and_mesh.html#cb10-2" tabindex="-1"></a>maxSize<span class="op">=</span><span class="dv">343</span><span class="op">/</span><span class="dv">2500</span><span class="op">/</span><span class="dv">6</span>)</span></code></pre></div>
+<p>Next, surfaces must be grouped and referenced to set independent boundary or radiation conditions on separate surfaces. In our example, four radiating surfaces are considered:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="021-system_and_mesh.html#cb11-1" tabindex="-1"></a>cad.addSurfaceGroup(<span class="st">&quot;woofer&quot;</span>, surface<span class="op">=</span>[<span class="dv">8</span>], groupNumber<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb11-2"><a href="021-system_and_mesh.html#cb11-2" tabindex="-1"></a>cad.addSurfaceGroup(<span class="st">&quot;port&quot;</span>, [<span class="dv">10</span>], <span class="dv">2</span>)</span>
+<span id="cb11-3"><a href="021-system_and_mesh.html#cb11-3" tabindex="-1"></a>cad.addSurfaceGroup(<span class="st">&quot;midrange&quot;</span>, [<span class="dv">9</span>], <span class="dv">3</span>)</span>
+<span id="cb11-4"><a href="021-system_and_mesh.html#cb11-4" tabindex="-1"></a>cad.addSurfaceGroup(<span class="st">&quot;tweeter&quot;</span>, [<span class="dv">7</span>], <span class="dv">4</span>)</span></code></pre></div>
+<p>This code creates four surface groups numbered from <code>1</code> to <code>4</code>, each referencing a different surface in the geometry. Surface indices can be retrieved from your CAD software. For example, FreeCAD displays the element index in the bottom-left corner when hovering over a surface, line, or point.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:select-surface"></span>
+<img src="system_images/pre_mesh.png" alt="Getting surface index." width="80%" />
+<p class="caption">
+Figure 2.4: Getting surface index.
+</p>
+</div>
+<p>Once grouping of surfaces is done, run the <code>mesh</code> command. By default, it creates a 2D mesh under Gmsh’s <code>.msh</code> file format.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="021-system_and_mesh.html#cb12-1" tabindex="-1"></a>cad.mesh(<span class="st">&quot;../geo/mesh/studio_monitor&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:mesh-1kHz"></span>
+<img src="system_images/mesh_1kHz.png" alt="Geometry meshed with a 1 kHz resolution." width="80%" />
+<p class="caption">
+Figure 2.5: Geometry meshed with a 1 kHz resolution.
+</p>
+</div>
+<p>Of course, using a global mesh size can be restrictive. Therefore, it is possible to specify separate mesh sizes. In the following code, the global mesh size is set for 1 kHz, while the mesh is refined to 5 kHz over the tweeter and baffle surfaces.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="021-system_and_mesh.html#cb13-1" tabindex="-1"></a><span class="co">#%% Set global size (1kHz)</span></span>
+<span id="cb13-2"><a href="021-system_and_mesh.html#cb13-2" tabindex="-1"></a>lmax <span class="op">=</span> <span class="dv">343</span><span class="op">/</span><span class="fl">1e3</span><span class="op">/</span><span class="dv">6</span></span>
+<span id="cb13-3"><a href="021-system_and_mesh.html#cb13-3" tabindex="-1"></a>lmin <span class="op">=</span> lmax<span class="op">/</span><span class="dv">10</span></span>
+<span id="cb13-4"><a href="021-system_and_mesh.html#cb13-4" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="021-system_and_mesh.html#cb13-5" tabindex="-1"></a><span class="co">#%% import geo</span></span>
+<span id="cb13-6"><a href="021-system_and_mesh.html#cb13-6" tabindex="-1"></a>cad <span class="op">=</span> gtb.meshCAD(<span class="st">&quot;../geo/step_export/simulation_cad.step&quot;</span>, </span>
+<span id="cb13-7"><a href="021-system_and_mesh.html#cb13-7" tabindex="-1"></a>                  minSize<span class="op">=</span>lmin, maxSize<span class="op">=</span>lmax)</span>
+<span id="cb13-8"><a href="021-system_and_mesh.html#cb13-8" tabindex="-1"></a>                  </span>
+<span id="cb13-9"><a href="021-system_and_mesh.html#cb13-9" tabindex="-1"></a><span class="co">#%% group surfaces</span></span>
+<span id="cb13-10"><a href="021-system_and_mesh.html#cb13-10" tabindex="-1"></a>cad.addSurfaceGroup(<span class="st">&quot;woofer&quot;</span>, [<span class="dv">8</span>], <span class="dv">1</span>)</span>
+<span id="cb13-11"><a href="021-system_and_mesh.html#cb13-11" tabindex="-1"></a>cad.addSurfaceGroup(<span class="st">&quot;port&quot;</span>, [<span class="dv">10</span>], <span class="dv">2</span>)</span>
+<span id="cb13-12"><a href="021-system_and_mesh.html#cb13-12" tabindex="-1"></a>cad.addSurfaceGroup(<span class="st">&quot;midrange&quot;</span>, [<span class="dv">9</span>], <span class="dv">3</span>)</span>
+<span id="cb13-13"><a href="021-system_and_mesh.html#cb13-13" tabindex="-1"></a>cad.addSurfaceGroup(<span class="st">&quot;tweeter&quot;</span>, [<span class="dv">7</span>], <span class="dv">4</span>, meshSize<span class="op">=</span><span class="dv">343</span><span class="op">/</span><span class="fl">5e3</span><span class="op">/</span><span class="dv">6</span>)</span>
+<span id="cb13-14"><a href="021-system_and_mesh.html#cb13-14" tabindex="-1"></a>cad.addSurfaceGroup(<span class="st">&quot;baffle&quot;</span>, [<span class="dv">3</span>], <span class="dv">5</span>, meshSize<span class="op">=</span><span class="dv">343</span><span class="op">/</span><span class="fl">5e3</span><span class="op">/</span><span class="dv">6</span>)</span>
+<span id="cb13-15"><a href="021-system_and_mesh.html#cb13-15" tabindex="-1"></a>cad.mesh(<span class="st">&quot;../geo/mesh/studio_monitor_refined&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:mesh-refined"></span>
+<img src="system_images/mesh_refined.png" alt="Refined mesh." width="80%" />
+<p class="caption">
+Figure 2.6: Refined mesh.
+</p>
+</div>
+<p>As you can see, although the smaller mesh was intended to be applied only to the tweeter and baffle, it is also present on the subwoofer, midrange, and port. This is a potential area for improvement in ElectroacPy’s automated API calls.</p>
+<p>A final note: after creating surface groups, <code>meshCAD</code> will automatically regroup all remaining surfaces into a single group called “enclosure” — this ensures that all surfaces are properly loaded into bempp.</p>
 
+</div>
+</div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="05-post_processing.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="07-circuitSolver.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="02-loudspeaker_system.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="03-lumped_modeler.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -268,7 +336,7 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": "https://github.com/USERNAME/REPO/edit/BRANCH/06-back_end.Rmd",
+"link": "https://github.com/USERNAME/REPO/edit/BRANCH/021-system_and_mesh.Rmd",
 "text": "Edit"
 },
 "history": {
