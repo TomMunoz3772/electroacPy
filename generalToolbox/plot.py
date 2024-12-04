@@ -772,10 +772,13 @@ class pyvista_boundingBoxPlotter:
         cfreq = self.kwargs['cfreq']
         showMesh = self.kwargs['showMesh']
         contourP = self.kwargs['contourP']
-        normOrigin = self.kwargs['normOrigin']
+        # normOrigin = self.kwargs['normOrigin']
+        normal = self.kwargs['normal']
+        origin = self.kwargs['origin']
 
-        normal = normOrigin[0]
-        origin = normOrigin[1]
+    
+        # normal = normOrigin[0]
+        # origin = normOrigin[1]
 
         # min / max bounds - title
         if real is True:

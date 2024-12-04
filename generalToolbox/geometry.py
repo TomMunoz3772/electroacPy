@@ -382,9 +382,14 @@ def create_bounding_box(Lx, Ly, Lz, step=1, offset=[0, 0, 0]):
     x_range = np.arange(x_offset, x_offset + Lx + step, step)
     y_range = np.arange(y_offset, y_offset + Ly + step, step)
     z_range = np.arange(z_offset, z_offset + Lz + step, step)
-
+    
+    nx = len(x_range)
+    ny = len(y_range)
+    nz = len(z_range)
+    dim = [nx, ny, nz]
+    
     x_points, y_points, z_points = np.meshgrid(x_range, y_range, z_range)
 
     points = np.vstack([x_points.flatten(), y_points.flatten(), z_points.flatten()]).T
 
-    return points
+    return points, dim

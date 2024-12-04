@@ -311,10 +311,10 @@ class evaluations:
             elementCoeff = np.ones([len(self.frequency), len(element2plot)], 
                                    dtype=complex)
         
-        # Sort evaluations by type
+        # Sort evaluations by type -> this could def be better, but it works sooo...
         polar, polarName = [], []
-        field, pmicField, L, W, xMic = [], [], [], [], []
-        point, pmicPoint = [], []
+        field, pmicField, L, W, xMic_f = [], [], [], [], []
+        point = []
         box = []
         sphere = []
         for key in obs2plot:
@@ -325,16 +325,15 @@ class evaluations:
             elif setup.type == "pressure_field":
                 field.append(setup)
                 pmicField.append(setup.pMic)
-                xMic.append(setup.xMic)
+                xMic_f.append(setup.xMic)
                 L.append(setup.L)
                 W.append(setup.W)
             elif setup.type == "box":
                 box.append(setup)
-            elif setup.type == "sphere":
+            elif setup.type == "spherical":
                 sphere.append(setup)
             elif setup.type == "field_point":
                 point.append(setup)
-                pmicPoint.append(setup.pMic)
         
         # plot polar
         for i, obs in enumerate(polar):
@@ -342,18 +341,37 @@ class evaluations:
                                     element2plot, elementCoeff)
             gplot.directivityViewer(obs.theta, self.frequency, pmic2plot,
                                     title=polarName[i])
-        
+            
         # plot field
         if bool(field) is True:
             field2plot = getPressure(pmicField, self.bemObject.radiatingElement, 
                                     element2plot, elementCoeff)
-            gplot.pressureField_3D(self.bemObject, xMic, L, W, field2plot, element2plot)
+            gplot.pressureField_3D(self.bemObject, xMic_f, L, W, field2plot, element2plot)
         
         # plot evaluation points
         for i, obs in enumerate(point):
-            point2plot = getPressure(pmicPoint[i], self.bemObject.radiatingElement, 
+            pMic = obs.pMic
+            point2plot = getPressure(pMic, self.bemObject.radiatingElement, 
                                     element2plot, elementCoeff)
             gplot.FRF(self.frequency, point2plot, legend=obs.legend)
+            
+        # plot spherical radiation
+        for i, obs in enumerate(sphere):
+            pMic = obs.pMic
+            xMic = obs.xMic
+            point2plot = getPressure(pMic, self.bemObject.radiatingElement,
+                                     element2plot, elementCoeff)
+            gplot.sphericalRadiation(xMic, point2plot, self.frequency)
+            
+        # plot bounding box
+        for i, obs in enumerate(box):
+            nx, ny, nz = obs.nx, obs.ny, obs.nz
+            pMic = obs.pMic
+            xMic = obs.xMic
+            point2plot = getPressure(pMic, self.bemObject.radiatingElement,
+                                     element2plot, elementCoeff)
+            gplot.boundingBox(self.bemObject, nx, ny, nz, point2plot,
+                              xMic, radiatingElement)
         return None
     
     
@@ -500,8 +518,11 @@ class BoundingBox:
         self.offset = offset
         
         from generalToolbox.geometry import create_bounding_box
-        self.xMic = create_bounding_box(Lx, Ly, Lz, step, offset)
+        self.xMic, dim = create_bounding_box(Lx, Ly, Lz, step, offset)
         self.nMic = len(self.xMic)
+        self.nx = dim[0]
+        self.ny = dim[1]
+        self.nz = dim[2]
 
         # edit evaluationParameters
         self.type = "box"

@@ -4,6 +4,28 @@ from copy import copy
 
 class CAD:
     def __init__(self, file, minSize=0.0057, maxSize=0.057, scaling=0.001, meshAlgo=6):
+        """
+        Import a geometry to be meshed
+
+        Parameters
+        ----------
+        file : str
+            path to .step file.
+        minSize : float, optional
+            Minimum mesh size (in m). The default is 0.0057.
+        maxSize : float, optional
+            Maximum mesh size (in m). The default is 0.057.
+        scaling : float, optional
+            Scaling of geometry (Gmsh tends to get rid of units, hence mm end up in m). The default is 0.001.
+        meshAlgo : int, optional
+            Type of mesh. The default is 6 ().
+
+        Returns
+        -------
+        None.
+
+        """
+        
         gmsh.initialize()
         gmsh.option.setNumber("General.Terminal", 1)
         gmsh.option.setNumber("Geometry.OCCScaling", scaling)
@@ -31,12 +53,12 @@ class CAD:
 
 
 
-    def addSurfaceGroup(self, name, surfaces, groupNumber, meshSize=None):
+    def addSurfaceGroup(self, name, surface, groupNumber, meshSize=None):
         if meshSize == None:
             meshSize = self.maxSize
         else:
             meshSize = meshSize
-        SURF_GROUP = {"name": name, "surfaces": surfaces, "groupNumber": groupNumber, 
+        SURF_GROUP = {"name": name, "surface": surface, "groupNumber": groupNumber, 
                       "meshSize": meshSize, "id": "surface"}
         self.physical_groups.append(SURF_GROUP)
         return None
@@ -60,7 +82,7 @@ class CAD:
         for i in range(len(self.physical_groups)):
             # group surfaces
             if  self.physical_groups[i]["id"] == "surface":
-                surface_tmp = self.physical_groups[i]["surfaces"]
+                surface_tmp = self.physical_groups[i]["surface"]
                 groupNumber_tmp = self.physical_groups[i]["groupNumber"]
                 name_tmp =  self.physical_groups[i]["name"]
                 gmsh.model.geo.add_physical_group(2, surface_tmp, groupNumber_tmp, name_tmp)
@@ -87,7 +109,7 @@ class CAD:
                                                  str(self.physical_groups[i]["meshSize"]))
                 gmsh.model.mesh.field.add("Restrict", sizeField[i])
                 gmsh.model.mesh.field.setNumbers(sizeField[i], "SurfacesList", 
-                                                 self.physical_groups[i]["surfaces"])
+                                                 self.physical_groups[i]["surface"])
                 gmsh.model.mesh.field.setNumber(sizeField[i], "InField",evalField[i])
             else:
                 pass
