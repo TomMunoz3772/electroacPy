@@ -1,511 +1,721 @@
+
 <!DOCTYPE html>
-<html lang="" xml:lang="">
-<head>
-
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>2.3 Boundary Element Modeler | ElectroacPy</title>
-  <meta name="description" content="<p>ElectroacPy Handbook.
-The HTML output format for this example is bookdown::gitbook,
-set in the _output.yml file.</p>" />
-  <meta name="generator" content="bookdown 0.40 and GitBook 2.6.7" />
-
-  <meta property="og:title" content="2.3 Boundary Element Modeler | ElectroacPy" />
-  <meta property="og:type" content="book" />
-  
-  <meta property="og:description" content="<p>ElectroacPy Handbook.
-The HTML output format for this example is bookdown::gitbook,
-set in the _output.yml file.</p>" />
-  
-
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="2.3 Boundary Element Modeler | ElectroacPy" />
-  
-  <meta name="twitter:description" content="<p>ElectroacPy Handbook.
-The HTML output format for this example is bookdown::gitbook,
-set in the _output.yml file.</p>" />
-  
-
-<meta name="author" content="Tom Munoz" />
 
 
-<meta name="date" content="2024-12-04" />
+<html lang="en" data-content_root="./" >
 
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Boundary Element Modeler &#8212; ElectroacPy</title>
   
   
-<link rel="prev" href="03-lumped_modeler.html"/>
-<link rel="next" href="05-post_processing.html"/>
-<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
-<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
-
-
-
-
-
-
-
-
-<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
-<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
-
-
-<style type="text/css">
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { color: #008000; } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { color: #008000; font-weight: bold; } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-</style>
-
-<style type="text/css">
   
-  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-</style>
-<style type="text/css">
-/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-  margin-bottom: 0em;
-}
-.hanging div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}
-</style>
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
 
-<link rel="stylesheet" href="style.css" type="text/css" />
-</head>
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
 
-<body>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
 
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '04-BEM_modeler';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Post-processing" href="05-post_processing.html" />
+    <link rel="prev" title="Lumped Element Modeler" href="03-lumped_modeler.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
-  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
 
-    <div class="book-summary">
-      <nav role="navigation">
-
-<ul class="summary">
-<li><a href="./">ElectroacPy</a></li>
-
-<li class="divider"></li>
-<li class="chapter" data-level="1" data-path="01-introduction.html"><a href="01-introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
-<ul>
-<li class="chapter" data-level="1.1" data-path="01-introduction.html"><a href="01-introduction.html#installation"><i class="fa fa-check"></i><b>1.1</b> Installation</a></li>
-<li class="chapter" data-level="1.2" data-path="01-introduction.html"><a href="01-introduction.html#notation"><i class="fa fa-check"></i><b>1.2</b> Notation</a></li>
-</ul></li>
-<li class="chapter" data-level="2" data-path="02-loudspeaker_system.html"><a href="02-loudspeaker_system.html"><i class="fa fa-check"></i><b>2</b> loudspeakerSystem</a>
-<ul>
-<li class="chapter" data-level="2.1" data-path="021-system_and_mesh.html"><a href="021-system_and_mesh.html"><i class="fa fa-check"></i><b>2.1</b> System overview and meshing</a>
-<ul>
-<li class="chapter" data-level="2.1.1" data-path="021-system_and_mesh.html"><a href="021-system_and_mesh.html#mesh"><i class="fa fa-check"></i><b>2.1.1</b> Mesh</a></li>
-</ul></li>
-<li class="chapter" data-level="2.2" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html"><i class="fa fa-check"></i><b>2.2</b> Lumped Element Modeler</a>
-<ul>
-<li class="chapter" data-level="2.2.1" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html#driver"><i class="fa fa-check"></i><b>2.2.1</b> <code>.driver[]</code></a></li>
-<li class="chapter" data-level="2.2.2" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html#enclosure"><i class="fa fa-check"></i><b>2.2.2</b> <code>.enclosure[]</code></a></li>
-<li class="chapter" data-level="2.2.3" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html#code-summary"><i class="fa fa-check"></i><b>2.2.3</b> Code summary</a></li>
-</ul></li>
-<li class="chapter" data-level="2.3" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html"><i class="fa fa-check"></i><b>2.3</b> Boundary Element Modeler</a>
-<ul>
-<li class="chapter" data-level="2.3.1" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html#acoustic_study"><i class="fa fa-check"></i><b>2.3.1</b> <code>.acoustic_study[]</code></a></li>
-<li class="chapter" data-level="2.3.2" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html#evaluation"><i class="fa fa-check"></i><b>2.3.2</b> <code>.evaluation[]</code></a></li>
-<li class="chapter" data-level="2.3.3" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html#code-summary-1"><i class="fa fa-check"></i><b>2.3.3</b> Code Summary</a></li>
-</ul></li>
-<li class="chapter" data-level="2.4" data-path="05-post_processing.html"><a href="05-post_processing.html"><i class="fa fa-check"></i><b>2.4</b> Post-processing</a>
-<ul>
-<li class="chapter" data-level="2.4.1" data-path="05-post_processing.html"><a href="05-post_processing.html#crossover"><i class="fa fa-check"></i><b>2.4.1</b> <code>.crossover[]</code></a></li>
-<li class="chapter" data-level="2.4.2" data-path="05-post_processing.html"><a href="05-post_processing.html#export-simulation-data"><i class="fa fa-check"></i><b>2.4.2</b> Export simulation data</a></li>
-</ul></li>
-</ul></li>
-<li class="chapter" data-level="3" data-path="06-back_end.html"><a href="06-back_end.html"><i class="fa fa-check"></i><b>3</b> Back-end</a>
-<ul>
-<li class="chapter" data-level="3.1" data-path="07-circuitSolver.html"><a href="07-circuitSolver.html"><i class="fa fa-check"></i><b>3.1</b> circuitSolver</a>
-<ul>
-<li class="chapter" data-level="3.1.1" data-path="07-circuitSolver.html"><a href="07-circuitSolver.html#components"><i class="fa fa-check"></i><b>3.1.1</b> Components</a></li>
-<li class="chapter" data-level="3.1.2" data-path="07-circuitSolver.html"><a href="07-circuitSolver.html#blocks"><i class="fa fa-check"></i><b>3.1.2</b> Blocks</a></li>
-<li class="chapter" data-level="3.1.3" data-path="07-circuitSolver.html"><a href="07-circuitSolver.html#monitorCrossover"><i class="fa fa-check"></i><b>3.1.3</b> Application example</a></li>
-</ul></li>
-</ul></li>
-<li class="divider"></li>
-<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
-
-</ul>
-
-      </nav>
-    </div>
-
-    <div class="book-body">
-      <div class="body-inner">
-        <div class="book-header" role="navigation">
-          <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">ElectroacPy</a>
-          </h1>
-        </div>
-
-        <div class="page-wrapper" tabindex="-1" role="main">
-          <div class="page-inner">
-
-            <section class="normal" id="section-">
-<div id="boundary-element-modeler" class="section level2 hasAnchor" number="2.3">
-<h2><span class="header-section-number">2.3</span> Boundary Element Modeler<a href="04-BEM_modeler.html#boundary-element-modeler" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>ElectroacPy BEM modeler aims at automating the creation of <a href="https://bempp.com/installation.html">bempp-cl studies</a>: applying velocity to radiating elements, placement of evaluation points in 3D space, definition of the system based on boundary conditions, etc.</p>
-<p>The BEM modeler is mostly focused on exterior acoustic radiation (e.g. a loudspeaker radiating in free-air), hence, a lot of functionality that you would find in commercial software are not available, such as interfaces between domains<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> or structural analysis. However, it is great for:</p>
-<ul>
-<li>diffraction studies,</li>
-<li>signal processing applied to loudspeaker array (beamforming, spherical harmonics, etc.),</li>
-<li>projection of measured/simulated acceleration data.</li>
-</ul>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:unnamed-chunk-4"></span>
-<img src="drawings/BEM.svg" alt="Structure of the Boundary-Element Modeler." width="80%" />
-<p class="caption">
-Figure 2.13: Structure of the Boundary-Element Modeler.
-</p>
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-<div id="acoustic_study" class="section level3 hasAnchor" number="2.3.1">
-<h3><span class="header-section-number">2.3.1</span> <code>.acoustic_study[]</code><a href="04-BEM_modeler.html#acoustic_study" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<p>The first computational step is to estimate the acoustic pressure on boundaries. The method <code>.study_acousticBEM()</code> is used for that effect. The inputs of <code>.study_acousticBEM()</code> are:</p>
-<ul>
-<li><code>name</code>, study name, for reference purpose,</li>
-<li><code>meshPath</code>, the path to simulated mesh,</li>
-<li><code>acoustic_radiator</code>, the reference to <strong>enclosure</strong> and / or <strong>driver</strong> object that have been created beforehand,</li>
-<li><code>domain</code>, relates to the type of study (i.e. <code>"interior"</code> or <code>"exterior"</code>), default is set to <code>"exterior"</code>.</li>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="01-introduction.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="ElectroacPy - Home"/>
+    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="ElectroacPy - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="01-introduction.html">
+                    Introduction
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Loudspeaker System</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="02-loudspeaker_system.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">System overview and meshing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03-lumped_modeler.html">Lumped Element Modeler</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Boundary Element Modeler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05-post_processing.html">Post-processing</a></li>
 </ul>
-<p>A few <code>**kwargs</code> are also available:</p>
-<ul>
-<li><code>tol</code>, tolerance of the GMRES solver,</li>
-<li><code>boundary_conditions</code>, a <strong>boundaryCondition</strong> object which defines infinite boundaries and surfaces impedance,</li>
-<li><code>direction</code>, list of vector that add specific direction coefficients to the radiating surfaces, for example: <code>[[0, 1, 0]]</code> for a single driver radiating toward <em>+y</em>, or <code>[[1, 0, 0], False, [1, 0, 0]]</code> for three drivers, with two radiating toward <em>+x</em> and one with normal radiation direction.</li>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Back-end</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="06-back_end.html">Back-end</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07-circuitSolver.html">circuitSolver</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2F04-BEM_modeler.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/04-BEM_modeler.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Boundary Element Modeler</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#acoustic-study"><code class="docutils literal notranslate"><span class="pre">.acoustic_study[]</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluation"><code class="docutils literal notranslate"><span class="pre">.evaluation[]</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#code-summary">Code Summary</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="boundary-element-modeler">
+<h1>Boundary Element Modeler<a class="headerlink" href="#boundary-element-modeler" title="Link to this heading">#</a></h1>
+<p>ElectroacPy BEM modeler aims at automating the creation of <a class="reference external" href="https://bempp.com/installation.html">bempp-cl studies</a>: applying velocity to radiating elements, placement of evaluation points in 3D space, definition of the system based on boundary conditions, etc.</p>
+<p>The BEM modeler is mostly focused on exterior acoustic radiation (e.g. a loudspeaker radiating in free-air), hence, a lot of functionality that you would find in commercial software are not available, such as interfaces between domains<a class="footnote-reference brackets" href="#interface-note" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> or structural analysis. However, it is great for:</p>
+<ul class="simple">
+<li><p>diffraction studies,</p></li>
+<li><p>signal processing applied to loudspeaker array (beamforming, spherical harmonics, etc.),</p></li>
+<li><p>projection of measured/simulated acceleration data.</p></li>
+</ul>
+<figure class="align-default" id="id2">
+<img alt="_images/BEM.svg" src="_images/BEM.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 13 </span><span class="caption-text">Structure of the Boundary-Element Modeler.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<section id="acoustic-study">
+<h2><code class="docutils literal notranslate"><span class="pre">.acoustic_study[]</span></code><a class="headerlink" href="#acoustic-study" title="Link to this heading">#</a></h2>
+<p>The first computational step is to estimate the acoustic pressure on boundaries. The method <code class="docutils literal notranslate"><span class="pre">.study_acousticBEM()</span></code> is used for that effect. The inputs of <code class="docutils literal notranslate"><span class="pre">.study_acousticBEM()</span></code> are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>, study name, for reference purpose,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">meshPath</span></code>, the path to simulated mesh,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">acoustic_radiator</span></code>, the reference to <strong>enclosure</strong> and / or <strong>driver</strong> object that have been created beforehand,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">domain</span></code>, relates to the type of study (i.e. <code class="docutils literal notranslate"><span class="pre">&quot;interior&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;exterior&quot;</span></code>), default is set to <code class="docutils literal notranslate"><span class="pre">&quot;exterior&quot;</span></code>.</p></li>
+</ul>
+<p>A few <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> are also available:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tol</span></code>, tolerance of the GMRES solver,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">boundary_conditions</span></code>, a <strong>boundaryCondition</strong> object which defines infinite boundaries and surfaces impedance,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">direction</span></code>, list of vector that add specific direction coefficients to the radiating surfaces, for example: <code class="docutils literal notranslate"><span class="pre">[[0,</span> <span class="pre">1,</span> <span class="pre">0]]</span></code> for a single driver radiating toward <em>+y</em>, or <code class="docutils literal notranslate"><span class="pre">[[1,</span> <span class="pre">0,</span> <span class="pre">0],</span> <span class="pre">False,</span> <span class="pre">[1,</span> <span class="pre">0,</span> <span class="pre">0]]</span></code> for three drivers, with two radiating toward <em>+x</em> and one with normal radiation direction.</p></li>
 </ul>
 <p>In the following code, we define a free-field and a ground-reflected study.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="04-BEM_modeler.html#cb18-1" tabindex="-1"></a><span class="im">import</span> electroacPy <span class="im">as</span> ep</span>
-<span id="cb18-2"><a href="04-BEM_modeler.html#cb18-2" tabindex="-1"></a></span>
-<span id="cb18-3"><a href="04-BEM_modeler.html#cb18-3" tabindex="-1"></a><span class="co">#%% load data</span></span>
-<span id="cb18-4"><a href="04-BEM_modeler.html#cb18-4" tabindex="-1"></a>system <span class="op">=</span> ep.load(<span class="st">&quot;03_LEM_Recap&quot;</span>)</span>
-<span id="cb18-5"><a href="04-BEM_modeler.html#cb18-5" tabindex="-1"></a></span>
-<span id="cb18-6"><a href="04-BEM_modeler.html#cb18-6" tabindex="-1"></a><span class="co">#%% Define free-field study</span></span>
-<span id="cb18-7"><a href="04-BEM_modeler.html#cb18-7" tabindex="-1"></a>system.study_acousticBEM(<span class="st">&quot;free-field&quot;</span>, </span>
-<span id="cb18-8"><a href="04-BEM_modeler.html#cb18-8" tabindex="-1"></a>                         <span class="st">&quot;../geo/mesh/studio_monitor.msh&quot;</span>, </span>
-<span id="cb18-9"><a href="04-BEM_modeler.html#cb18-9" tabindex="-1"></a>                         [<span class="st">&quot;ported_LF&quot;</span>, <span class="st">&quot;TW29&quot;</span>, <span class="st">&quot;sealed_MF&quot;</span>], </span>
-<span id="cb18-10"><a href="04-BEM_modeler.html#cb18-10" tabindex="-1"></a>                         domain<span class="op">=</span><span class="st">&quot;exterior&quot;</span>)</span>
-<span id="cb18-11"><a href="04-BEM_modeler.html#cb18-11" tabindex="-1"></a></span>
-<span id="cb18-12"><a href="04-BEM_modeler.html#cb18-12" tabindex="-1"></a><span class="co">#%% Define boundary conditions</span></span>
-<span id="cb18-13"><a href="04-BEM_modeler.html#cb18-13" tabindex="-1"></a><span class="im">from</span> electroacPy.acousticSim.bem <span class="im">import</span> boundaryConditions</span>
-<span id="cb18-14"><a href="04-BEM_modeler.html#cb18-14" tabindex="-1"></a></span>
-<span id="cb18-15"><a href="04-BEM_modeler.html#cb18-15" tabindex="-1"></a>bc <span class="op">=</span> boundaryConditions()</span>
-<span id="cb18-16"><a href="04-BEM_modeler.html#cb18-16" tabindex="-1"></a>bc.addInfiniteBoundary(normal<span class="op">=</span><span class="st">&quot;z&quot;</span>, offset<span class="op">=-</span><span class="dv">1</span>)</span>
-<span id="cb18-17"><a href="04-BEM_modeler.html#cb18-17" tabindex="-1"></a>system.study_acousticBEM(<span class="st">&quot;inf_ground&quot;</span>, </span>
-<span id="cb18-18"><a href="04-BEM_modeler.html#cb18-18" tabindex="-1"></a>                        <span class="st">&quot;../geo/mesh/studio_monitor.msh&quot;</span>,</span>
-<span id="cb18-19"><a href="04-BEM_modeler.html#cb18-19" tabindex="-1"></a>                        [<span class="st">&quot;ported_LF&quot;</span>, <span class="st">&quot;TW29&quot;</span>, <span class="st">&quot;sealed_MF&quot;</span>], domain<span class="op">=</span><span class="st">&quot;exterior&quot;</span>, </span>
-<span id="cb18-20"><a href="04-BEM_modeler.html#cb18-20" tabindex="-1"></a>                        boundary_conditions<span class="op">=</span>bc)</span>
-<span id="cb18-21"><a href="04-BEM_modeler.html#cb18-21" tabindex="-1"></a></span>
-<span id="cb18-22"><a href="04-BEM_modeler.html#cb18-22" tabindex="-1"></a><span class="co">#%% run boundary operators</span></span>
-<span id="cb18-23"><a href="04-BEM_modeler.html#cb18-23" tabindex="-1"></a>system.run()</span>
-<span id="cb18-24"><a href="04-BEM_modeler.html#cb18-24" tabindex="-1"></a></span>
-<span id="cb18-25"><a href="04-BEM_modeler.html#cb18-25" tabindex="-1"></a><span class="co">#%% save state</span></span>
-<span id="cb18-26"><a href="04-BEM_modeler.html#cb18-26" tabindex="-1"></a>ep.save(<span class="st">&quot;04_BEM_setup&quot;</span>, system)</span></code></pre></div>
-<p>The tweeter pressure on system’s boundaries is shown in Fig.<a href="04-BEM_modeler.html#fig:boundary-pressure">2.14</a>. The mirrored mesh is due to the infinite boundary condition on the <em>xy</em> plane.</p>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:boundary-pressure"></span>
-<img src="boundary_images/mesh_pressure_tweeter_b.png" alt="Estimated pressure on boundary." width="80%" />
-<p class="caption">
-Figure 2.14: Estimated pressure on boundary.
-</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">electroacPy</span> <span class="k">as</span> <span class="nn">ep</span>
+
+<span class="c1">#%% load data</span>
+<span class="n">system</span> <span class="o">=</span> <span class="n">ep</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;03_LEM_Recap&quot;</span><span class="p">)</span>
+
+<span class="c1">#%% Define free-field study</span>
+<span class="n">system</span><span class="o">.</span><span class="n">study_acousticBEM</span><span class="p">(</span><span class="s2">&quot;free-field&quot;</span><span class="p">,</span> 
+                         <span class="s2">&quot;../geo/mesh/studio_monitor.msh&quot;</span><span class="p">,</span> 
+                         <span class="p">[</span><span class="s2">&quot;ported_LF&quot;</span><span class="p">,</span> <span class="s2">&quot;TW29&quot;</span><span class="p">,</span> <span class="s2">&quot;sealed_MF&quot;</span><span class="p">],</span> 
+                         <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;exterior&quot;</span><span class="p">)</span>
+
+<span class="c1">#%% Define boundary conditions</span>
+<span class="kn">from</span> <span class="nn">electroacPy.acousticSim.bem</span> <span class="kn">import</span> <span class="n">boundaryConditions</span>
+
+<span class="n">bc</span> <span class="o">=</span> <span class="n">boundaryConditions</span><span class="p">()</span>
+<span class="n">bc</span><span class="o">.</span><span class="n">addInfiniteBoundary</span><span class="p">(</span><span class="n">normal</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">offset</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">system</span><span class="o">.</span><span class="n">study_acousticBEM</span><span class="p">(</span><span class="s2">&quot;inf_ground&quot;</span><span class="p">,</span> 
+                        <span class="s2">&quot;../geo/mesh/studio_monitor.msh&quot;</span><span class="p">,</span>
+                        <span class="p">[</span><span class="s2">&quot;ported_LF&quot;</span><span class="p">,</span> <span class="s2">&quot;TW29&quot;</span><span class="p">,</span> <span class="s2">&quot;sealed_MF&quot;</span><span class="p">],</span> <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;exterior&quot;</span><span class="p">,</span> 
+                        <span class="n">boundary_conditions</span><span class="o">=</span><span class="n">bc</span><span class="p">)</span>
+
+<span class="c1">#%% run boundary operators</span>
+<span class="n">system</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="c1">#%% save state</span>
+<span class="n">ep</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;04_BEM_setup&quot;</span><span class="p">,</span> <span class="n">system</span><span class="p">)</span>
+</pre></div>
 </div>
-</div>
-<div id="evaluation" class="section level3 hasAnchor" number="2.3.2">
-<h3><span class="header-section-number">2.3.2</span> <code>.evaluation[]</code><a href="04-BEM_modeler.html#evaluation" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<p>While computing the boundary pressure is the most computationally expensive step, it doesn’t provide a complete picture of the system. Information about the system’s radiated pressure (e.g. directivity, baffle diffraction, etc.) is obtained through the <strong>evaluation</strong> class, which efficiently automates the placement of observation points and visualization of results.</p>
-<p>When an acoustic study is created, an <strong>evaluation</strong> object is automatically created. Hence, in regards to evaluations, the “only” functionality of <strong>loudspeakerSystem</strong> is to populate <code>.evaluation["reference_study"]</code> with observation setups. For now, there are five different observation types:</p>
-<ul>
-<li><code>.evaluation_polarRadiation()</code>, get directivity information,</li>
-<li><code>.evaluation_pressureField()</code>, pressure across rectangular screens,</li>
-<li><code>.evaluation_fieldPoint()</code>, pressure at one (or more) user defined point,</li>
-<li><code>.evaluation_sphericalRadiation()</code>, acoustic radiation within a sphere of radius <span class="math inline">\(r\)</span>,</li>
-<li><code>.boundingBox()</code>, pressure within a parallelepiped.</li>
+<p>The tweeter pressure on system’s boundaries is shown in <a class="reference internal" href="#boundary-pressure"><span class="std std-numref">Fig. 14</span></a>. The mirrored mesh is due to the infinite boundary condition on the <em>xy</em> plane.</p>
+<figure class="align-default" id="boundary-pressure">
+<img alt="_images/mesh_pressure_tweeter_b.png" src="_images/mesh_pressure_tweeter_b.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 14 </span><span class="caption-text">Estimated pressure on boundary.</span><a class="headerlink" href="#boundary-pressure" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="evaluation">
+<h2><code class="docutils literal notranslate"><span class="pre">.evaluation[]</span></code><a class="headerlink" href="#evaluation" title="Link to this heading">#</a></h2>
+<p>While computing the boundary pressure is the most computationally expensive step, it doesn’t provide a complete picture of the system. Information about the system’s radiated pressure (e.g. directivity, baffle diffraction, etc.) is obtained through the <strong>evaluation</strong> class, which efficiently automates the placement of observation points and visualization of results.</p>
+<p>When an acoustic study is created, an <strong>evaluation</strong> object is automatically created. Hence, in regards to evaluations, the “only” functionality of <strong>loudspeakerSystem</strong> is to populate <code class="docutils literal notranslate"><span class="pre">.evaluation[&quot;reference_study&quot;]</span></code> with observation setups. For now, there are five different observation types:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">.evaluation_polarRadiation()</span></code>, get directivity information,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.evaluation_pressureField()</span></code>, pressure across rectangular screens,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.evaluation_fieldPoint()</span></code>, pressure at one (or more) user defined point,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.evaluation_sphericalRadiation()</span></code>, acoustic radiation within a sphere of radius <span class="math notranslate nohighlight">\(r\)</span>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.boundingBox()</span></code>, pressure within a parallelepiped.</p></li>
 </ul>
 <p>For our system, we define two polar radiations and two pressure-fields.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="04-BEM_modeler.html#cb19-1" tabindex="-1"></a><span class="im">import</span> electroacPy <span class="im">as</span> ep</span>
-<span id="cb19-2"><a href="04-BEM_modeler.html#cb19-2" tabindex="-1"></a></span>
-<span id="cb19-3"><a href="04-BEM_modeler.html#cb19-3" tabindex="-1"></a><span class="co">#%% load data</span></span>
-<span id="cb19-4"><a href="04-BEM_modeler.html#cb19-4" tabindex="-1"></a>system <span class="op">=</span> ep.load(<span class="st">&quot;04_BEM_setup&quot;</span>)</span>
-<span id="cb19-5"><a href="04-BEM_modeler.html#cb19-5" tabindex="-1"></a></span>
-<span id="cb19-6"><a href="04-BEM_modeler.html#cb19-6" tabindex="-1"></a><span class="co">#%% Define evaluations</span></span>
-<span id="cb19-7"><a href="04-BEM_modeler.html#cb19-7" tabindex="-1"></a>system.evaluation_polarRadiation([<span class="st">&quot;free-field&quot;</span>, <span class="st">&quot;inf_ground&quot;</span>], <span class="st">&quot;polar_hor&quot;</span>, </span>
-<span id="cb19-8"><a href="04-BEM_modeler.html#cb19-8" tabindex="-1"></a>                                 <span class="op">-</span><span class="dv">180</span>, <span class="dv">180</span>, <span class="dv">5</span>, on_axis<span class="op">=</span><span class="st">&quot;x&quot;</span>, direction<span class="op">=</span><span class="st">&quot;y&quot;</span>,</span>
-<span id="cb19-9"><a href="04-BEM_modeler.html#cb19-9" tabindex="-1"></a>                                 radius<span class="op">=</span><span class="dv">2</span>, offset<span class="op">=</span>[<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.193</span>])</span>
-<span id="cb19-10"><a href="04-BEM_modeler.html#cb19-10" tabindex="-1"></a></span>
-<span id="cb19-11"><a href="04-BEM_modeler.html#cb19-11" tabindex="-1"></a>system.evaluation_pressureField([<span class="st">&quot;free-field&quot;</span>, <span class="st">&quot;inf_ground&quot;</span>], <span class="st">&quot;field_ver&quot;</span>, </span>
-<span id="cb19-12"><a href="04-BEM_modeler.html#cb19-12" tabindex="-1"></a>                                L1<span class="op">=</span><span class="dv">3</span>, L2<span class="op">=</span><span class="dv">2</span>, step<span class="op">=</span><span class="dv">343</span><span class="op">/</span><span class="dv">2500</span><span class="op">/</span><span class="dv">6</span>, </span>
-<span id="cb19-13"><a href="04-BEM_modeler.html#cb19-13" tabindex="-1"></a>                                plane<span class="op">=</span><span class="st">&quot;xz&quot;</span>, offset<span class="op">=</span>[<span class="op">-</span><span class="fl">1.5</span>, <span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>])</span>
-<span id="cb19-14"><a href="04-BEM_modeler.html#cb19-14" tabindex="-1"></a></span>
-<span id="cb19-15"><a href="04-BEM_modeler.html#cb19-15" tabindex="-1"></a>system.evaluation_pressureField([<span class="st">&quot;free-field&quot;</span>, <span class="st">&quot;inf_ground&quot;</span>], <span class="st">&quot;field_hor&quot;</span>, </span>
-<span id="cb19-16"><a href="04-BEM_modeler.html#cb19-16" tabindex="-1"></a>                                L1<span class="op">=</span><span class="dv">3</span>, L2<span class="op">=</span><span class="dv">2</span>, step<span class="op">=</span><span class="dv">343</span><span class="op">/</span><span class="dv">2500</span><span class="op">/</span><span class="dv">6</span>, </span>
-<span id="cb19-17"><a href="04-BEM_modeler.html#cb19-17" tabindex="-1"></a>                                plane<span class="op">=</span><span class="st">&quot;xy&quot;</span>, offset<span class="op">=</span>[<span class="op">-</span><span class="fl">1.5</span>, <span class="op">-</span><span class="dv">1</span>, <span class="fl">0.193</span>])</span>
-<span id="cb19-18"><a href="04-BEM_modeler.html#cb19-18" tabindex="-1"></a></span>
-<span id="cb19-19"><a href="04-BEM_modeler.html#cb19-19" tabindex="-1"></a>system.evaluation_polarRadiation(<span class="st">&quot;free-field&quot;</span>, <span class="st">&quot;polar_ver&quot;</span>, </span>
-<span id="cb19-20"><a href="04-BEM_modeler.html#cb19-20" tabindex="-1"></a>                                <span class="op">-</span><span class="dv">180</span>, <span class="dv">180</span>, <span class="dv">5</span>,  <span class="st">&quot;x&quot;</span>, <span class="st">&quot;z&quot;</span>, </span>
-<span id="cb19-21"><a href="04-BEM_modeler.html#cb19-21" tabindex="-1"></a>                                radius<span class="op">=</span><span class="dv">2</span>, offset<span class="op">=</span>[<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.193</span>])</span>
-<span id="cb19-22"><a href="04-BEM_modeler.html#cb19-22" tabindex="-1"></a></span>
-<span id="cb19-23"><a href="04-BEM_modeler.html#cb19-23" tabindex="-1"></a>system.evaluation_polarRadiation(<span class="st">&quot;inf_ground&quot;</span>, <span class="st">&quot;polar_ver&quot;</span>, </span>
-<span id="cb19-24"><a href="04-BEM_modeler.html#cb19-24" tabindex="-1"></a>                                <span class="dv">0</span>, <span class="dv">180</span>, <span class="dv">5</span>, <span class="st">&quot;x&quot;</span>, <span class="st">&quot;z&quot;</span>,</span>
-<span id="cb19-25"><a href="04-BEM_modeler.html#cb19-25" tabindex="-1"></a>                                radius<span class="op">=</span><span class="dv">2</span>, offset<span class="op">=</span>[<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.193</span>])</span>
-<span id="cb19-26"><a href="04-BEM_modeler.html#cb19-26" tabindex="-1"></a></span>
-<span id="cb19-27"><a href="04-BEM_modeler.html#cb19-27" tabindex="-1"></a><span class="co"># system.plot_system(&quot;free-field&quot;)</span></span>
-<span id="cb19-28"><a href="04-BEM_modeler.html#cb19-28" tabindex="-1"></a><span class="co"># system.plot_system(&quot;inf_ground&quot;)</span></span>
-<span id="cb19-29"><a href="04-BEM_modeler.html#cb19-29" tabindex="-1"></a></span>
-<span id="cb19-30"><a href="04-BEM_modeler.html#cb19-30" tabindex="-1"></a><span class="co">#%% run potential operators and plot results</span></span>
-<span id="cb19-31"><a href="04-BEM_modeler.html#cb19-31" tabindex="-1"></a>system.run()</span>
-<span id="cb19-32"><a href="04-BEM_modeler.html#cb19-32" tabindex="-1"></a>system.plot_results()</span>
-<span id="cb19-33"><a href="04-BEM_modeler.html#cb19-33" tabindex="-1"></a></span>
-<span id="cb19-34"><a href="04-BEM_modeler.html#cb19-34" tabindex="-1"></a><span class="co">#%% save state</span></span>
-<span id="cb19-35"><a href="04-BEM_modeler.html#cb19-35" tabindex="-1"></a>ep.save(<span class="st">&quot;05_evaluation_setup&quot;</span>, system)</span></code></pre></div>
-<p>As shown in this code, we use the <code>.plot_system()</code> function<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>, which displays the 3D placement of evaluation points and boundaries, as illustrated in Figure <a href="04-BEM_modeler.html#fig:plot-system">2.15</a>. You may also notice that the <code>.run()</code> command is used again: ElectroacPy automatically skips any boundary or potential evaluations that have already been computed.</p>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:plot-system"></span>
-<img src="boundary_images/system_floor_with_eval_b.png" alt="System under study and related evaluations." width="80%" />
-<p class="caption">
-Figure 2.15: System under study and related evaluations.
-</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">electroacPy</span> <span class="k">as</span> <span class="nn">ep</span>
+
+<span class="c1">#%% load data</span>
+<span class="n">system</span> <span class="o">=</span> <span class="n">ep</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;04_BEM_setup&quot;</span><span class="p">)</span>
+
+<span class="c1">#%% Define evaluations</span>
+<span class="n">system</span><span class="o">.</span><span class="n">evaluation_polarRadiation</span><span class="p">([</span><span class="s2">&quot;free-field&quot;</span><span class="p">,</span> <span class="s2">&quot;inf_ground&quot;</span><span class="p">],</span> <span class="s2">&quot;polar_hor&quot;</span><span class="p">,</span> 
+                                 <span class="o">-</span><span class="mi">180</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">on_axis</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span>
+                                 <span class="n">radius</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.193</span><span class="p">])</span>
+
+<span class="n">system</span><span class="o">.</span><span class="n">evaluation_pressureField</span><span class="p">([</span><span class="s2">&quot;free-field&quot;</span><span class="p">,</span> <span class="s2">&quot;inf_ground&quot;</span><span class="p">],</span> <span class="s2">&quot;field_ver&quot;</span><span class="p">,</span> 
+                                <span class="n">L1</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">L2</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">343</span><span class="o">/</span><span class="mi">2500</span><span class="o">/</span><span class="mi">6</span><span class="p">,</span> 
+                                <span class="n">plane</span><span class="o">=</span><span class="s2">&quot;xz&quot;</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">system</span><span class="o">.</span><span class="n">evaluation_pressureField</span><span class="p">([</span><span class="s2">&quot;free-field&quot;</span><span class="p">,</span> <span class="s2">&quot;inf_ground&quot;</span><span class="p">],</span> <span class="s2">&quot;field_hor&quot;</span><span class="p">,</span> 
+                                <span class="n">L1</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">L2</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">343</span><span class="o">/</span><span class="mi">2500</span><span class="o">/</span><span class="mi">6</span><span class="p">,</span> 
+                                <span class="n">plane</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.193</span><span class="p">])</span>
+
+<span class="n">system</span><span class="o">.</span><span class="n">evaluation_polarRadiation</span><span class="p">(</span><span class="s2">&quot;free-field&quot;</span><span class="p">,</span> <span class="s2">&quot;polar_ver&quot;</span><span class="p">,</span> 
+                                <span class="o">-</span><span class="mi">180</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span>  <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">,</span> 
+                                <span class="n">radius</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.193</span><span class="p">])</span>
+
+<span class="n">system</span><span class="o">.</span><span class="n">evaluation_polarRadiation</span><span class="p">(</span><span class="s2">&quot;inf_ground&quot;</span><span class="p">,</span> <span class="s2">&quot;polar_ver&quot;</span><span class="p">,</span> 
+                                <span class="mi">0</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">,</span>
+                                <span class="n">radius</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.193</span><span class="p">])</span>
+
+<span class="c1"># system.plot_system(&quot;free-field&quot;)</span>
+<span class="c1"># system.plot_system(&quot;inf_ground&quot;)</span>
+
+<span class="c1">#%% run potential operators and plot results</span>
+<span class="n">system</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">system</span><span class="o">.</span><span class="n">plot_results</span><span class="p">()</span>
+
+<span class="c1">#%% save state</span>
+<span class="n">ep</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;05_evaluation_setup&quot;</span><span class="p">,</span> <span class="n">system</span><span class="p">)</span>
+</pre></div>
 </div>
-<p>Acoustic results are displayed with <code>.plot_results()</code>, called from the system object. By default, all results will pop-up. It is possible to return specific results using the following arguments:</p>
-<ul>
-<li><code>study</code>, select specific study or group of study,</li>
-<li><code>evaluation</code>, select specific evaluation(s)</li>
-<li><code>radiatingElement</code>, isolate radiating surfaces / elements</li>
-<li><code>bypass_xover</code>, bypasses filters if <strong>crossovers</strong> are defined.</li>
+<p>As you can see in this code, we use the <code class="docutils literal notranslate"><span class="pre">.plot_system()</span></code> function^[Similar to Tkinter window, PyVista plotter will <em>also</em> stop execution of code.] — this will display the 3D placement of evaluation points and boundaries as shown by <a class="reference internal" href="#plot-system"><span class="std std-numref">Fig. 15</span></a>. You may also have noticed that the <code class="docutils literal notranslate"><span class="pre">.run()</span></code> command is used again: electroacPy automatically skips any boundary and potential evaluations already computed.</p>
+<figure class="align-default" id="plot-system">
+<img alt="_images/system_floor_with_eval_b.png" src="_images/system_floor_with_eval_b.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 15 </span><span class="caption-text">System under study and related evaluations.</span><a class="headerlink" href="#plot-system" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Acoustic results are displayed with <code class="docutils literal notranslate"><span class="pre">.plot_results()</span></code>, called from the system object. By default, all results will pop-up. It is possible to return specific results using the following arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">study</span></code>, select specific study or group of study,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">evaluation</span></code>, select specific evaluation(s)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">radiatingElement</span></code>, isolate radiating surfaces / elements</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bypass_xover</span></code>, bypasses filters if <strong>crossovers</strong> are defined.</p></li>
 </ul>
-<p>The following code displays Figure <a href="04-BEM_modeler.html#fig:plot-field">2.16</a>.</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="04-BEM_modeler.html#cb20-1" tabindex="-1"></a>system.plot_results(study<span class="op">=</span><span class="st">&quot;inf_ground&quot;</span>, </span>
-<span id="cb20-2"><a href="04-BEM_modeler.html#cb20-2" tabindex="-1"></a>                    evaluation<span class="op">=</span>[<span class="st">&quot;field_hor&quot;</span>, <span class="st">&quot;field_ver&quot;</span>],</span>
-<span id="cb20-3"><a href="04-BEM_modeler.html#cb20-3" tabindex="-1"></a>                    radiatingElement<span class="op">=</span>[<span class="dv">1</span>, <span class="dv">2</span>])</span></code></pre></div>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:plot-field"></span>
-<img src="boundary_images/field_plotter_2_b.png" alt="Pressure Field plotter." width="80%" />
-<p class="caption">
-Figure 2.16: Pressure Field plotter.
-</p>
+<p>The following code displays <a class="reference internal" href="#plot-field"><span class="std std-numref">Fig. 16</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">plot_results</span><span class="p">(</span><span class="n">study</span><span class="o">=</span><span class="s2">&quot;inf_ground&quot;</span><span class="p">,</span> 
+                    <span class="n">evaluation</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;field_hor&quot;</span><span class="p">,</span> <span class="s2">&quot;field_ver&quot;</span><span class="p">],</span>
+                    <span class="n">radiatingElement</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+</pre></div>
 </div>
-<p>When plotting a pressure field, a left click will return the frequency response function of the closest points. Figure <a href="04-BEM_modeler.html#fig:plot-field-point">2.17</a> is an example of this tool. The legend should display the (x, y, z) position of field point.</p>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:plot-field-point"></span>
-<img src="boundary_images/field_point_from_field_b.svg" alt="Extraction of FRF from field point." width="80%" />
-<p class="caption">
-Figure 2.17: Extraction of FRF from field point.
-</p>
-</div>
-Polar responses are displayed using a Matplotlib viewer. It helps navigating through frequencies / angle with four sub-figures: SPL and normalized directivity, pressure and polar response — see Figure <a href="04-BEM_modeler.html#fig:plot-dir">2.18</a>.
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:plot-dir"></span>
-<img src="boundary_images/directivity_plotter_b.svg" alt="Directivity plotter. Vertical radiation in free-field." width="80%" />
-<p class="caption">
-Figure 2.18: Directivity plotter. Vertical radiation in free-field.
-</p>
-</div>
+<figure class="align-default" id="plot-field">
+<img alt="_images/field_plotter_2_b.png" src="_images/field_plotter_2_b.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 16 </span><span class="caption-text">Pressure-Field plotter.</span><a class="headerlink" href="#plot-field" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>When plotting a pressure field, a left click will return the frequency response function of the closest points. <a class="reference internal" href="#plot-field-point"><span class="std std-numref">Fig. 17</span></a> is an example of this tool. The legend should display the (x, y, z) position of field point.</p>
+<figure class="align-default" id="plot-field-point">
+<img alt="_images/field_point_from_field_b.svg" src="_images/field_point_from_field_b.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 17 </span><span class="caption-text">Extraction of FRF from field point.</span><a class="headerlink" href="#plot-field-point" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Polar responses are displayed using a Matplotlib viewer. It helps navigating through frequencies / angle with four sub-figures: SPL and normalized directivity, pressure and polar response — see <a class="reference internal" href="#plot-dir"><span class="std std-numref">Fig. 18</span></a>.</p>
+<figure class="align-default" id="plot-dir">
+<img alt="_images/directivity_plotter_b.svg" src="_images/directivity_plotter_b.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 18 </span><span class="caption-text">Directivity plotter. Vertical radiation in free-field.</span><a class="headerlink" href="#plot-dir" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
 <!-- In that directivity plot, you can clearly see the limits of the simulation mesh. Because the mesh is relatively coarse, the accuracy of the results decreases significantly at high frequencies, to the point where the off-axis (±180°) pressure is no longer correct. Using a finer mesh will give better results, but will be longer to compute.  -->
-</div>
-<div id="code-summary-1" class="section level3 hasAnchor" number="2.3.3">
-<h3><span class="header-section-number">2.3.3</span> Code Summary<a href="04-BEM_modeler.html#code-summary-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="04-BEM_modeler.html#cb21-1" tabindex="-1"></a><span class="im">import</span> electroacPy <span class="im">as</span> ep</span>
-<span id="cb21-2"><a href="04-BEM_modeler.html#cb21-2" tabindex="-1"></a><span class="im">from</span> electroacPy.acousticSim.bem <span class="im">import</span> boundaryConditions</span>
-<span id="cb21-3"><a href="04-BEM_modeler.html#cb21-3" tabindex="-1"></a></span>
-<span id="cb21-4"><a href="04-BEM_modeler.html#cb21-4" tabindex="-1"></a><span class="co">#%% load data</span></span>
-<span id="cb21-5"><a href="04-BEM_modeler.html#cb21-5" tabindex="-1"></a>system <span class="op">=</span> ep.load(<span class="st">&quot;03_LEM_Recap&quot;</span>)</span>
-<span id="cb21-6"><a href="04-BEM_modeler.html#cb21-6" tabindex="-1"></a></span>
-<span id="cb21-7"><a href="04-BEM_modeler.html#cb21-7" tabindex="-1"></a><span class="co">#%% Define free-field study</span></span>
-<span id="cb21-8"><a href="04-BEM_modeler.html#cb21-8" tabindex="-1"></a>system.study_acousticBEM(<span class="st">&quot;free-field&quot;</span>, </span>
-<span id="cb21-9"><a href="04-BEM_modeler.html#cb21-9" tabindex="-1"></a>                         <span class="st">&quot;../geo/mesh/studio_monitor.msh&quot;</span>,</span>
-<span id="cb21-10"><a href="04-BEM_modeler.html#cb21-10" tabindex="-1"></a>                         [<span class="st">&quot;ported_LF&quot;</span>, <span class="st">&quot;TW29&quot;</span>, <span class="st">&quot;sealed_MF&quot;</span>], domain<span class="op">=</span><span class="st">&quot;exterior&quot;</span>)</span>
-<span id="cb21-11"><a href="04-BEM_modeler.html#cb21-11" tabindex="-1"></a></span>
-<span id="cb21-12"><a href="04-BEM_modeler.html#cb21-12" tabindex="-1"></a><span class="co">#%% Define boundary conditions</span></span>
-<span id="cb21-13"><a href="04-BEM_modeler.html#cb21-13" tabindex="-1"></a>bc <span class="op">=</span> boundaryConditions()</span>
-<span id="cb21-14"><a href="04-BEM_modeler.html#cb21-14" tabindex="-1"></a>bc.addInfiniteBoundary(normal<span class="op">=</span><span class="st">&quot;z&quot;</span>, offset<span class="op">=-</span><span class="dv">1</span>)</span>
-<span id="cb21-15"><a href="04-BEM_modeler.html#cb21-15" tabindex="-1"></a>system.study_acousticBEM(<span class="st">&quot;inf_ground&quot;</span>, </span>
-<span id="cb21-16"><a href="04-BEM_modeler.html#cb21-16" tabindex="-1"></a>                        <span class="st">&quot;../geo/mesh/studio_monitor.msh&quot;</span>,</span>
-<span id="cb21-17"><a href="04-BEM_modeler.html#cb21-17" tabindex="-1"></a>                        [<span class="st">&quot;ported_LF&quot;</span>, <span class="st">&quot;TW29&quot;</span>, <span class="st">&quot;sealed_MF&quot;</span>], domain<span class="op">=</span><span class="st">&quot;exterior&quot;</span>, </span>
-<span id="cb21-18"><a href="04-BEM_modeler.html#cb21-18" tabindex="-1"></a>                        boundary_conditions<span class="op">=</span>bc)</span>
-<span id="cb21-19"><a href="04-BEM_modeler.html#cb21-19" tabindex="-1"></a></span>
-<span id="cb21-20"><a href="04-BEM_modeler.html#cb21-20" tabindex="-1"></a><span class="co">#%% Define evaluations</span></span>
-<span id="cb21-21"><a href="04-BEM_modeler.html#cb21-21" tabindex="-1"></a>system.evaluation_polarRadiation([<span class="st">&quot;free-field&quot;</span>, <span class="st">&quot;inf_ground&quot;</span>], <span class="st">&quot;polar_hor&quot;</span>, </span>
-<span id="cb21-22"><a href="04-BEM_modeler.html#cb21-22" tabindex="-1"></a>                                 <span class="op">-</span><span class="dv">180</span>, <span class="dv">180</span>, <span class="dv">5</span>, <span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>,</span>
-<span id="cb21-23"><a href="04-BEM_modeler.html#cb21-23" tabindex="-1"></a>                                 radius<span class="op">=</span><span class="dv">2</span>, offset<span class="op">=</span>[<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.193</span>])</span>
-<span id="cb21-24"><a href="04-BEM_modeler.html#cb21-24" tabindex="-1"></a>system.evaluation_pressureField([<span class="st">&quot;free-field&quot;</span>, <span class="st">&quot;inf_ground&quot;</span>], <span class="st">&quot;field_ver&quot;</span>, </span>
-<span id="cb21-25"><a href="04-BEM_modeler.html#cb21-25" tabindex="-1"></a>                                <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">343</span><span class="op">/</span><span class="dv">2500</span><span class="op">/</span><span class="dv">6</span>, <span class="st">&quot;xz&quot;</span>, offset<span class="op">=</span>[<span class="op">-</span><span class="fl">1.5</span>, <span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>])</span>
-<span id="cb21-26"><a href="04-BEM_modeler.html#cb21-26" tabindex="-1"></a>system.evaluation_pressureField([<span class="st">&quot;free-field&quot;</span>, <span class="st">&quot;inf_ground&quot;</span>], <span class="st">&quot;field_hor&quot;</span>, </span>
-<span id="cb21-27"><a href="04-BEM_modeler.html#cb21-27" tabindex="-1"></a>                                <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">343</span><span class="op">/</span><span class="dv">2500</span><span class="op">/</span><span class="dv">6</span>, <span class="st">&quot;xy&quot;</span>, </span>
-<span id="cb21-28"><a href="04-BEM_modeler.html#cb21-28" tabindex="-1"></a>                                offset<span class="op">=</span>[<span class="op">-</span><span class="fl">1.5</span>, <span class="op">-</span><span class="dv">1</span>, <span class="fl">0.193</span>])</span>
-<span id="cb21-29"><a href="04-BEM_modeler.html#cb21-29" tabindex="-1"></a>system.evaluation_polarRadiation(<span class="st">&quot;free-field&quot;</span>, <span class="st">&quot;polar_ver&quot;</span>, </span>
-<span id="cb21-30"><a href="04-BEM_modeler.html#cb21-30" tabindex="-1"></a>                                <span class="op">-</span><span class="dv">180</span>, <span class="dv">180</span>, <span class="dv">5</span>,  <span class="st">&quot;x&quot;</span>, <span class="st">&quot;z&quot;</span>, </span>
-<span id="cb21-31"><a href="04-BEM_modeler.html#cb21-31" tabindex="-1"></a>                                radius<span class="op">=</span><span class="dv">2</span>, offset<span class="op">=</span>[<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.193</span>])</span>
-<span id="cb21-32"><a href="04-BEM_modeler.html#cb21-32" tabindex="-1"></a>system.evaluation_polarRadiation(<span class="st">&quot;inf_ground&quot;</span>, <span class="st">&quot;polar_ver&quot;</span>, </span>
-<span id="cb21-33"><a href="04-BEM_modeler.html#cb21-33" tabindex="-1"></a>                                <span class="dv">0</span>, <span class="dv">180</span>, <span class="dv">5</span>, <span class="st">&quot;x&quot;</span>, <span class="st">&quot;z&quot;</span>,</span>
-<span id="cb21-34"><a href="04-BEM_modeler.html#cb21-34" tabindex="-1"></a>                                radius<span class="op">=</span><span class="dv">2</span>, offset<span class="op">=</span>[<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.193</span>])</span>
-<span id="cb21-35"><a href="04-BEM_modeler.html#cb21-35" tabindex="-1"></a></span>
-<span id="cb21-36"><a href="04-BEM_modeler.html#cb21-36" tabindex="-1"></a><span class="co">#%% run potential operators and plot results</span></span>
-<span id="cb21-37"><a href="04-BEM_modeler.html#cb21-37" tabindex="-1"></a>system.run()</span>
-<span id="cb21-38"><a href="04-BEM_modeler.html#cb21-38" tabindex="-1"></a>system.plot_results()</span>
-<span id="cb21-39"><a href="04-BEM_modeler.html#cb21-39" tabindex="-1"></a></span>
-<span id="cb21-40"><a href="04-BEM_modeler.html#cb21-40" tabindex="-1"></a><span class="co">#%% save state</span></span>
-<span id="cb21-41"><a href="04-BEM_modeler.html#cb21-41" tabindex="-1"></a>ep.save(<span class="st">&quot;06_acoustic_radiation&quot;</span>, system)</span></code></pre></div>
+</section>
+<section id="code-summary">
+<h2>Code Summary<a class="headerlink" href="#code-summary" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">electroacPy</span> <span class="k">as</span> <span class="nn">ep</span>
+<span class="kn">from</span> <span class="nn">electroacPy.acousticSim.bem</span> <span class="kn">import</span> <span class="n">boundaryConditions</span>
 
-</div>
-</div>
-<div class="footnotes">
-<hr />
-<ol start="2">
-<li id="fn2"><p>I am pretty sure this can be implemented in bempp-cl, any help is welcome.<a href="04-BEM_modeler.html#fnref2" class="footnote-back">↩︎</a></p></li>
-<li id="fn3"><p>Similar to Tkinter window, PyVista plotter will <em>also</em> stop execution of code.<a href="04-BEM_modeler.html#fnref3" class="footnote-back">↩︎</a></p></li>
-</ol>
-</div>
-            </section>
+<span class="c1">#%% load data</span>
+<span class="n">system</span> <span class="o">=</span> <span class="n">ep</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;03_LEM_Recap&quot;</span><span class="p">)</span>
 
-          </div>
-        </div>
+<span class="c1">#%% Define free-field study</span>
+<span class="n">system</span><span class="o">.</span><span class="n">study_acousticBEM</span><span class="p">(</span><span class="s2">&quot;free-field&quot;</span><span class="p">,</span> 
+                         <span class="s2">&quot;../geo/mesh/studio_monitor.msh&quot;</span><span class="p">,</span>
+                         <span class="p">[</span><span class="s2">&quot;ported_LF&quot;</span><span class="p">,</span> <span class="s2">&quot;TW29&quot;</span><span class="p">,</span> <span class="s2">&quot;sealed_MF&quot;</span><span class="p">],</span> <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;exterior&quot;</span><span class="p">)</span>
+
+<span class="c1">#%% Define boundary conditions</span>
+<span class="n">bc</span> <span class="o">=</span> <span class="n">boundaryConditions</span><span class="p">()</span>
+<span class="n">bc</span><span class="o">.</span><span class="n">addInfiniteBoundary</span><span class="p">(</span><span class="n">normal</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">offset</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">system</span><span class="o">.</span><span class="n">study_acousticBEM</span><span class="p">(</span><span class="s2">&quot;inf_ground&quot;</span><span class="p">,</span> 
+                        <span class="s2">&quot;../geo/mesh/studio_monitor.msh&quot;</span><span class="p">,</span>
+                        <span class="p">[</span><span class="s2">&quot;ported_LF&quot;</span><span class="p">,</span> <span class="s2">&quot;TW29&quot;</span><span class="p">,</span> <span class="s2">&quot;sealed_MF&quot;</span><span class="p">],</span> <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;exterior&quot;</span><span class="p">,</span> 
+                        <span class="n">boundary_conditions</span><span class="o">=</span><span class="n">bc</span><span class="p">)</span>
+
+<span class="c1">#%% Define evaluations</span>
+<span class="n">system</span><span class="o">.</span><span class="n">evaluation_polarRadiation</span><span class="p">([</span><span class="s2">&quot;free-field&quot;</span><span class="p">,</span> <span class="s2">&quot;inf_ground&quot;</span><span class="p">],</span> <span class="s2">&quot;polar_hor&quot;</span><span class="p">,</span> 
+                                 <span class="o">-</span><span class="mi">180</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span>
+                                 <span class="n">radius</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.193</span><span class="p">])</span>
+<span class="n">system</span><span class="o">.</span><span class="n">evaluation_pressureField</span><span class="p">([</span><span class="s2">&quot;free-field&quot;</span><span class="p">,</span> <span class="s2">&quot;inf_ground&quot;</span><span class="p">],</span> <span class="s2">&quot;field_ver&quot;</span><span class="p">,</span> 
+                                <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">343</span><span class="o">/</span><span class="mi">2500</span><span class="o">/</span><span class="mi">6</span><span class="p">,</span> <span class="s2">&quot;xz&quot;</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">system</span><span class="o">.</span><span class="n">evaluation_pressureField</span><span class="p">([</span><span class="s2">&quot;free-field&quot;</span><span class="p">,</span> <span class="s2">&quot;inf_ground&quot;</span><span class="p">],</span> <span class="s2">&quot;field_hor&quot;</span><span class="p">,</span> 
+                                <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">343</span><span class="o">/</span><span class="mi">2500</span><span class="o">/</span><span class="mi">6</span><span class="p">,</span> <span class="s2">&quot;xy&quot;</span><span class="p">,</span> 
+                                <span class="n">offset</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.193</span><span class="p">])</span>
+<span class="n">system</span><span class="o">.</span><span class="n">evaluation_polarRadiation</span><span class="p">(</span><span class="s2">&quot;free-field&quot;</span><span class="p">,</span> <span class="s2">&quot;polar_ver&quot;</span><span class="p">,</span> 
+                                <span class="o">-</span><span class="mi">180</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span>  <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">,</span> 
+                                <span class="n">radius</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.193</span><span class="p">])</span>
+<span class="n">system</span><span class="o">.</span><span class="n">evaluation_polarRadiation</span><span class="p">(</span><span class="s2">&quot;inf_ground&quot;</span><span class="p">,</span> <span class="s2">&quot;polar_ver&quot;</span><span class="p">,</span> 
+                                <span class="mi">0</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">,</span>
+                                <span class="n">radius</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.193</span><span class="p">])</span>
+
+<span class="c1">#%% run potential operators and plot results</span>
+<span class="n">system</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">system</span><span class="o">.</span><span class="n">plot_results</span><span class="p">()</span>
+
+<span class="c1">#%% save state</span>
+<span class="n">ep</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;06_acoustic_radiation&quot;</span><span class="p">,</span> <span class="n">system</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="interface-note" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>It should be possible to implement it in bempp-cl.</p>
+</aside>
+</aside>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="03-lumped_modeler.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Lumped Element Modeler</p>
       </div>
-<a href="03-lumped_modeler.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="05-post_processing.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </a>
+    <a class="right-next"
+       href="05-post_processing.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Post-processing</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#acoustic-study"><code class="docutils literal notranslate"><span class="pre">.acoustic_study[]</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluation"><code class="docutils literal notranslate"><span class="pre">.evaluation[]</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#code-summary">Code Summary</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Tom Munoz
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
     </div>
   </div>
-<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
-<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
-<script>
-gitbook.require(["gitbook"], function(gitbook) {
-gitbook.start({
-"sharing": {
-"github": false,
-"facebook": true,
-"twitter": true,
-"linkedin": false,
-"weibo": false,
-"instapaper": false,
-"vk": false,
-"whatsapp": false,
-"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
-},
-"fontsettings": {
-"theme": "white",
-"family": "sans",
-"size": 2
-},
-"edit": {
-"link": "https://github.com/USERNAME/REPO/edit/BRANCH/04-BEM_modeler.Rmd",
-"text": "Edit"
-},
-"history": {
-"link": null,
-"text": null
-},
-"view": {
-"link": null,
-"text": null
-},
-"download": ["_main.pdf", "_main.epub"],
-"search": {
-"engine": "fuse",
-"options": null
-},
-"toc": {
-"collapse": "subsection"
-}
-});
-});
-</script>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
 
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
-  (function () {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    var src = "true";
-    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
-    if (location.protocol !== "file:")
-      if (/^https?:/.test(src))
-        src = src.replace(/^https?:/, '');
-    script.src = src;
-    document.getElementsByTagName("head")[0].appendChild(script);
-  })();
-</script>
-</body>
-
+  <footer class="bd-footer">
+  </footer>
+  </body>
 </html>

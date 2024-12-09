@@ -1,433 +1,638 @@
+
 <!DOCTYPE html>
-<html lang="" xml:lang="">
-<head>
-
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>2.4 Post-processing | ElectroacPy</title>
-  <meta name="description" content="<p>ElectroacPy Handbook.
-The HTML output format for this example is bookdown::gitbook,
-set in the _output.yml file.</p>" />
-  <meta name="generator" content="bookdown 0.40 and GitBook 2.6.7" />
-
-  <meta property="og:title" content="2.4 Post-processing | ElectroacPy" />
-  <meta property="og:type" content="book" />
-  
-  <meta property="og:description" content="<p>ElectroacPy Handbook.
-The HTML output format for this example is bookdown::gitbook,
-set in the _output.yml file.</p>" />
-  
-
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="2.4 Post-processing | ElectroacPy" />
-  
-  <meta name="twitter:description" content="<p>ElectroacPy Handbook.
-The HTML output format for this example is bookdown::gitbook,
-set in the _output.yml file.</p>" />
-  
-
-<meta name="author" content="Tom Munoz" />
 
 
-<meta name="date" content="2024-12-04" />
+<html lang="en" data-content_root="./" >
 
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Post-processing &#8212; ElectroacPy</title>
   
   
-<link rel="prev" href="04-BEM_modeler.html"/>
-<link rel="next" href="06-back_end.html"/>
-<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
-<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
-
-
-
-
-
-
-
-
-<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
-<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
-
-
-<style type="text/css">
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { color: #008000; } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { color: #008000; font-weight: bold; } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-</style>
-
-<style type="text/css">
   
-  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-</style>
-<style type="text/css">
-/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-  margin-bottom: 0em;
-}
-.hanging div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}
-</style>
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
 
-<link rel="stylesheet" href="style.css" type="text/css" />
-</head>
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
 
-<body>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
 
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '05-post_processing';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Back-end" href="06-back_end.html" />
+    <link rel="prev" title="Boundary Element Modeler" href="04-BEM_modeler.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
-  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
 
-    <div class="book-summary">
-      <nav role="navigation">
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
 
-<ul class="summary">
-<li><a href="./">ElectroacPy</a></li>
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
 
-<li class="divider"></li>
-<li class="chapter" data-level="1" data-path="01-introduction.html"><a href="01-introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
-<ul>
-<li class="chapter" data-level="1.1" data-path="01-introduction.html"><a href="01-introduction.html#installation"><i class="fa fa-check"></i><b>1.1</b> Installation</a></li>
-<li class="chapter" data-level="1.2" data-path="01-introduction.html"><a href="01-introduction.html#notation"><i class="fa fa-check"></i><b>1.2</b> Notation</a></li>
-</ul></li>
-<li class="chapter" data-level="2" data-path="02-loudspeaker_system.html"><a href="02-loudspeaker_system.html"><i class="fa fa-check"></i><b>2</b> loudspeakerSystem</a>
-<ul>
-<li class="chapter" data-level="2.1" data-path="021-system_and_mesh.html"><a href="021-system_and_mesh.html"><i class="fa fa-check"></i><b>2.1</b> System overview and meshing</a>
-<ul>
-<li class="chapter" data-level="2.1.1" data-path="021-system_and_mesh.html"><a href="021-system_and_mesh.html#mesh"><i class="fa fa-check"></i><b>2.1.1</b> Mesh</a></li>
-</ul></li>
-<li class="chapter" data-level="2.2" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html"><i class="fa fa-check"></i><b>2.2</b> Lumped Element Modeler</a>
-<ul>
-<li class="chapter" data-level="2.2.1" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html#driver"><i class="fa fa-check"></i><b>2.2.1</b> <code>.driver[]</code></a></li>
-<li class="chapter" data-level="2.2.2" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html#enclosure"><i class="fa fa-check"></i><b>2.2.2</b> <code>.enclosure[]</code></a></li>
-<li class="chapter" data-level="2.2.3" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html#code-summary"><i class="fa fa-check"></i><b>2.2.3</b> Code summary</a></li>
-</ul></li>
-<li class="chapter" data-level="2.3" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html"><i class="fa fa-check"></i><b>2.3</b> Boundary Element Modeler</a>
-<ul>
-<li class="chapter" data-level="2.3.1" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html#acoustic_study"><i class="fa fa-check"></i><b>2.3.1</b> <code>.acoustic_study[]</code></a></li>
-<li class="chapter" data-level="2.3.2" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html#evaluation"><i class="fa fa-check"></i><b>2.3.2</b> <code>.evaluation[]</code></a></li>
-<li class="chapter" data-level="2.3.3" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html#code-summary-1"><i class="fa fa-check"></i><b>2.3.3</b> Code Summary</a></li>
-</ul></li>
-<li class="chapter" data-level="2.4" data-path="05-post_processing.html"><a href="05-post_processing.html"><i class="fa fa-check"></i><b>2.4</b> Post-processing</a>
-<ul>
-<li class="chapter" data-level="2.4.1" data-path="05-post_processing.html"><a href="05-post_processing.html#crossover"><i class="fa fa-check"></i><b>2.4.1</b> <code>.crossover[]</code></a></li>
-<li class="chapter" data-level="2.4.2" data-path="05-post_processing.html"><a href="05-post_processing.html#export-simulation-data"><i class="fa fa-check"></i><b>2.4.2</b> Export simulation data</a></li>
-</ul></li>
-</ul></li>
-<li class="chapter" data-level="3" data-path="06-back_end.html"><a href="06-back_end.html"><i class="fa fa-check"></i><b>3</b> Back-end</a>
-<ul>
-<li class="chapter" data-level="3.1" data-path="07-circuitSolver.html"><a href="07-circuitSolver.html"><i class="fa fa-check"></i><b>3.1</b> circuitSolver</a>
-<ul>
-<li class="chapter" data-level="3.1.1" data-path="07-circuitSolver.html"><a href="07-circuitSolver.html#components"><i class="fa fa-check"></i><b>3.1.1</b> Components</a></li>
-<li class="chapter" data-level="3.1.2" data-path="07-circuitSolver.html"><a href="07-circuitSolver.html#blocks"><i class="fa fa-check"></i><b>3.1.2</b> Blocks</a></li>
-<li class="chapter" data-level="3.1.3" data-path="07-circuitSolver.html"><a href="07-circuitSolver.html#monitorCrossover"><i class="fa fa-check"></i><b>3.1.3</b> Application example</a></li>
-</ul></li>
-</ul></li>
-<li class="divider"></li>
-<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
 
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="01-introduction.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="ElectroacPy - Home"/>
+    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="ElectroacPy - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="01-introduction.html">
+                    Introduction
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Loudspeaker System</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="02-loudspeaker_system.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">System overview and meshing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03-lumped_modeler.html">Lumped Element Modeler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04-BEM_modeler.html">Boundary Element Modeler</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Post-processing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Back-end</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="06-back_end.html">Back-end</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07-circuitSolver.html">circuitSolver</a></li>
 </ul>
 
-      </nav>
     </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
 
-    <div class="book-body">
-      <div class="body-inner">
-        <div class="book-header" role="navigation">
-          <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">ElectroacPy</a>
-          </h1>
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2F05-post_processing.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/05-post_processing.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Post-processing</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#crossover"><code class="docutils literal notranslate"><span class="pre">.crossover[]</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#export-simulation-data">Export simulation data</a></li>
+</ul>
+            </nav>
         </div>
+    </div>
+</div>
 
-        <div class="page-wrapper" tabindex="-1" role="main">
-          <div class="page-inner">
-
-            <section class="normal" id="section-">
-<div id="post-processing" class="section level2 hasAnchor" number="2.4">
-<h2><span class="header-section-number">2.4</span> Post-processing<a href="05-post_processing.html#post-processing" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="post-processing">
+<h1>Post-processing<a class="headerlink" href="#post-processing" title="Link to this heading">#</a></h1>
 <p>ElectroacPy provides some tools for crossover-network / filter-design. These are considered “post-processing” as they are applied on computation results. It might not be the best term, but we’ll go with it for now.</p>
-<div id="crossover" class="section level3 hasAnchor" number="2.4.1">
-<h3><span class="header-section-number">2.4.1</span> <code>.crossover[]</code><a href="05-post_processing.html#crossover" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<p>Crossovers/filters are initialized through the <code>.filter_network()</code> method. Input parameters are:</p>
-<ul>
-<li><code>name</code>, network reference,</li>
-<li><code>ref2bem</code>, which BEM elements should be filtered,</li>
-<li><code>ref2study</code>, which study (or list of study) should receive the filter network.</li>
+<section id="crossover">
+<h2><code class="docutils literal notranslate"><span class="pre">.crossover[]</span></code><a class="headerlink" href="#crossover" title="Link to this heading">#</a></h2>
+<p>Crossovers/filters are initialized through the <code class="docutils literal notranslate"><span class="pre">.filter_network()</span></code> method. Input parameters are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>, network reference,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ref2bem</span></code>, which BEM elements should be filtered,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ref2study</span></code>, which study (or list of study) should receive the filter network.</p></li>
 </ul>
 <p>Available filters are:</p>
-<ul>
-<li>lowpass and highpass, both under their “analog” form and as biquads,</li>
-<li>low-shelf, high-shelf,</li>
-<li>peaking eq,</li>
-<li>delay, gain and phase-flip,</li>
-<li>user-defined transfer functions.</li>
+<ul class="simple">
+<li><p>lowpass and highpass, both under their “analog” form and as biquads,</p></li>
+<li><p>low-shelf, high-shelf,</p></li>
+<li><p>peaking eq,</p></li>
+<li><p>delay, gain and phase-flip,</p></li>
+<li><p>user-defined transfer functions.</p></li>
 </ul>
 <p>In the code below, we define a crossover network using the available biquads:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="05-post_processing.html#cb22-1" tabindex="-1"></a><span class="im">import</span> generalToolbox <span class="im">as</span> gtb</span>
-<span id="cb22-2"><a href="05-post_processing.html#cb22-2" tabindex="-1"></a><span class="im">import</span> electroacPy <span class="im">as</span> ep</span>
-<span id="cb22-3"><a href="05-post_processing.html#cb22-3" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb22-4"><a href="05-post_processing.html#cb22-4" tabindex="-1"></a></span>
-<span id="cb22-5"><a href="05-post_processing.html#cb22-5" tabindex="-1"></a><span class="co">#%% load data</span></span>
-<span id="cb22-6"><a href="05-post_processing.html#cb22-6" tabindex="-1"></a>system <span class="op">=</span> ep.load(<span class="st">&quot;06_acoustic_radiation_refined&quot;</span>)</span>
-<span id="cb22-7"><a href="05-post_processing.html#cb22-7" tabindex="-1"></a></span>
-<span id="cb22-8"><a href="05-post_processing.html#cb22-8" tabindex="-1"></a><span class="co">#%% LF filter</span></span>
-<span id="cb22-9"><a href="05-post_processing.html#cb22-9" tabindex="-1"></a>system.filter_network(<span class="st">&quot;LF_xover&quot;</span>, ref2bem<span class="op">=</span>[<span class="dv">1</span>, <span class="dv">2</span>], ref2study<span class="op">=</span><span class="st">&quot;free-field&quot;</span>)</span>
-<span id="cb22-10"><a href="05-post_processing.html#cb22-10" tabindex="-1"></a>system.filter_addLowPassBQ(<span class="st">&quot;LF_xover&quot;</span>, <span class="st">&quot;lf1&quot;</span>, <span class="dv">300</span>, <span class="fl">0.5</span>)</span>
-<span id="cb22-11"><a href="05-post_processing.html#cb22-11" tabindex="-1"></a></span>
-<span id="cb22-12"><a href="05-post_processing.html#cb22-12" tabindex="-1"></a><span class="co">#%% MF Filter</span></span>
-<span id="cb22-13"><a href="05-post_processing.html#cb22-13" tabindex="-1"></a>system.filter_network(<span class="st">&quot;MF_xover&quot;</span>, ref2bem<span class="op">=</span><span class="dv">3</span>, ref2study<span class="op">=</span><span class="st">&quot;free-field&quot;</span>)</span>
-<span id="cb22-14"><a href="05-post_processing.html#cb22-14" tabindex="-1"></a>system.filter_addHighPassBQ(<span class="st">&quot;MF_xover&quot;</span>, <span class="st">&quot;hp1&quot;</span>, <span class="dv">300</span>, <span class="fl">0.5</span>)</span>
-<span id="cb22-15"><a href="05-post_processing.html#cb22-15" tabindex="-1"></a>system.filter_addLowPassBQ(<span class="st">&quot;MF_xover&quot;</span>, <span class="st">&quot;lp1&quot;</span>, <span class="dv">3500</span>, <span class="fl">0.5</span>)</span>
-<span id="cb22-16"><a href="05-post_processing.html#cb22-16" tabindex="-1"></a>system.filter_addGain(<span class="st">&quot;MF_xover&quot;</span>, <span class="st">&quot;db&quot;</span>, <span class="op">-</span><span class="dv">2</span>)</span>
-<span id="cb22-17"><a href="05-post_processing.html#cb22-17" tabindex="-1"></a>system.filter_addPhaseFlip(<span class="st">&quot;MF_xover&quot;</span>, <span class="st">&quot;pi&quot;</span>)</span>
-<span id="cb22-18"><a href="05-post_processing.html#cb22-18" tabindex="-1"></a></span>
-<span id="cb22-19"><a href="05-post_processing.html#cb22-19" tabindex="-1"></a><span class="co">#%% HF Filter</span></span>
-<span id="cb22-20"><a href="05-post_processing.html#cb22-20" tabindex="-1"></a>system.filter_network(<span class="st">&quot;HF_xover&quot;</span>, ref2bem<span class="op">=</span><span class="dv">4</span>, ref2study<span class="op">=</span><span class="st">&quot;free-field&quot;</span>)</span>
-<span id="cb22-21"><a href="05-post_processing.html#cb22-21" tabindex="-1"></a>system.filter_addHighPassBQ(<span class="st">&quot;HF_xover&quot;</span>, <span class="st">&quot;hp1&quot;</span>, <span class="dv">3500</span>, <span class="fl">0.5</span>, dBGain<span class="op">=-</span><span class="dv">4</span>)</span></code></pre></div>
-<p>Networks will automatically update the frequency response of previously computed studies. The <code>.plot_results()</code> method will display updated data. If you want to have a better look at each network response, you can either use the <code>.plot_xovers()</code> method, or extract the transfer function with <code>.crossover["reference"].h</code> — Figure <a href="05-post_processing.html#fig:xover">2.19</a> is made using the following code:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="05-post_processing.html#cb23-1" tabindex="-1"></a><span class="co">#%% Transfer functions</span></span>
-<span id="cb23-2"><a href="05-post_processing.html#cb23-2" tabindex="-1"></a>H_lf <span class="op">=</span> system.crossover[<span class="st">&quot;LF_xover&quot;</span>].h</span>
-<span id="cb23-3"><a href="05-post_processing.html#cb23-3" tabindex="-1"></a>H_mf <span class="op">=</span> system.crossover[<span class="st">&quot;MF_xover&quot;</span>].h</span>
-<span id="cb23-4"><a href="05-post_processing.html#cb23-4" tabindex="-1"></a>H_hf <span class="op">=</span> system.crossover[<span class="st">&quot;HF_xover&quot;</span>].h</span>
-<span id="cb23-5"><a href="05-post_processing.html#cb23-5" tabindex="-1"></a></span>
-<span id="cb23-6"><a href="05-post_processing.html#cb23-6" tabindex="-1"></a>gtb.plot.FRF(system.frequency, (H_lf, H_mf, H_hf, H_lf<span class="op">+</span>H_mf<span class="op">+</span>H_hf), </span>
-<span id="cb23-7"><a href="05-post_processing.html#cb23-7" tabindex="-1"></a>             legend<span class="op">=</span>(<span class="st">&quot;LF&quot;</span>, <span class="st">&quot;MF&quot;</span>, <span class="st">&quot;HF&quot;</span>, <span class="st">&quot;total&quot;</span>), transformation<span class="op">=</span><span class="st">&quot;dB&quot;</span>,</span>
-<span id="cb23-8"><a href="05-post_processing.html#cb23-8" tabindex="-1"></a>             ylim<span class="op">=</span>(<span class="op">-</span><span class="dv">30</span>, <span class="dv">10</span>), xlim<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">10000</span>), figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">3</span>),</span>
-<span id="cb23-9"><a href="05-post_processing.html#cb23-9" tabindex="-1"></a>             xticks<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">50</span>, </span>
-<span id="cb23-10"><a href="05-post_processing.html#cb23-10" tabindex="-1"></a>                     <span class="dv">100</span>, <span class="dv">200</span>, <span class="dv">500</span>, </span>
-<span id="cb23-11"><a href="05-post_processing.html#cb23-11" tabindex="-1"></a>                     <span class="dv">1000</span>, <span class="dv">2000</span>, <span class="dv">5000</span>, <span class="dv">10000</span>),</span>
-<span id="cb23-12"><a href="05-post_processing.html#cb23-12" tabindex="-1"></a>             yticks<span class="op">=</span>np.arange(<span class="op">-</span><span class="dv">30</span>, <span class="dv">12</span>, <span class="dv">6</span>))</span></code></pre></div>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:xover"></span>
-<img src="postP_images/crossovers_b.svg" alt="Crossover frequency-response." width="80%" />
-<p class="caption">
-Figure 2.19: Crossover frequency-response.
-</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">generalToolbox</span> <span class="k">as</span> <span class="nn">gtb</span>
+<span class="kn">import</span> <span class="nn">electroacPy</span> <span class="k">as</span> <span class="nn">ep</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1">#%% load data</span>
+<span class="n">system</span> <span class="o">=</span> <span class="n">ep</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;06_acoustic_radiation_refined&quot;</span><span class="p">)</span>
+
+<span class="c1">#%% LF filter</span>
+<span class="n">system</span><span class="o">.</span><span class="n">filter_network</span><span class="p">(</span><span class="s2">&quot;LF_xover&quot;</span><span class="p">,</span> <span class="n">ref2bem</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">ref2study</span><span class="o">=</span><span class="s2">&quot;free-field&quot;</span><span class="p">)</span>
+<span class="n">system</span><span class="o">.</span><span class="n">filter_addLowPassBQ</span><span class="p">(</span><span class="s2">&quot;LF_xover&quot;</span><span class="p">,</span> <span class="s2">&quot;lf1&quot;</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1">#%% MF Filter</span>
+<span class="n">system</span><span class="o">.</span><span class="n">filter_network</span><span class="p">(</span><span class="s2">&quot;MF_xover&quot;</span><span class="p">,</span> <span class="n">ref2bem</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">ref2study</span><span class="o">=</span><span class="s2">&quot;free-field&quot;</span><span class="p">)</span>
+<span class="n">system</span><span class="o">.</span><span class="n">filter_addHighPassBQ</span><span class="p">(</span><span class="s2">&quot;MF_xover&quot;</span><span class="p">,</span> <span class="s2">&quot;hp1&quot;</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="n">system</span><span class="o">.</span><span class="n">filter_addLowPassBQ</span><span class="p">(</span><span class="s2">&quot;MF_xover&quot;</span><span class="p">,</span> <span class="s2">&quot;lp1&quot;</span><span class="p">,</span> <span class="mi">3500</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="n">system</span><span class="o">.</span><span class="n">filter_addGain</span><span class="p">(</span><span class="s2">&quot;MF_xover&quot;</span><span class="p">,</span> <span class="s2">&quot;db&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">system</span><span class="o">.</span><span class="n">filter_addPhaseFlip</span><span class="p">(</span><span class="s2">&quot;MF_xover&quot;</span><span class="p">,</span> <span class="s2">&quot;pi&quot;</span><span class="p">)</span>
+
+<span class="c1">#%% HF Filter</span>
+<span class="n">system</span><span class="o">.</span><span class="n">filter_network</span><span class="p">(</span><span class="s2">&quot;HF_xover&quot;</span><span class="p">,</span> <span class="n">ref2bem</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">ref2study</span><span class="o">=</span><span class="s2">&quot;free-field&quot;</span><span class="p">)</span>
+<span class="n">system</span><span class="o">.</span><span class="n">filter_addHighPassBQ</span><span class="p">(</span><span class="s2">&quot;HF_xover&quot;</span><span class="p">,</span> <span class="s2">&quot;hp1&quot;</span><span class="p">,</span> <span class="mi">3500</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">dBGain</span><span class="o">=-</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
 </div>
-<p>It is also possible to extract and plot each individual pressure response using <code>.get_pMic()</code>, available through any loudspeaker system object. Here, we separate each acoustic radiator and look at the multiple contributions in Fig.<a href="05-post_processing.html#fig:xover-pressure">2.20</a>.</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb24-1"><a href="05-post_processing.html#cb24-1" tabindex="-1"></a><span class="co"># get pressure</span></span>
-<span id="cb24-2"><a href="05-post_processing.html#cb24-2" tabindex="-1"></a>p_lf   <span class="op">=</span> system.get_pMic(<span class="st">&quot;free-field&quot;</span>, <span class="st">&quot;polar_hor&quot;</span>, radiatingElement<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb24-3"><a href="05-post_processing.html#cb24-3" tabindex="-1"></a>p_port <span class="op">=</span> system.get_pMic(<span class="st">&quot;free-field&quot;</span>, <span class="st">&quot;polar_hor&quot;</span>, radiatingElement<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb24-4"><a href="05-post_processing.html#cb24-4" tabindex="-1"></a>p_mf   <span class="op">=</span> system.get_pMic(<span class="st">&quot;free-field&quot;</span>, <span class="st">&quot;polar_hor&quot;</span>, radiatingElement<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb24-5"><a href="05-post_processing.html#cb24-5" tabindex="-1"></a>p_hf   <span class="op">=</span> system.get_pMic(<span class="st">&quot;free-field&quot;</span>, <span class="st">&quot;polar_hor&quot;</span>, radiatingElement<span class="op">=</span><span class="dv">4</span>)</span>
-<span id="cb24-6"><a href="05-post_processing.html#cb24-6" tabindex="-1"></a>p_tot  <span class="op">=</span> system.get_pMic(<span class="st">&quot;free-field&quot;</span>, <span class="st">&quot;polar_hor&quot;</span>)</span>
-<span id="cb24-7"><a href="05-post_processing.html#cb24-7" tabindex="-1"></a></span>
-<span id="cb24-8"><a href="05-post_processing.html#cb24-8" tabindex="-1"></a><span class="co"># plot pressure response</span></span>
-<span id="cb24-9"><a href="05-post_processing.html#cb24-9" tabindex="-1"></a>gtb.plot.FRF(system.frequency, (p_lf[:, <span class="dv">73</span><span class="op">//</span><span class="dv">2</span>], </span>
-<span id="cb24-10"><a href="05-post_processing.html#cb24-10" tabindex="-1"></a>                                p_port[:, <span class="dv">73</span><span class="op">//</span><span class="dv">2</span>],</span>
-<span id="cb24-11"><a href="05-post_processing.html#cb24-11" tabindex="-1"></a>                                p_mf[:, <span class="dv">73</span><span class="op">//</span><span class="dv">2</span>],</span>
-<span id="cb24-12"><a href="05-post_processing.html#cb24-12" tabindex="-1"></a>                                p_hf[:, <span class="dv">73</span><span class="op">//</span><span class="dv">2</span>],</span>
-<span id="cb24-13"><a href="05-post_processing.html#cb24-13" tabindex="-1"></a>                                p_tot[:, <span class="dv">73</span><span class="op">//</span><span class="dv">2</span>]), </span>
-<span id="cb24-14"><a href="05-post_processing.html#cb24-14" tabindex="-1"></a>             ylabel<span class="op">=</span><span class="st">&quot;SPL [dB]&quot;</span>,</span>
-<span id="cb24-15"><a href="05-post_processing.html#cb24-15" tabindex="-1"></a>             legend<span class="op">=</span>(<span class="st">&quot;woofer&quot;</span>, <span class="st">&quot;port&quot;</span>, <span class="st">&quot;midrange&quot;</span>, <span class="st">&quot;tweeter&quot;</span>, </span>
-<span id="cb24-16"><a href="05-post_processing.html#cb24-16" tabindex="-1"></a>                     <span class="st">&quot;total contribution&quot;</span>),</span>
-<span id="cb24-17"><a href="05-post_processing.html#cb24-17" tabindex="-1"></a>             xlim<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">10e3</span>), ylim<span class="op">=</span>(<span class="dv">35</span>, <span class="dv">80</span>))</span></code></pre></div>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:xover-pressure"></span>
-<img src="postP_images/pressure_xover_b.svg" alt="Filtered loudspeaker response." width="80%" />
-<p class="caption">
-Figure 2.20: Filtered loudspeaker response.
-</p>
+<p>Networks will automatically update the frequency response of previously computed studies. The <code class="docutils literal notranslate"><span class="pre">.plot_results()</span></code> method will display updated data. If you want to have a better look at each network response, you can either use the <code class="docutils literal notranslate"><span class="pre">.plot_xovers()</span></code> method, or extract the transfer function with <code class="docutils literal notranslate"><span class="pre">.crossover[&quot;reference&quot;].h</span></code> — <a class="reference internal" href="#xover"><span class="std std-numref">Fig. 19</span></a> is made using the following code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#%% Transfer functions</span>
+<span class="n">H_lf</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">crossover</span><span class="p">[</span><span class="s2">&quot;LF_xover&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">h</span>
+<span class="n">H_mf</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">crossover</span><span class="p">[</span><span class="s2">&quot;MF_xover&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">h</span>
+<span class="n">H_hf</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">crossover</span><span class="p">[</span><span class="s2">&quot;HF_xover&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">h</span>
+
+<span class="n">gtb</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">FRF</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span> <span class="p">(</span><span class="n">H_lf</span><span class="p">,</span> <span class="n">H_mf</span><span class="p">,</span> <span class="n">H_hf</span><span class="p">,</span> <span class="n">H_lf</span><span class="o">+</span><span class="n">H_mf</span><span class="o">+</span><span class="n">H_hf</span><span class="p">),</span> 
+             <span class="n">legend</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;LF&quot;</span><span class="p">,</span> <span class="s2">&quot;MF&quot;</span><span class="p">,</span> <span class="s2">&quot;HF&quot;</span><span class="p">,</span> <span class="s2">&quot;total&quot;</span><span class="p">),</span> <span class="n">transformation</span><span class="o">=</span><span class="s2">&quot;dB&quot;</span><span class="p">,</span>
+             <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">xlim</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10000</span><span class="p">),</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+             <span class="n">xticks</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> 
+                     <span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> 
+                     <span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">),</span>
+             <span class="n">yticks</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+
+</pre></div>
 </div>
+<figure class="align-default" id="xover">
+<img alt="_images/crossovers_b.svg" src="_images/crossovers_b.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 19 </span><span class="caption-text">Crossover frequency-response.</span><a class="headerlink" href="#xover" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>It is also possible to extract and plot each individual pressure response using <code class="docutils literal notranslate"><span class="pre">.get_pMic()</span></code>, available through any loudspeaker system object. Here, we separate each acoustic radiator and look at the multiple contributions in <a class="reference internal" href="#xover-pressure"><span class="std std-numref">Fig. 20</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># get pressure</span>
+<span class="n">p_lf</span>   <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_pMic</span><span class="p">(</span><span class="s2">&quot;free-field&quot;</span><span class="p">,</span> <span class="s2">&quot;polar_hor&quot;</span><span class="p">,</span> <span class="n">radiatingElement</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">p_port</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_pMic</span><span class="p">(</span><span class="s2">&quot;free-field&quot;</span><span class="p">,</span> <span class="s2">&quot;polar_hor&quot;</span><span class="p">,</span> <span class="n">radiatingElement</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">p_mf</span>   <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_pMic</span><span class="p">(</span><span class="s2">&quot;free-field&quot;</span><span class="p">,</span> <span class="s2">&quot;polar_hor&quot;</span><span class="p">,</span> <span class="n">radiatingElement</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">p_hf</span>   <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_pMic</span><span class="p">(</span><span class="s2">&quot;free-field&quot;</span><span class="p">,</span> <span class="s2">&quot;polar_hor&quot;</span><span class="p">,</span> <span class="n">radiatingElement</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">p_tot</span>  <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_pMic</span><span class="p">(</span><span class="s2">&quot;free-field&quot;</span><span class="p">,</span> <span class="s2">&quot;polar_hor&quot;</span><span class="p">)</span>
+
+<span class="c1"># plot pressure response</span>
+<span class="n">gtb</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">FRF</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span> <span class="p">(</span><span class="n">p_lf</span><span class="p">[:,</span> <span class="mi">73</span><span class="o">//</span><span class="mi">2</span><span class="p">],</span> 
+                                <span class="n">p_port</span><span class="p">[:,</span> <span class="mi">73</span><span class="o">//</span><span class="mi">2</span><span class="p">],</span>
+                                <span class="n">p_mf</span><span class="p">[:,</span> <span class="mi">73</span><span class="o">//</span><span class="mi">2</span><span class="p">],</span>
+                                <span class="n">p_hf</span><span class="p">[:,</span> <span class="mi">73</span><span class="o">//</span><span class="mi">2</span><span class="p">],</span>
+                                <span class="n">p_tot</span><span class="p">[:,</span> <span class="mi">73</span><span class="o">//</span><span class="mi">2</span><span class="p">]),</span> 
+             <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;SPL [dB]&quot;</span><span class="p">,</span>
+             <span class="n">legend</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;woofer&quot;</span><span class="p">,</span> <span class="s2">&quot;port&quot;</span><span class="p">,</span> <span class="s2">&quot;midrange&quot;</span><span class="p">,</span> <span class="s2">&quot;tweeter&quot;</span><span class="p">,</span> 
+                     <span class="s2">&quot;total contribution&quot;</span><span class="p">),</span>
+             <span class="n">xlim</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">10e3</span><span class="p">),</span> <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="mi">35</span><span class="p">,</span> <span class="mi">80</span><span class="p">))</span>
+</pre></div>
+</div>
+<figure class="align-default" id="xover-pressure">
+<img alt="_images/pressure_xover_b.svg" src="_images/pressure_xover_b.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 20 </span><span class="caption-text">Filtered loudspeaker response.</span><a class="headerlink" href="#xover-pressure" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
 <p>It is important to note that electroacPy’s crossover tools are considered as digital filters: interaction between speaker and supposed electrical components is not taken into account. In order to have a better understanding of the electrical behavior with passive components, it is either possible to use the <strong>circuitSolver</strong> class, or to export results to an external software for crossover design.</p>
-</div>
-<div id="export-simulation-data" class="section level3 hasAnchor" number="2.4.2">
-<h3><span class="header-section-number">2.4.2</span> Export simulation data<a href="05-post_processing.html#export-simulation-data" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<!-- While the filtering functions that come with electroacPy can be practical to have at hand, it is not the most efficient or practical way of building crossovers. It is possible to export results to load them in crossover-design software. The following code extracts pressure and impedance with `.export_directivity()` and `.exportZe()`. Extracted results are then loaded into VituixCAD as shown in Figure \@ref(fig:vituixcad-import). -->
-<p>For now, it is only possible to export directivity and impedance data. Because it is free and provides a lot of great tools, we’ll use VituixCAD to build a crossover network. The following code extracts pressure and impedance with <code>.export_directivity()</code> and <code>.export_impedance()</code>. Results are then imported into VituixCAD as shown in Figure <a href="05-post_processing.html#fig:vituixcad-import">2.21</a>. In the import window, you can notice that the “Minimum phase” box is checked: this helps reducing the comb-filtering coming from VituixCAD re-calculation of radiated pressure. Keep in mind that the overall radiation will be slightly off; you can un-check this box if you want a better estimation (although “noisier”).</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="05-post_processing.html#cb25-1" tabindex="-1"></a><span class="co"># export woofer data </span></span>
-<span id="cb25-2"><a href="05-post_processing.html#cb25-2" tabindex="-1"></a>system.export_directivity(<span class="st">&quot;woofer_hor&quot;</span>, <span class="st">&quot;free-field&quot;</span>, </span>
-<span id="cb25-3"><a href="05-post_processing.html#cb25-3" tabindex="-1"></a>                          <span class="st">&quot;polar_hor&quot;</span>, [<span class="dv">1</span>, <span class="dv">2</span>], bypass_xover<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb25-4"><a href="05-post_processing.html#cb25-4" tabindex="-1"></a>system.export_impedance(<span class="st">&quot;Z_ported_woofer&quot;</span>, <span class="st">&quot;ported_LF&quot;</span>)</span>
-<span id="cb25-5"><a href="05-post_processing.html#cb25-5" tabindex="-1"></a></span>
-<span id="cb25-6"><a href="05-post_processing.html#cb25-6" tabindex="-1"></a><span class="co"># export midrange</span></span>
-<span id="cb25-7"><a href="05-post_processing.html#cb25-7" tabindex="-1"></a>system.export_directivity(<span class="st">&quot;midrange_hor&quot;</span>, <span class="st">&quot;free-field&quot;</span>, </span>
-<span id="cb25-8"><a href="05-post_processing.html#cb25-8" tabindex="-1"></a>                          <span class="st">&quot;polar_hor&quot;</span>, <span class="dv">3</span>, bypass_xover<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb25-9"><a href="05-post_processing.html#cb25-9" tabindex="-1"></a>system.export_impedance(<span class="st">&quot;Z_sealed_midrange&quot;</span>, <span class="st">&quot;sealed_MF&quot;</span>)</span>
-<span id="cb25-10"><a href="05-post_processing.html#cb25-10" tabindex="-1"></a></span>
-<span id="cb25-11"><a href="05-post_processing.html#cb25-11" tabindex="-1"></a><span class="co"># export tweeter</span></span>
-<span id="cb25-12"><a href="05-post_processing.html#cb25-12" tabindex="-1"></a>system.export_directivity(<span class="st">&quot;tweeter_hor&quot;</span>, <span class="st">&quot;free-field&quot;</span>, </span>
-<span id="cb25-13"><a href="05-post_processing.html#cb25-13" tabindex="-1"></a>                          <span class="st">&quot;polar_hor&quot;</span>, <span class="dv">4</span>, bypass_xover<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb25-14"><a href="05-post_processing.html#cb25-14" tabindex="-1"></a>system.export_impedance(<span class="st">&quot;Z_tweeter&quot;</span>, <span class="st">&quot;TW29&quot;</span>)</span></code></pre></div>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:vituixcad-import"></span>
-<img src="postP_images/vituixcad_parameter_import.png" alt="Importing mid/bass simulation in VituixCAD. Because the directivity was estimated at 2 meters, a 6dB scaling is used to normalize it relative to 1 meter." width="60%" />
-<p class="caption">
-Figure 2.21: Importing mid/bass simulation in VituixCAD. Because the directivity was estimated at 2 meters, a 6dB scaling is used to normalize it relative to 1 meter.
-</p>
-</div>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:vituixcad-woofer"></span>
-<img src="postP_images/vituixcad_woofer_b.png" alt="Frequency response, directivity and impedance plot without crossovers." width="90%" />
-<p class="caption">
-Figure 2.22: Frequency response, directivity and impedance plot without crossovers.
-</p>
-</div>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:vituixcad-network"></span>
-<img src="postP_images/vituixcad_network_b.png" alt="Frequency response, directivity and impedance plot of system with crossovers." width="90%" />
-<p class="caption">
-Figure 2.23: Frequency response, directivity and impedance plot of system with crossovers.
-</p>
-</div>
-<p>As you’ll see in section <a href="07-circuitSolver.html#monitorCrossover">3.1.3</a>, it is possible re-create the above crossover using electroacPy’s own Modified Nodal Analysis (MNA) tool: <strong>circuitSolver</strong>.</p>
+</section>
+<section id="export-simulation-data">
+<h2>Export simulation data<a class="headerlink" href="#export-simulation-data" title="Link to this heading">#</a></h2>
+<p>For now, it is only possible to export directivity and impedance data. Because it is free and provides a lot of great tools, we’ll use VituixCAD to build a crossover network. The following code extracts pressure and impedance with <code class="docutils literal notranslate"><span class="pre">.export_directivity()</span></code> and <code class="docutils literal notranslate"><span class="pre">.export_impedance()</span></code>. Results are then imported into VituixCAD as shown in <a class="reference internal" href="#vituixcad-import"><span class="std std-numref">Fig. 21</span></a>. In the import window, you can notice that the “Minimum phase” box is checked: this helps reducing the comb-filtering coming from VituixCAD re-calculation of radiated pressure. Keep in mind that the overall radiation will be slightly off; you can un-check this box if you want a better estimation (although “noisier”).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># export woofer data </span>
+<span class="n">system</span><span class="o">.</span><span class="n">export_directivity</span><span class="p">(</span><span class="s2">&quot;woofer_hor&quot;</span><span class="p">,</span> <span class="s2">&quot;free-field&quot;</span><span class="p">,</span> 
+                          <span class="s2">&quot;polar_hor&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">bypass_xover</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">system</span><span class="o">.</span><span class="n">export_impedance</span><span class="p">(</span><span class="s2">&quot;Z_ported_woofer&quot;</span><span class="p">,</span> <span class="s2">&quot;ported_LF&quot;</span><span class="p">)</span>
 
-</div>
-</div>
-</div>
-            </section>
+<span class="c1"># export midrange</span>
+<span class="n">system</span><span class="o">.</span><span class="n">export_directivity</span><span class="p">(</span><span class="s2">&quot;midrange_hor&quot;</span><span class="p">,</span> <span class="s2">&quot;free-field&quot;</span><span class="p">,</span> 
+                          <span class="s2">&quot;polar_hor&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">bypass_xover</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">system</span><span class="o">.</span><span class="n">export_impedance</span><span class="p">(</span><span class="s2">&quot;Z_sealed_midrange&quot;</span><span class="p">,</span> <span class="s2">&quot;sealed_MF&quot;</span><span class="p">)</span>
 
-          </div>
-        </div>
+<span class="c1"># export tweeter</span>
+<span class="n">system</span><span class="o">.</span><span class="n">export_directivity</span><span class="p">(</span><span class="s2">&quot;tweeter_hor&quot;</span><span class="p">,</span> <span class="s2">&quot;free-field&quot;</span><span class="p">,</span> 
+                          <span class="s2">&quot;polar_hor&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">bypass_xover</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">system</span><span class="o">.</span><span class="n">export_impedance</span><span class="p">(</span><span class="s2">&quot;Z_tweeter&quot;</span><span class="p">,</span> <span class="s2">&quot;TW29&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="vituixcad-import">
+<img alt="_images/vituixcad_parameter_import.png" src="_images/vituixcad_parameter_import.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 21 </span><span class="caption-text">Importing woofer simulation in VituixCAD. Because the directivity was estimated at 2 meters, a 6dB scaling is used to normalize it relative to 1 meter.</span><a class="headerlink" href="#vituixcad-import" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="vituixcad-woofer">
+<img alt="_images/vituixcad_woofer_b.png" src="_images/vituixcad_woofer_b.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 22 </span><span class="caption-text">Frequency response, directivity and impedance plot without crossovers.</span><a class="headerlink" href="#vituixcad-woofer" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="vituixcad-network">
+<img alt="_images/vituixcad_network_b.png" src="_images/vituixcad_network_b.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 23 </span><span class="caption-text">Frequency response, directivity and impedance plot of system with crossovers.</span><a class="headerlink" href="#vituixcad-network" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>As you’ll see in section <strong><span class="xref std std-ref">Application example</span></strong>, it is possible re-create the above crossover using electroacPy’s own Modified Nodal Analysis (MNA) tool: <strong>circuitSolver</strong>.</p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="04-BEM_modeler.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Boundary Element Modeler</p>
       </div>
-<a href="04-BEM_modeler.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="06-back_end.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </a>
+    <a class="right-next"
+       href="06-back_end.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Back-end</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#crossover"><code class="docutils literal notranslate"><span class="pre">.crossover[]</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#export-simulation-data">Export simulation data</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Tom Munoz
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
     </div>
   </div>
-<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
-<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
-<script>
-gitbook.require(["gitbook"], function(gitbook) {
-gitbook.start({
-"sharing": {
-"github": false,
-"facebook": true,
-"twitter": true,
-"linkedin": false,
-"weibo": false,
-"instapaper": false,
-"vk": false,
-"whatsapp": false,
-"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
-},
-"fontsettings": {
-"theme": "white",
-"family": "sans",
-"size": 2
-},
-"edit": {
-"link": "https://github.com/USERNAME/REPO/edit/BRANCH/05-post_processing.Rmd",
-"text": "Edit"
-},
-"history": {
-"link": null,
-"text": null
-},
-"view": {
-"link": null,
-"text": null
-},
-"download": ["_main.pdf", "_main.epub"],
-"search": {
-"engine": "fuse",
-"options": null
-},
-"toc": {
-"collapse": "subsection"
-}
-});
-});
-</script>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
 
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
-  (function () {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    var src = "true";
-    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
-    if (location.protocol !== "file:")
-      if (/^https?:/.test(src))
-        src = src.replace(/^https?:/, '');
-    script.src = src;
-    document.getElementsByTagName("head")[0].appendChild(script);
-  })();
-</script>
-</body>
-
+  <footer class="bd-footer">
+  </footer>
+  </body>
 </html>

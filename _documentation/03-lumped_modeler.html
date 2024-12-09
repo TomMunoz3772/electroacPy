@@ -1,515 +1,713 @@
+
 <!DOCTYPE html>
-<html lang="" xml:lang="">
-<head>
-
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>2.2 Lumped Element Modeler | ElectroacPy</title>
-  <meta name="description" content="<p>ElectroacPy Handbook.
-The HTML output format for this example is bookdown::gitbook,
-set in the _output.yml file.</p>" />
-  <meta name="generator" content="bookdown 0.40 and GitBook 2.6.7" />
-
-  <meta property="og:title" content="2.2 Lumped Element Modeler | ElectroacPy" />
-  <meta property="og:type" content="book" />
-  
-  <meta property="og:description" content="<p>ElectroacPy Handbook.
-The HTML output format for this example is bookdown::gitbook,
-set in the _output.yml file.</p>" />
-  
-
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="2.2 Lumped Element Modeler | ElectroacPy" />
-  
-  <meta name="twitter:description" content="<p>ElectroacPy Handbook.
-The HTML output format for this example is bookdown::gitbook,
-set in the _output.yml file.</p>" />
-  
-
-<meta name="author" content="Tom Munoz" />
 
 
-<meta name="date" content="2024-12-04" />
+<html lang="en" data-content_root="./" >
 
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Lumped Element Modeler &#8212; ElectroacPy</title>
   
   
-<link rel="prev" href="021-system_and_mesh.html"/>
-<link rel="next" href="04-BEM_modeler.html"/>
-<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
-<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
-
-
-
-
-
-
-
-
-<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
-<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
-
-
-<style type="text/css">
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { color: #008000; } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { color: #008000; font-weight: bold; } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-</style>
-
-<style type="text/css">
   
-  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-</style>
-<style type="text/css">
-/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-  margin-bottom: 0em;
-}
-.hanging div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}
-</style>
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
 
-<link rel="stylesheet" href="style.css" type="text/css" />
-</head>
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
 
-<body>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
 
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '03-lumped_modeler';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Boundary Element Modeler" href="04-BEM_modeler.html" />
+    <link rel="prev" title="System overview and meshing" href="021-system_and_mesh.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
-  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
 
-    <div class="book-summary">
-      <nav role="navigation">
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
 
-<ul class="summary">
-<li><a href="./">ElectroacPy</a></li>
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
 
-<li class="divider"></li>
-<li class="chapter" data-level="1" data-path="01-introduction.html"><a href="01-introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
-<ul>
-<li class="chapter" data-level="1.1" data-path="01-introduction.html"><a href="01-introduction.html#installation"><i class="fa fa-check"></i><b>1.1</b> Installation</a></li>
-<li class="chapter" data-level="1.2" data-path="01-introduction.html"><a href="01-introduction.html#notation"><i class="fa fa-check"></i><b>1.2</b> Notation</a></li>
-</ul></li>
-<li class="chapter" data-level="2" data-path="02-loudspeaker_system.html"><a href="02-loudspeaker_system.html"><i class="fa fa-check"></i><b>2</b> loudspeakerSystem</a>
-<ul>
-<li class="chapter" data-level="2.1" data-path="021-system_and_mesh.html"><a href="021-system_and_mesh.html"><i class="fa fa-check"></i><b>2.1</b> System overview and meshing</a>
-<ul>
-<li class="chapter" data-level="2.1.1" data-path="021-system_and_mesh.html"><a href="021-system_and_mesh.html#mesh"><i class="fa fa-check"></i><b>2.1.1</b> Mesh</a></li>
-</ul></li>
-<li class="chapter" data-level="2.2" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html"><i class="fa fa-check"></i><b>2.2</b> Lumped Element Modeler</a>
-<ul>
-<li class="chapter" data-level="2.2.1" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html#driver"><i class="fa fa-check"></i><b>2.2.1</b> <code>.driver[]</code></a></li>
-<li class="chapter" data-level="2.2.2" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html#enclosure"><i class="fa fa-check"></i><b>2.2.2</b> <code>.enclosure[]</code></a></li>
-<li class="chapter" data-level="2.2.3" data-path="03-lumped_modeler.html"><a href="03-lumped_modeler.html#code-summary"><i class="fa fa-check"></i><b>2.2.3</b> Code summary</a></li>
-</ul></li>
-<li class="chapter" data-level="2.3" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html"><i class="fa fa-check"></i><b>2.3</b> Boundary Element Modeler</a>
-<ul>
-<li class="chapter" data-level="2.3.1" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html#acoustic_study"><i class="fa fa-check"></i><b>2.3.1</b> <code>.acoustic_study[]</code></a></li>
-<li class="chapter" data-level="2.3.2" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html#evaluation"><i class="fa fa-check"></i><b>2.3.2</b> <code>.evaluation[]</code></a></li>
-<li class="chapter" data-level="2.3.3" data-path="04-BEM_modeler.html"><a href="04-BEM_modeler.html#code-summary-1"><i class="fa fa-check"></i><b>2.3.3</b> Code Summary</a></li>
-</ul></li>
-<li class="chapter" data-level="2.4" data-path="05-post_processing.html"><a href="05-post_processing.html"><i class="fa fa-check"></i><b>2.4</b> Post-processing</a>
-<ul>
-<li class="chapter" data-level="2.4.1" data-path="05-post_processing.html"><a href="05-post_processing.html#crossover"><i class="fa fa-check"></i><b>2.4.1</b> <code>.crossover[]</code></a></li>
-<li class="chapter" data-level="2.4.2" data-path="05-post_processing.html"><a href="05-post_processing.html#export-simulation-data"><i class="fa fa-check"></i><b>2.4.2</b> Export simulation data</a></li>
-</ul></li>
-</ul></li>
-<li class="chapter" data-level="3" data-path="06-back_end.html"><a href="06-back_end.html"><i class="fa fa-check"></i><b>3</b> Back-end</a>
-<ul>
-<li class="chapter" data-level="3.1" data-path="07-circuitSolver.html"><a href="07-circuitSolver.html"><i class="fa fa-check"></i><b>3.1</b> circuitSolver</a>
-<ul>
-<li class="chapter" data-level="3.1.1" data-path="07-circuitSolver.html"><a href="07-circuitSolver.html#components"><i class="fa fa-check"></i><b>3.1.1</b> Components</a></li>
-<li class="chapter" data-level="3.1.2" data-path="07-circuitSolver.html"><a href="07-circuitSolver.html#blocks"><i class="fa fa-check"></i><b>3.1.2</b> Blocks</a></li>
-<li class="chapter" data-level="3.1.3" data-path="07-circuitSolver.html"><a href="07-circuitSolver.html#monitorCrossover"><i class="fa fa-check"></i><b>3.1.3</b> Application example</a></li>
-</ul></li>
-</ul></li>
-<li class="divider"></li>
-<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
 
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="01-introduction.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="ElectroacPy - Home"/>
+    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="ElectroacPy - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="01-introduction.html">
+                    Introduction
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Loudspeaker System</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="02-loudspeaker_system.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">System overview and meshing</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Lumped Element Modeler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04-BEM_modeler.html">Boundary Element Modeler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05-post_processing.html">Post-processing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Back-end</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="06-back_end.html">Back-end</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07-circuitSolver.html">circuitSolver</a></li>
 </ul>
 
-      </nav>
     </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
 
-    <div class="book-body">
-      <div class="body-inner">
-        <div class="book-header" role="navigation">
-          <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">ElectroacPy</a>
-          </h1>
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2F03-lumped_modeler.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/03-lumped_modeler.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Lumped Element Modeler</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#driver"><code class="docutils literal notranslate"><span class="pre">.driver[]</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#enclosure"><code class="docutils literal notranslate"><span class="pre">.enclosure[]</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#code-summary">Code summary</a></li>
+</ul>
+            </nav>
         </div>
+    </div>
+</div>
 
-        <div class="page-wrapper" tabindex="-1" role="main">
-          <div class="page-inner">
-
-            <section class="normal" id="section-">
-<div id="lumped-element-modeler" class="section level2 hasAnchor" number="2.2">
-<h2><span class="header-section-number">2.2</span> Lumped Element Modeler<a href="03-lumped_modeler.html#lumped-element-modeler" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="lumped-element-modeler">
+<h1>Lumped Element Modeler<a class="headerlink" href="#lumped-element-modeler" title="Link to this heading">#</a></h1>
 <p>ElectroacPy lumped modeler allows the simulation of loudspeaker drivers in enclosures. All velocities computed — from driver membrane to port particle velocity — can then be set as input surface-velocity in the BEM modeler. This chapter explains how to create and add <strong>drivers</strong> and <strong>enclosures</strong> to a <strong>loudspeakerSystem</strong>.</p>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:unnamed-chunk-3"></span>
-<img src="drawings/LEM.svg" alt="Lumped-Modeler structure." width="80%" />
-<p class="caption">
-Figure 2.7: Lumped-Modeler structure.
-</p>
-</div>
-<div id="driver" class="section level3 hasAnchor" number="2.2.1">
-<h3><span class="header-section-number">2.2.1</span> <code>.driver[]</code><a href="03-lumped_modeler.html#driver" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<figure class="align-default" id="id2">
+<img alt="_images/LEM.svg" src="_images/LEM.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 7 </span><span class="caption-text">Lumped-Modeler structure.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<section id="driver">
+<h2><code class="docutils literal notranslate"><span class="pre">.driver[]</span></code><a class="headerlink" href="#driver" title="Link to this heading">#</a></h2>
 <p>Loudspeaker drivers are characterized by their Thiele/Small parameters. When creating a <strong>driver</strong>, it is possible to “manually” define its lumped parameters, or to load a file containing the relevant information:</p>
-<ul>
-<li><code>.lem_driver()</code>,</li>
-<li><code>.lem_driverImport()</code>.</li>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">.lem_driver()</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.lem_driverImport()</span></code>.</p></li>
 </ul>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="03-lumped_modeler.html#cb14-1" tabindex="-1"></a><span class="im">import</span> electroacPy <span class="im">as</span> ep</span>
-<span id="cb14-2"><a href="03-lumped_modeler.html#cb14-2" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb14-3"><a href="03-lumped_modeler.html#cb14-3" tabindex="-1"></a></span>
-<span id="cb14-4"><a href="03-lumped_modeler.html#cb14-4" tabindex="-1"></a><span class="co">#%% frequency axis and system initialization</span></span>
-<span id="cb14-5"><a href="03-lumped_modeler.html#cb14-5" tabindex="-1"></a>frequency <span class="op">=</span> np.arange(<span class="dv">10</span>, <span class="dv">10000</span>, <span class="dv">1</span>)</span>
-<span id="cb14-6"><a href="03-lumped_modeler.html#cb14-6" tabindex="-1"></a>system <span class="op">=</span> ep.loudspeakerSystem(frequency)</span>
-<span id="cb14-7"><a href="03-lumped_modeler.html#cb14-7" tabindex="-1"></a></span>
-<span id="cb14-8"><a href="03-lumped_modeler.html#cb14-8" tabindex="-1"></a><span class="co">#%% Woofer import</span></span>
-<span id="cb14-9"><a href="03-lumped_modeler.html#cb14-9" tabindex="-1"></a>Re <span class="op">=</span> <span class="fl">6.2</span>        <span class="co"># Ohm</span></span>
-<span id="cb14-10"><a href="03-lumped_modeler.html#cb14-10" tabindex="-1"></a>Le <span class="op">=</span> <span class="fl">1.2e-3</span>     <span class="co"># H</span></span>
-<span id="cb14-11"><a href="03-lumped_modeler.html#cb14-11" tabindex="-1"></a>Bl <span class="op">=</span> <span class="dv">16</span>         <span class="co"># T.m</span></span>
-<span id="cb14-12"><a href="03-lumped_modeler.html#cb14-12" tabindex="-1"></a>Mms <span class="op">=</span> <span class="fl">84.9e-3</span>   <span class="co"># kg</span></span>
-<span id="cb14-13"><a href="03-lumped_modeler.html#cb14-13" tabindex="-1"></a>Cms <span class="op">=</span> <span class="fl">560e-6</span>    <span class="co"># m/N</span></span>
-<span id="cb14-14"><a href="03-lumped_modeler.html#cb14-14" tabindex="-1"></a>Rms <span class="op">=</span> <span class="fl">2.35</span>      <span class="co"># kg/s</span></span>
-<span id="cb14-15"><a href="03-lumped_modeler.html#cb14-15" tabindex="-1"></a>Sd <span class="op">=</span> <span class="fl">508e-4</span>     <span class="co"># m^2</span></span>
-<span id="cb14-16"><a href="03-lumped_modeler.html#cb14-16" tabindex="-1"></a>system.lem_driver(<span class="st">&quot;SB34&quot;</span>, <span class="dv">1</span>, Le, Re, Cms, Mms, Rms, Bl, Sd)</span>
-<span id="cb14-17"><a href="03-lumped_modeler.html#cb14-17" tabindex="-1"></a></span>
-<span id="cb14-18"><a href="03-lumped_modeler.html#cb14-18" tabindex="-1"></a><span class="co">#%% Midrange import</span></span>
-<span id="cb14-19"><a href="03-lumped_modeler.html#cb14-19" tabindex="-1"></a>system.lem_driverImport(<span class="st">&quot;MR16&quot;</span>, <span class="st">&quot;../technical_data/SB MR16PNW-8.txt&quot;</span>)</span>
-<span id="cb14-20"><a href="03-lumped_modeler.html#cb14-20" tabindex="-1"></a></span>
-<span id="cb14-21"><a href="03-lumped_modeler.html#cb14-21" tabindex="-1"></a><span class="co">#%% Tweeter import (through T/S file)</span></span>
-<span id="cb14-22"><a href="03-lumped_modeler.html#cb14-22" tabindex="-1"></a>system.lem_driverImport(<span class="st">&quot;TW29&quot;</span>, <span class="st">&quot;../technical_data/TW29RN-B.txt&quot;</span>)</span></code></pre></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">electroacPy</span> <span class="k">as</span> <span class="nn">ep</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1">#%% frequency axis and system initialization</span>
+<span class="n">frequency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">system</span> <span class="o">=</span> <span class="n">ep</span><span class="o">.</span><span class="n">loudspeakerSystem</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
+
+<span class="c1">#%% Woofer import</span>
+<span class="n">Re</span> <span class="o">=</span> <span class="mf">6.2</span>        <span class="c1"># Ohm</span>
+<span class="n">Le</span> <span class="o">=</span> <span class="mf">1.2e-3</span>     <span class="c1"># H</span>
+<span class="n">Bl</span> <span class="o">=</span> <span class="mi">16</span>         <span class="c1"># T.m</span>
+<span class="n">Mms</span> <span class="o">=</span> <span class="mf">84.9e-3</span>   <span class="c1"># kg</span>
+<span class="n">Cms</span> <span class="o">=</span> <span class="mf">560e-6</span>    <span class="c1"># m/N</span>
+<span class="n">Rms</span> <span class="o">=</span> <span class="mf">2.35</span>      <span class="c1"># kg/s</span>
+<span class="n">Sd</span> <span class="o">=</span> <span class="mf">508e-4</span>     <span class="c1"># m^2</span>
+<span class="n">system</span><span class="o">.</span><span class="n">lem_driver</span><span class="p">(</span><span class="s2">&quot;SB34&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Le</span><span class="p">,</span> <span class="n">Re</span><span class="p">,</span> <span class="n">Cms</span><span class="p">,</span> <span class="n">Mms</span><span class="p">,</span> <span class="n">Rms</span><span class="p">,</span> <span class="n">Bl</span><span class="p">,</span> <span class="n">Sd</span><span class="p">)</span>
+
+<span class="c1">#%% Midrange import</span>
+<span class="n">system</span><span class="o">.</span><span class="n">lem_driverImport</span><span class="p">(</span><span class="s2">&quot;MR16&quot;</span><span class="p">,</span> <span class="s2">&quot;../technical_data/SB MR16PNW-8.txt&quot;</span><span class="p">)</span>
+
+<span class="c1">#%% Tweeter import (through T/S file)</span>
+<span class="n">system</span><span class="o">.</span><span class="n">lem_driverImport</span><span class="p">(</span><span class="s2">&quot;TW29&quot;</span><span class="p">,</span> <span class="s2">&quot;../technical_data/TW29RN-B.txt&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>For now, electroacPy supports the following file format:</p>
-<ul>
-<li>.txt, (both Klippel and HornResp),</li>
-<li>.bastaelement (Basta),</li>
-<li>.wdr (WinISD),</li>
-<li>.sdrv (speakerSim),</li>
-<li>.qsp (Qspeaker).</li>
+<ul class="simple">
+<li><p>.txt, (both Klippel and HornResp),</p></li>
+<li><p>.bastaelement (Basta),</p></li>
+<li><p>.wdr (WinISD),</p></li>
+<li><p>.sdrv (speakerSim),</p></li>
+<li><p>.qsp (Qspeaker).</p></li>
 </ul>
-<p>Once parameters are loaded in a <strong>driver</strong>, it is possible to plot its electrical impedance and mechanical behavior using <code>.plotZe()</code> and <code>.plotXVA()</code>. To access these functions, the object is called from its <code>.driver[]</code> dictionary. Resulting plot are shown in Fig. <a href="03-lumped_modeler.html#fig:woofer-ze">2.8</a> and <a href="03-lumped_modeler.html#fig:woofer-xva">2.9</a>.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="03-lumped_modeler.html#cb15-1" tabindex="-1"></a>floorstander.driver[<span class="st">&quot;SB34&quot;</span>].plotZe()</span>
-<span id="cb15-2"><a href="03-lumped_modeler.html#cb15-2" tabindex="-1"></a>floorstander.driver[<span class="st">&quot;SB34&quot;</span>].plotXVA()</span></code></pre></div>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:woofer-ze"></span>
-<img src="lumped_images/woofer_ze_b.svg" alt="Electrical impedance of the SB34 subwoofer." width="80%" />
-<p class="caption">
-Figure 2.8: Electrical impedance of the SB34 subwoofer.
-</p>
+<p>Once parameters are loaded in a <strong>driver</strong>, it is possible to plot its electrical impedance and mechanical behavior using <code class="docutils literal notranslate"><span class="pre">.plotZe()</span></code> and <code class="docutils literal notranslate"><span class="pre">.plotXVA()</span></code>. To access these functions, the object is called from its <code class="docutils literal notranslate"><span class="pre">.driver[]</span></code> dictionary. Resulting plot are shown in <a class="reference internal" href="#woofer-ze"><span class="std std-numref">Fig. 8</span></a> and <a class="reference internal" href="#woofer-xva"><span class="std std-numref">Fig. 9</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">floorstander</span><span class="o">.</span><span class="n">driver</span><span class="p">[</span><span class="s2">&quot;SB34&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plotZe</span><span class="p">()</span>
+<span class="n">floorstander</span><span class="o">.</span><span class="n">driver</span><span class="p">[</span><span class="s2">&quot;SB34&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plotXVA</span><span class="p">()</span>
+</pre></div>
 </div>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:woofer-xva"></span>
-<img src="lumped_images/woofer_xva_b.svg" alt="Displacement, velocity and acceleration of the SB34 subwoofer." width="80%" />
-<p class="caption">
-Figure 2.9: Displacement, velocity and acceleration of the SB34 subwoofer.
-</p>
-</div>
-<p>Before working with <strong>enclosures</strong>, two small methods are available: <code>.sealedAlignment()</code> and <code>.portedAlignment()</code>. These open a simple Tkinter window<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> with textboxes allowing to change box configuration. Effectively helping to find “correct” acoustic alignment before adding <strong>enclosures</strong> to the system.</p>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:ported-alignment"></span>
-<img src="lumped_images/ported_alignment_tool_b.png" alt="Ported alignment tool."  />
-<p class="caption">
-Figure 2.10: Ported alignment tool.
-</p>
-</div>
-</div>
-<div id="enclosure" class="section level3 hasAnchor" number="2.2.2">
-<h3><span class="header-section-number">2.2.2</span> <code>.enclosure[]</code><a href="03-lumped_modeler.html#enclosure" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<p>The <code>.lem_enclosure()</code> method offers seven types of pre-defined cabinets. Each depend on the <code>**kwargs</code> called when creating an <strong>enclosure</strong>. The default configuration is sealed, when calling the acoustic volume <code>Vb</code> alone. The following table shows the pre-defined setups.</p>
-<table>
-<colgroup>
-<col width="25%" />
-<col width="25%" />
-<col width="25%" />
-<col width="25%" />
-</colgroup>
+<figure class="align-default" id="woofer-ze">
+<img alt="_images/woofer_ze_b.svg" src="_images/woofer_ze_b.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 8 </span><span class="caption-text">Electrical impedance of the SB34 subwoofer in free-air.</span><a class="headerlink" href="#woofer-ze" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="woofer-xva">
+<img alt="_images/woofer_xva_b.svg" src="_images/woofer_xva_b.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 9 </span><span class="caption-text">Displacement, velocity and acceleration of the SB34 subwoofer in free-air.</span><a class="headerlink" href="#woofer-xva" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Before working with <strong>enclosures</strong>, two small methods are available: <code class="docutils literal notranslate"><span class="pre">.sealedAlignment()</span></code> and <code class="docutils literal notranslate"><span class="pre">.portedAlignment()</span></code>. These open a simple Tkinter window<a class="footnote-reference brackets" href="#tkinter-shenanigans" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> with text-boxes allowing to change enclosure configuration. Useful to find “correct” acoustic alignment before adding <strong>enclosures</strong> to the system.</p>
+<figure class="align-default" id="ported-aligment">
+<img alt="_images/ported_alignment_tool_b.png" src="_images/ported_alignment_tool_b.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 10 </span><span class="caption-text">Ported alignment tool.</span><a class="headerlink" href="#ported-aligment" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="enclosure">
+<h2><code class="docutils literal notranslate"><span class="pre">.enclosure[]</span></code><a class="headerlink" href="#enclosure" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">.lem_enclosure()</span></code> method offers seven types of pre-defined cabinets. Each depend on the <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> called when creating an <strong>enclosure</strong>. When calling the acoustic volume <code class="docutils literal notranslate"><span class="pre">Vb</span></code> alone, the default enclosure is sealed. The following table shows how to get each pre-defined setups.</p>
+<div class="pst-scrollable-table-container"><table class="table">
 <thead>
-<tr class="header">
-<th>Configuration</th>
-<th>Inputs</th>
-<th>unit</th>
-<th>meaning</th>
+<tr class="row-odd"><th class="head"><p>Configuration</p></th>
+<th class="head"><p>Inputs</p></th>
+<th class="head"><p>unit</p></th>
+<th class="head"><p>meaning</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td>Sealed</td>
-<td>Vb</td>
-<td>m<span class="math inline">\(^3\)</span></td>
-<td>cabinet volume</td>
+<tr class="row-even"><td><p>Sealed</p></td>
+<td><p>Vb</p></td>
+<td><p>m<span class="math notranslate nohighlight">\(^3\)</span></p></td>
+<td><p>cabinet volume</p></td>
 </tr>
-<tr class="even">
-<td>Ported</td>
-<td>Lp<br>rp<br>Sp</td>
-<td>m<br>m<br>m<span class="math inline">\(^2\)</span></td>
-<td>port length<br>port radius<br>port cross-section area</td>
+<tr class="row-odd"><td><p>Ported</p></td>
+<td><p>Lp<br>rp<br>Sp</p></td>
+<td><p>m<br>m<br>m<span class="math notranslate nohighlight">\(^2\)</span></p></td>
+<td><p>port length<br>port radius<br>port cross-section area</p></td>
 </tr>
-<tr class="odd">
-<td>ABR (passive radiator)</td>
-<td>Mmd<br>Cmd<br>Rmd<br>Sd</td>
-<td>kg<br>m/N<br>kg/s<br>m<span class="math inline">\(^2\)</span></td>
-<td>moving mass<br>suspension compliance<br>mechanical resistance<br>radiating surface</td>
+<tr class="row-even"><td><p>ABR (passive radiator)</p></td>
+<td><p>Mmd<br>Cmd<br>Rmd<br>Sd</p></td>
+<td><p>kg<br>m/N<br>kg/s<br>m<span class="math notranslate nohighlight">\(^2\)</span></p></td>
+<td><p>moving mass<br>suspension compliance<br>mechanical resistance<br>radiating surface</p></td>
 </tr>
-<tr class="even">
-<td>Bandpass (port) - 4<span class="math inline">\(^{th}\)</span> order</td>
-<td>Vf<br>Lp<br>rp<br>Sp</td>
-<td>m<span class="math inline">\(^3\)</span><br>m<br>m<br>m<span class="math inline">\(^2\)</span></td>
-<td>front volume<br>(front) port length<br>(front) port radius<br>(front) port cross-section area</td>
+<tr class="row-odd"><td><p>Bandpass (port) - 4<span class="math notranslate nohighlight">\(^{th}\)</span> order</p></td>
+<td><p>Vf<br>Lp<br>rp<br>Sp</p></td>
+<td><p>m<span class="math notranslate nohighlight">\(^3\)</span><br>m<br>m<br>m<span class="math notranslate nohighlight">\(^2\)</span></p></td>
+<td><p>front volume<br>(front) port length<br>(front) port radius<br>(front) port cross-section area</p></td>
 </tr>
-<tr class="odd">
-<td>Bandpass (passive radiator) - 4<span class="math inline">\(^{th}\)</span> order</td>
-<td>Vf<br>Mmd<br>Cmd<br>Rmd<br>Sd</td>
-<td>m<span class="math inline">\(^3\)</span><br>kg<br>m/N<br>kg/s<br>m<span class="math inline">\(^2\)</span></td>
-<td>front volume<br>moving mass<br>suspension compliance<br>mechanical resistance<br>radiating surface</td>
+<tr class="row-even"><td><p>Bandpass (passive radiator) - 4<span class="math notranslate nohighlight">\(^{th}\)</span> order</p></td>
+<td><p>Vf<br>Mmd<br>Cmd<br>Rmd<br>Sd</p></td>
+<td><p>m<span class="math notranslate nohighlight">\(^3\)</span><br>kg<br>m/N<br>kg/s<br>m<span class="math notranslate nohighlight">\(^2\)</span></p></td>
+<td><p>front volume<br>moving mass<br>suspension compliance<br>mechanical resistance<br>radiating surface</p></td>
 </tr>
-<tr class="even">
-<td>Bandpass (port) - 6<span class="math inline">\(^{th}\)</span> order</td>
-<td>Vf<br>Lp - Lp2<br>rp - rp2<br>Sp - Sp2</td>
-<td>m<span class="math inline">\(^3\)</span><br>m<br>m<br>m<span class="math inline">\(^2\)</span></td>
-<td>front volume<br>back and front port length<br>back and front port radius<br>back and front port cross-section area</td>
+<tr class="row-odd"><td><p>Bandpass (port) - 6<span class="math notranslate nohighlight">\(^{th}\)</span> order</p></td>
+<td><p>Vf<br>Lp - Lp2<br>rp - rp2<br>Sp - Sp2</p></td>
+<td><p>m<span class="math notranslate nohighlight">\(^3\)</span><br>m<br>m<br>m<span class="math notranslate nohighlight">\(^2\)</span></p></td>
+<td><p>front volume<br>back and front port length<br>back and front port radius<br>back and front port cross-section area</p></td>
 </tr>
-<tr class="odd">
-<td>Bandpass (ABR) - 6<span class="math inline">\(^{th}\)</span> order</td>
-<td>Vf<br>Mmd - Mmd2<br>Cmd - Cmd2<br>Rmd - Rmd2<br>Sd - Sd2</td>
-<td>m<span class="math inline">\(^3\)</span><br>kg<br>m/N<br>kg/s<br>m<span class="math inline">\(^2\)</span></td>
-<td>front volume<br>back and front moving mass<br>back and front suspension compliance<br>back and front mechanical resistance<br>back and front radiating surface</td>
+<tr class="row-even"><td><p>Bandpass (ABR) - 6<span class="math notranslate nohighlight">\(^{th}\)</span> order</p></td>
+<td><p>Vf<br>Mmd - Mmd2<br>Cmd - Cmd2<br>Rmd - Rmd2<br>Sd - Sd2</p></td>
+<td><p>m<span class="math notranslate nohighlight">\(^3\)</span><br>kg<br>m/N<br>kg/s<br>m<span class="math notranslate nohighlight">\(^2\)</span></p></td>
+<td><p>front volume<br>back and front moving mass<br>back and front suspension compliance<br>back and front mechanical resistance<br>back and front radiating surface</p></td>
 </tr>
 </tbody>
 </table>
-<p>In our example, we set two parallel woofers inside a ported enclosure. Again, <code>.plotZe()</code> and <code>.plotXVA()</code> display general characteristics of our system — see Fig.<a href="03-lumped_modeler.html#fig:ported-ze">2.11</a> and <a href="03-lumped_modeler.html#fig:ported-xva">2.12</a>.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="03-lumped_modeler.html#cb16-1" tabindex="-1"></a>system.lem_enclosure(<span class="st">&quot;ported_LF&quot;</span>, <span class="fl">40e-3</span>, </span>
-<span id="cb16-2"><a href="03-lumped_modeler.html#cb16-2" tabindex="-1"></a>                     Lp<span class="op">=</span><span class="fl">35e-2</span>, Sp<span class="op">=</span><span class="fl">78.6e-4</span>, eta<span class="op">=</span><span class="fl">1e-5</span>,</span>
-<span id="cb16-3"><a href="03-lumped_modeler.html#cb16-3" tabindex="-1"></a>                     ref2bem<span class="op">=</span>[<span class="dv">1</span>, <span class="dv">2</span>], </span>
-<span id="cb16-4"><a href="03-lumped_modeler.html#cb16-4" tabindex="-1"></a>                     setDriver<span class="op">=</span><span class="st">&quot;SB34&quot;</span>, Nd<span class="op">=</span><span class="dv">1</span>,</span>
-<span id="cb16-5"><a href="03-lumped_modeler.html#cb16-5" tabindex="-1"></a>                     wiring<span class="op">=</span><span class="st">&quot;parallel&quot;</span>)</span>
-<span id="cb16-6"><a href="03-lumped_modeler.html#cb16-6" tabindex="-1"></a></span>
-<span id="cb16-7"><a href="03-lumped_modeler.html#cb16-7" tabindex="-1"></a>system.lem_enclosure(<span class="st">&quot;sealed_MF&quot;</span>, <span class="fl">5.1e-3</span>,</span>
-<span id="cb16-8"><a href="03-lumped_modeler.html#cb16-8" tabindex="-1"></a>                     ref2bem<span class="op">=</span><span class="dv">3</span>, setDriver<span class="op">=</span><span class="st">&quot;MR16&quot;</span>)</span>
-<span id="cb16-9"><a href="03-lumped_modeler.html#cb16-9" tabindex="-1"></a></span>
-<span id="cb16-10"><a href="03-lumped_modeler.html#cb16-10" tabindex="-1"></a><span class="co">#%% plot data</span></span>
-<span id="cb16-11"><a href="03-lumped_modeler.html#cb16-11" tabindex="-1"></a>system.enclosure[<span class="st">&quot;ported_LF&quot;</span>].plotZe()</span>
-<span id="cb16-12"><a href="03-lumped_modeler.html#cb16-12" tabindex="-1"></a>system.enclosure[<span class="st">&quot;ported_LF&quot;</span>].plotXVA()</span></code></pre></div>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:ported-ze"></span>
-<img src="lumped_images/ported_ze_b.svg" alt="Electrical impedance of one SB34 woofer in a ported enclosure." width="80%" />
-<p class="caption">
-Figure 2.11: Electrical impedance of one SB34 woofer in a ported enclosure.
-</p>
 </div>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:ported-xva"></span>
-<img src="lumped_images/ported_xva_b.svg" alt="Displacement, velocity and acceleration of one SB34 woofer in a ported enclosure." width="80%" />
-<p class="caption">
-Figure 2.12: Displacement, velocity and acceleration of one SB34 woofer in a ported enclosure.
-</p>
+<p>In our example, we set two parallel woofers inside a ported enclosure. Again, <code class="docutils literal notranslate"><span class="pre">.plotZe()</span></code> and <code class="docutils literal notranslate"><span class="pre">.plotXVA()</span></code> display general characteristics of our system — see <a class="reference internal" href="#ported-ze"><span class="std std-numref">Fig. 11</span></a> and <a class="reference internal" href="#ported-xva"><span class="std std-numref">Fig. 12</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;ported_LF&quot;</span><span class="p">,</span> <span class="mf">40e-3</span><span class="p">,</span> 
+                     <span class="n">Lp</span><span class="o">=</span><span class="mf">35e-2</span><span class="p">,</span> <span class="n">Sp</span><span class="o">=</span><span class="mf">78.6e-4</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span>
+                     <span class="n">ref2bem</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> 
+                     <span class="n">setDriver</span><span class="o">=</span><span class="s2">&quot;SB34&quot;</span><span class="p">,</span> <span class="n">Nd</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                     <span class="n">wiring</span><span class="o">=</span><span class="s2">&quot;parallel&quot;</span><span class="p">)</span>
+
+<span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;sealed_MF&quot;</span><span class="p">,</span> <span class="mf">5.1e-3</span><span class="p">,</span>
+                     <span class="n">ref2bem</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">setDriver</span><span class="o">=</span><span class="s2">&quot;MR16&quot;</span><span class="p">)</span>
+
+<span class="c1">#%% plot data</span>
+<span class="n">system</span><span class="o">.</span><span class="n">enclosure</span><span class="p">[</span><span class="s2">&quot;ported_LF&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plotZe</span><span class="p">()</span>
+<span class="n">system</span><span class="o">.</span><span class="n">enclosure</span><span class="p">[</span><span class="s2">&quot;ported_LF&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plotXVA</span><span class="p">()</span>
+</pre></div>
 </div>
+<figure class="align-default" id="ported-ze">
+<img alt="_images/ported_ze_b.svg" src="_images/ported_ze_b.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 11 </span><span class="caption-text">Electrical impedance of one SB34 woofer in a ported enclosure.</span><a class="headerlink" href="#ported-ze" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="ported-xva">
+<img alt="_images/ported_xva_b.svg" src="_images/ported_xva_b.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 12 </span><span class="caption-text">Displacement, velocity and acceleration of one SB34 woofer in a ported enclosure.</span><a class="headerlink" href="#ported-xva" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
 <p>A few notes about the previous <strong>enclosure</strong> definition:</p>
-<ul>
-<li><code>eta</code> is the acoustic loss coefficient,</li>
-<li><code>ref2bem</code> allows to link velocities to radiating surfaces in the BEM simulations. Port and passive radiator should always be defined as the last item,</li>
-<li><code>setDriver</code> takes the corresponding driver (from <code>.driver[]</code>) and compute its velocity inside the corresponding enclosure,</li>
-<li><code>Nd</code> represent the number of drivers to set in the enclosure,</li>
-<li><code>wiring</code> is the driver configuration, it defaults to <code>"parallel"</code>,</li>
-<li>the tweeter is not set in an enclosure as we assume that its acoustic load is already accounted for in its lumped parameters.</li>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">eta</span></code> is the acoustic loss coefficient,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ref2bem</span></code> allows to link velocities to radiating surfaces in the BEM simulations. Port and passive radiator should always be defined as the last item,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">setDriver</span></code> takes the corresponding driver (from <code class="docutils literal notranslate"><span class="pre">.driver[]</span></code>) and compute its velocity inside the corresponding enclosure,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Nd</span></code> represent the number of drivers to set in the enclosure,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wiring</span></code> is the driver configuration, it defaults to <code class="docutils literal notranslate"><span class="pre">&quot;parallel&quot;</span></code>,</p></li>
+<li><p>the tweeter is not set in an enclosure as we assume that its acoustic load is already accounted for in its lumped parameters.</p></li>
 </ul>
-</div>
-<div id="code-summary" class="section level3 hasAnchor" number="2.2.3">
-<h3><span class="header-section-number">2.2.3</span> Code summary<a href="03-lumped_modeler.html#code-summary" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+</section>
+<section id="code-summary">
+<h2>Code summary<a class="headerlink" href="#code-summary" title="Link to this heading">#</a></h2>
 <p>The following snippet is a summary of what has been discussed above. Four modifications are done:</p>
-<ul>
-<li><code>frequency</code> is defined with 125 points (instead of <span class="math inline">\(10^4\)</span>), to reduce computation time,</li>
-<li>the subwoofer is imported from a file,</li>
-<li>BEM reference added to the tweeter driver,</li>
-<li><code>ep.save()</code> is used to store the current system state in numpy archives (.npz).</li>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">frequency</span></code> is defined with 125 points (instead of <span class="math notranslate nohighlight">\(10^4\)</span>), to reduce computation time,</p></li>
+<li><p>the subwoofer is imported from a file,</p></li>
+<li><p>BEM reference added to the tweeter driver,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ep.save()</span></code> is used to store the current system state in numpy archives (.npz).</p></li>
 </ul>
-<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="03-lumped_modeler.html#cb17-1" tabindex="-1"></a><span class="im">import</span> electroacPy <span class="im">as</span> ep</span>
-<span id="cb17-2"><a href="03-lumped_modeler.html#cb17-2" tabindex="-1"></a><span class="im">import</span> generalToolbox <span class="im">as</span> gtb</span>
-<span id="cb17-3"><a href="03-lumped_modeler.html#cb17-3" tabindex="-1"></a></span>
-<span id="cb17-4"><a href="03-lumped_modeler.html#cb17-4" tabindex="-1"></a><span class="co">#%% frequency axis and system initialization</span></span>
-<span id="cb17-5"><a href="03-lumped_modeler.html#cb17-5" tabindex="-1"></a>frequency <span class="op">=</span> gtb.freqop.freq_log10(<span class="dv">1</span>, <span class="fl">10e3</span>, <span class="dv">125</span>)</span>
-<span id="cb17-6"><a href="03-lumped_modeler.html#cb17-6" tabindex="-1"></a>system <span class="op">=</span> ep.loudspeakerSystem(frequency)</span>
-<span id="cb17-7"><a href="03-lumped_modeler.html#cb17-7" tabindex="-1"></a></span>
-<span id="cb17-8"><a href="03-lumped_modeler.html#cb17-8" tabindex="-1"></a><span class="co">#%% Load drivers</span></span>
-<span id="cb17-9"><a href="03-lumped_modeler.html#cb17-9" tabindex="-1"></a>system.lem_driverImport(<span class="st">&quot;SB34&quot;</span>, <span class="st">&quot;../technical_data/SB SB34NRXL75-8.txt&quot;</span>)</span>
-<span id="cb17-10"><a href="03-lumped_modeler.html#cb17-10" tabindex="-1"></a>system.lem_driverImport(<span class="st">&quot;MR16&quot;</span>, <span class="st">&quot;../technical_data/SB MR16PNW-8.txt&quot;</span>)</span>
-<span id="cb17-11"><a href="03-lumped_modeler.html#cb17-11" tabindex="-1"></a>system.lem_driverImport(<span class="st">&quot;TW29&quot;</span>, <span class="st">&quot;../technical_data/TW29RN-B.txt&quot;</span>, ref2bem<span class="op">=</span><span class="dv">4</span>)</span>
-<span id="cb17-12"><a href="03-lumped_modeler.html#cb17-12" tabindex="-1"></a></span>
-<span id="cb17-13"><a href="03-lumped_modeler.html#cb17-13" tabindex="-1"></a><span class="co">#%% Define ported enclosure</span></span>
-<span id="cb17-14"><a href="03-lumped_modeler.html#cb17-14" tabindex="-1"></a>system.lem_enclosure(<span class="st">&quot;ported_LF&quot;</span>, <span class="fl">40e-3</span>, </span>
-<span id="cb17-15"><a href="03-lumped_modeler.html#cb17-15" tabindex="-1"></a>                     Lp<span class="op">=</span><span class="fl">35e-2</span>, Sp<span class="op">=</span><span class="fl">78.6e-4</span>, eta<span class="op">=</span><span class="fl">1e-5</span>,</span>
-<span id="cb17-16"><a href="03-lumped_modeler.html#cb17-16" tabindex="-1"></a>                     ref2bem<span class="op">=</span>[<span class="dv">1</span>, <span class="dv">2</span>], </span>
-<span id="cb17-17"><a href="03-lumped_modeler.html#cb17-17" tabindex="-1"></a>                     setDriver<span class="op">=</span><span class="st">&quot;SB34&quot;</span>, Nd<span class="op">=</span><span class="dv">1</span>,</span>
-<span id="cb17-18"><a href="03-lumped_modeler.html#cb17-18" tabindex="-1"></a>                     wiring<span class="op">=</span><span class="st">&quot;parallel&quot;</span>)</span>
-<span id="cb17-19"><a href="03-lumped_modeler.html#cb17-19" tabindex="-1"></a></span>
-<span id="cb17-20"><a href="03-lumped_modeler.html#cb17-20" tabindex="-1"></a>system.lem_enclosure(<span class="st">&quot;sealed_MF&quot;</span>, <span class="fl">5.1e-3</span>,</span>
-<span id="cb17-21"><a href="03-lumped_modeler.html#cb17-21" tabindex="-1"></a>                     ref2bem<span class="op">=</span><span class="dv">3</span>, setDriver<span class="op">=</span><span class="st">&quot;MR16&quot;</span>)</span>
-<span id="cb17-22"><a href="03-lumped_modeler.html#cb17-22" tabindex="-1"></a></span>
-<span id="cb17-23"><a href="03-lumped_modeler.html#cb17-23" tabindex="-1"></a><span class="co">#%% save state</span></span>
-<span id="cb17-24"><a href="03-lumped_modeler.html#cb17-24" tabindex="-1"></a>ep.save(<span class="st">&quot;03_LEM_Recap&quot;</span>, system)</span></code></pre></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">electroacPy</span> <span class="k">as</span> <span class="nn">ep</span>
+<span class="kn">import</span> <span class="nn">generalToolbox</span> <span class="k">as</span> <span class="nn">gtb</span>
 
-</div>
-</div>
-<div class="footnotes">
-<hr />
-<ol start="1">
-<li id="fn1"><p>It is important to note that Tkinter windows will block the execution of code. This is normal behavior.<a href="03-lumped_modeler.html#fnref1" class="footnote-back">↩︎</a></p></li>
-</ol>
-</div>
-            </section>
+<span class="c1">#%% frequency axis and system initialization</span>
+<span class="n">frequency</span> <span class="o">=</span> <span class="n">gtb</span><span class="o">.</span><span class="n">freqop</span><span class="o">.</span><span class="n">freq_log10</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">10e3</span><span class="p">,</span> <span class="mi">125</span><span class="p">)</span>
+<span class="n">system</span> <span class="o">=</span> <span class="n">ep</span><span class="o">.</span><span class="n">loudspeakerSystem</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
 
-          </div>
-        </div>
+<span class="c1">#%% Load drivers</span>
+<span class="n">system</span><span class="o">.</span><span class="n">lem_driverImport</span><span class="p">(</span><span class="s2">&quot;SB34&quot;</span><span class="p">,</span> <span class="s2">&quot;../technical_data/SB SB34NRXL75-8.txt&quot;</span><span class="p">)</span>
+<span class="n">system</span><span class="o">.</span><span class="n">lem_driverImport</span><span class="p">(</span><span class="s2">&quot;MR16&quot;</span><span class="p">,</span> <span class="s2">&quot;../technical_data/SB MR16PNW-8.txt&quot;</span><span class="p">)</span>
+<span class="n">system</span><span class="o">.</span><span class="n">lem_driverImport</span><span class="p">(</span><span class="s2">&quot;TW29&quot;</span><span class="p">,</span> <span class="s2">&quot;../technical_data/TW29RN-B.txt&quot;</span><span class="p">,</span> <span class="n">ref2bem</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="c1">#%% Define ported enclosure</span>
+<span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;ported_LF&quot;</span><span class="p">,</span> <span class="mf">40e-3</span><span class="p">,</span> 
+                     <span class="n">Lp</span><span class="o">=</span><span class="mf">35e-2</span><span class="p">,</span> <span class="n">Sp</span><span class="o">=</span><span class="mf">78.6e-4</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span>
+                     <span class="n">ref2bem</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> 
+                     <span class="n">setDriver</span><span class="o">=</span><span class="s2">&quot;SB34&quot;</span><span class="p">,</span> <span class="n">Nd</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                     <span class="n">wiring</span><span class="o">=</span><span class="s2">&quot;parallel&quot;</span><span class="p">)</span>
+
+<span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;sealed_MF&quot;</span><span class="p">,</span> <span class="mf">5.1e-3</span><span class="p">,</span>
+                     <span class="n">ref2bem</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">setDriver</span><span class="o">=</span><span class="s2">&quot;MR16&quot;</span><span class="p">)</span>
+
+<span class="c1">#%% save state</span>
+<span class="n">ep</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;03_LEM_Recap&quot;</span><span class="p">,</span> <span class="n">system</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="tkinter-shenanigans" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>It is important to note that Tkinter windows will block the execution of code. This is normal behavior.</p>
+</aside>
+</aside>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="021-system_and_mesh.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">System overview and meshing</p>
       </div>
-<a href="021-system_and_mesh.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="04-BEM_modeler.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </a>
+    <a class="right-next"
+       href="04-BEM_modeler.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Boundary Element Modeler</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#driver"><code class="docutils literal notranslate"><span class="pre">.driver[]</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#enclosure"><code class="docutils literal notranslate"><span class="pre">.enclosure[]</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#code-summary">Code summary</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Tom Munoz
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
     </div>
   </div>
-<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
-<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
-<script>
-gitbook.require(["gitbook"], function(gitbook) {
-gitbook.start({
-"sharing": {
-"github": false,
-"facebook": true,
-"twitter": true,
-"linkedin": false,
-"weibo": false,
-"instapaper": false,
-"vk": false,
-"whatsapp": false,
-"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
-},
-"fontsettings": {
-"theme": "white",
-"family": "sans",
-"size": 2
-},
-"edit": {
-"link": "https://github.com/USERNAME/REPO/edit/BRANCH/03-lumped_modeler.Rmd",
-"text": "Edit"
-},
-"history": {
-"link": null,
-"text": null
-},
-"view": {
-"link": null,
-"text": null
-},
-"download": ["_main.pdf", "_main.epub"],
-"search": {
-"engine": "fuse",
-"options": null
-},
-"toc": {
-"collapse": "subsection"
-}
-});
-});
-</script>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
 
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
-  (function () {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    var src = "true";
-    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
-    if (location.protocol !== "file:")
-      if (/^https?:/.test(src))
-        src = src.replace(/^https?:/, '');
-    script.src = src;
-    document.getElementsByTagName("head")[0].appendChild(script);
-  })();
-</script>
-</body>
-
+  <footer class="bd-footer">
+  </footer>
+  </body>
 </html>
