@@ -115,10 +115,10 @@ class loudspeakerSystem:
         self.radiator_id[name] = 'EAD'
         return None
 
-    def lem_enclosure(self, name, Vb, eta=1e-5, setDriver=None, Nd=1, 
+    def lem_enclosure(self, name, Vb, Qab=120, Qal=30, setDriver=None, Nd=1, 
                       wiring="parallel", ref2bem=None, **kwargs):
         physics = speakerBox(Vb, frequencyRange=self.frequency, c=self.c, rho=self.rho,
-                                eta=eta, **kwargs)
+                             Qab=Qab, Qal=Qal, **kwargs)
         physics.ref2bem = ref2bem
         self.enclosure[name] = physics
         self.radiator_id[name] = 'SPKBOX'
