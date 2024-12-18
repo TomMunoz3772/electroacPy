@@ -142,6 +142,8 @@ class EADImport:
         self.Cms = drv.Cms
         self.Rms = drv.Rms
         self.Sd = drv.Sd
+        self.Vas = drv.Vas
+        self.Fs = drv.Fs
         
         np = str(A)   # input electric
         nm = str(B)   # output electric
