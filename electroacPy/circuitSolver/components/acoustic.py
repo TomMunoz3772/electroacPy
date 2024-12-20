@@ -289,7 +289,8 @@ class cavity:
             self.stamp_G[nm - 1, np - 1] = -1
 
 class port:
-    def __init__(self, np, nm, Lp, rp, mu=1.86e-5, rho=1.22, c=343):
+    def __init__(self, np, nm, Lp, rp, flange="single", 
+                 mu=1.86e-5, rho=1.22, c=343):
         """
         Create a resistor component.
 
@@ -319,6 +320,16 @@ class port:
         self.G = 1
         self.Gs = None
         
+        # prepare flange
+        if flange == "single":
+            self.flangeCoeff = 0.84
+        elif flange == "both":
+            self.flangeCoeff = 0.96
+        elif flange == "none":
+            self.flangeCoeff = 0.76
+        else:
+            self.flangeCoeff = 0.84
+        
         # create stamp and relative informations
         self.stamp_G = array([[1, -1], [-1, 1]])
         self.contribute = ["G"]        
@@ -341,7 +352,7 @@ class port:
         om = 2 * pi * frequency
         s = laplace(frequency)
         
-        Lt = self.Lp + 0.84 * sqrt(self.Sp)
+        Lt = self.Lp + self.flangeCoeff * sqrt(self.Sp)
         
         Mp = Lt*self.rho / (self.Sp)
         Rp = (2*om*self.rho*self.mu)/self.Sp * (Lt/self.rp + 1*0.7)

@@ -99,6 +99,7 @@ class speakerBox:
         if ("Lp" in kwargs and ("Sp" in kwargs or "rp" in kwargs) and
                 "Vf" in kwargs and "Lp2" in kwargs and ("Sp2" in kwargs or "rp2" in kwargs)):
             self.config = "bandpass_2"
+            self.flange = "single"
             for key, value in kwargs.items():
                 setattr(self, key, value)
                 if key == "Sp":
@@ -109,6 +110,8 @@ class speakerBox:
                     self.rp2 = np.sqrt(value / np.pi)
                 elif key == "rp2":
                     self.Sp2 = np.pi * value**2
+                elif key == "flange":
+                    self.flange = value
 
         ## 6th order bandpass with passive radiators
         elif ("Mmd" in kwargs and "Cmd" in kwargs and "Rmd" in kwargs and
@@ -121,12 +124,15 @@ class speakerBox:
         ## 4th order bandpass with port
         elif "Lp" in kwargs and ("Sp" in kwargs or "rp" in kwargs) and "Vf" in kwargs:
             self.config = "bandpass"
+            self.flange = "single"
             for key, value in kwargs.items():
                 setattr(self, key, value)
                 if key == "Sp":
                     self.rp = np.sqrt(value / np.pi)
                 elif key == "rp":
                     self.Sp = np.pi * value**2
+                elif key == "flange":
+                    self.flange = value
 
         ## 4th order bandpass with passive radiator
         elif ("Mmd" in kwargs and "Cmd" in kwargs and
@@ -138,12 +144,15 @@ class speakerBox:
         ## ported enclosure
         elif "Lp" in kwargs and ("Sp" in kwargs or "rp" in kwargs):
             self.config = "vented"
+            self.flange = "single"
             for key, value in kwargs.items():
                 setattr(self, key, value)
                 if key == "Sp":
                     self.rp = np.sqrt(value / np.pi)
                 elif key == "rp":
                     self.Sp = np.pi * value**2
+                elif key == "flange":
+                    self.flange = value
 
         ## passive radiator enclosure
         elif "Mmd" in kwargs and "Cmd" in kwargs and "Rmd" in kwargs and "Sd" in kwargs:
@@ -237,7 +246,7 @@ class speakerBox:
         CAB = compe.capacitance(4, 0, Cab)
         
         RAD  = compa.radiator(2, 0, driver.Sd, self.rho, self.c)
-        PORT = compa.port(3, 5, self.Lp, self.rp, self.rho, self.c)
+        PORT = compa.port(3, 5, self.Lp, self.rp, self.flange, rho=self.rho, c=self.c)
         RADP = compa.radiator(5, 0, self.Sp, self.rho, self.c)
         
         # setup and run
