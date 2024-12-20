@@ -289,7 +289,7 @@ class cavity:
             self.stamp_G[nm - 1, np - 1] = -1
 
 class port:
-    def __init__(self, np, nm, Lp, rp, rho=1.22, c=343, mu=1.86e-5):
+    def __init__(self, np, nm, Lp, rp, mu=1.86e-5, rho=1.22, c=343):
         """
         Create a resistor component.
 
@@ -341,14 +341,7 @@ class port:
         om = 2 * pi * frequency
         s = laplace(frequency)
         
-        # Len' = 0.4250·dD	The duct terminates at a large baffle.
-        # Len' = 0.3065·dD
-        
-        # ll = 2 * self.rp / pi
-        # Rp = sqrt(self.rho*2*om*1.86e-5) / self.Sp * (ll / self.rp + 0.7)
-        # Mp = (self.Lp + 0.73*self.rp*2) * self.rho / self.Sp
-        # Zp = Rp + s*Mp
-        Lt = self.Lp + 0.73*self.rp*2
+        Lt = self.Lp + 0.84 * sqrt(self.Sp)
         
         Mp = Lt*self.rho / (self.Sp)
         Rp = (2*om*self.rho*self.mu)/self.Sp * (Lt/self.rp + 1*0.7)
