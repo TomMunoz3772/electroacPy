@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Introduction &#8212; ElectroacPy</title>
+    <title>BEM module &#8212; ElectroacPy</title>
   
   
   
@@ -62,10 +62,11 @@
     <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '01-introduction';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '09-BEM_backend';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Overview" href="02-loudspeaker_system.html" />
+    <link rel="next" title="References" href="100-ref.html" />
+    <link rel="prev" title="LEM modules" href="08-LEM_backend.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -117,8 +118,6 @@
       
       
       
-        
-      
       <dialog id="pst-primary-sidebar-modal"></dialog>
       <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
@@ -138,7 +137,7 @@
     
   
 
-<a class="navbar-brand logo" href="#">
+<a class="navbar-brand logo" href="01-introduction.html">
   
   
   
@@ -165,8 +164,8 @@
     <div class="bd-toc-item navbar-nav active">
         
         <ul class="nav bd-sidenav bd-sidenav__home-link">
-            <li class="toctree-l1 current active">
-                <a class="reference internal" href="#">
+            <li class="toctree-l1">
+                <a class="reference internal" href="01-introduction.html">
                     Introduction
                 </a>
             </li>
@@ -180,11 +179,11 @@
 <li class="toctree-l1"><a class="reference internal" href="05-post_processing.html">Post-processing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Back-end</span></p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="06-back_end.html">Back-end</a></li>
 <li class="toctree-l1"><a class="reference internal" href="07-circuitSolver.html">circuitSolver</a></li>
 <li class="toctree-l1"><a class="reference internal" href="08-LEM_backend.html">LEM modules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="09-BEM_backend.html">BEM module</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">BEM module</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul class="nav bd-sidenav">
@@ -260,7 +259,7 @@
       
       
       
-      <li><a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2F01-introduction.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2F09-BEM_backend.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -290,7 +289,7 @@
       
       
       
-      <li><a href="_sources/01-introduction.md" target="_blank"
+      <li><a href="_sources/09-BEM_backend.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -366,7 +365,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Introduction</h1>
+    <h1>BEM module</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -376,16 +375,7 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#before-starting">Before Starting</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-python-with-conda">Setting Up Python with Conda</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-steps">Installation Steps</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notes">Notes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-steps-for-spyder-users">Additional Steps for Spyder Users</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#post-install">Post install</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notation">Notation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interior-and-exterior-studies">Interior and exterior studies</a></li>
 </ul>
             </nav>
         </div>
@@ -397,120 +387,42 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="introduction">
-<h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h1>
-<p>The main idea behind this project is to provide an easy-to-use toolbox to solve simple acoustic studies using Python — with focus on loudspeaker radiation. It uses a mix of lumped-element-modeling (LEM) for drivers and boundary-element method (BEM) for interior and exterior acoustical radiation. This handbook provides multiple examples on how to simulate loudspeaker systems, which should go through most aspects of the toolbox. The first part shows how the front-end works: defining a lumped-element network, automate LEM drivers and enclosures creations, setting-up exterior and interior radiation studies; the second part dives into the back-end of the toolbox and how studies can be made bypassing the toolbox’s front-end. The BEM wrapper is implemented using bempp-cl which is installed alongside ElectroacPy. BEM simulations wouldn’t have been possible without the contributors of the bempp-cl project. Also, all codes and examples provided on the bempp-cl website should run without issues after installing ElectroacPy.</p>
-<section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
-<section id="before-starting">
-<h3>Before Starting<a class="headerlink" href="#before-starting" title="Link to this heading">#</a></h3>
+  <section class="tex2jax_ignore mathjax_ignore" id="bem-module">
+<h1>BEM module<a class="headerlink" href="#bem-module" title="Link to this heading">#</a></h1>
+<section id="interior-and-exterior-studies">
+<h2>Interior and exterior studies<a class="headerlink" href="#interior-and-exterior-studies" title="Link to this heading">#</a></h2>
+<p>The boundary element method (BEM), as explained in <span id="id1">[<a class="reference internal" href="100-ref.html#id2" title="Fridolin P. Mechel. Formulas of Acoustics. 2004.">Mec04</a>]</span>, aims to solve the following equation:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\iint_S \left[ p(\textbf{y}) \frac{\partial G(\textbf{x}, \textbf{y})}{\partial n(\textbf{y})} - \frac{\partial p(\textbf{y})}{\partial n(\textbf{y})}G(\textbf{x}, \textbf{y}) \right]dS = \begin{cases} p(\textbf{x}), &amp; \textbf{x} \in B_e \\ \frac{1}{2}p(\textbf{x}), &amp; \textbf{x} \in S \\ 0,&amp; \textbf{x} \in B_i \end{cases}\end{split}\]</div>
+<p>where <strong>x</strong> is a point in space, <strong>y</strong> is a point on the system boundary <span class="math notranslate nohighlight">\(S\)</span>; and where <span class="math notranslate nohighlight">\(B_e\)</span> and <span class="math notranslate nohighlight">\(B_i\)</span> the exterior and interior domains. In the case of bempp-cl (and these equations) the propagation convention is <span class="math notranslate nohighlight">\(e^{+jkr}\)</span><a class="footnote-reference brackets" href="#conventionstuff" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. The green function <span class="math notranslate nohighlight">\(G(\textbf{x}, \textbf{y})\)</span> used is:</p>
+<div class="math notranslate nohighlight">
+\[
+G(\textbf{x}, \textbf{y}) = \frac{1}{4\pi ||\textbf{x}-\textbf{y}||} e^{+jk||\textbf{x}-\textbf{y}||}.
+\]</div>
+<p>Generally, a such system is solved in two steps:</p>
 <ul class="simple">
-<li><p>The following steps have been verified on <strong>Windows</strong> and <strong>Linux</strong> for Python versions 3.9 to 3.11. For <strong>macOS</strong>, only version 3.9 has been tested. However, in theory, any version of Python should work as long as all dependencies are available.</p></li>
-<li><p>You may want to try out different Python versions by creating multiple Conda environments (see <strong>Step 1</strong>).</p></li>
+<li><p>calculation of the pressure on the system’s boundaries (scattered field),</p></li>
+<li><p>calculation of the pressure at external points or grids. This second step will be discussed in the next section, because it is closely related to the <strong>evaluation</strong> class.</p></li>
 </ul>
+<p>By writing the integral equations in a matrix form we can rewrite the integral equation under the form <span class="math notranslate nohighlight">\(Ax=b\)</span>, where we solve for <span class="math notranslate nohighlight">\(x\)</span>. For exterior-field calculations, the equation is the following:</p>
+<div class="math notranslate nohighlight">
+\[
+    \left[ D - \frac{1}{2} I \right] P_s = j\omega \rho S U,
+\]</div>
+<p>while it is</p>
+<div class="math notranslate nohighlight">
+\[
+    \left[ D + \frac{1}{2} I \right] P_s = j\omega \rho S U,
+\]</div>
+<p>for interior-field calculation. With <span class="math notranslate nohighlight">\(P_s\)</span> the scattered field, <span class="math notranslate nohighlight">\(D\)</span> the double layer term, <span class="math notranslate nohighlight">\(I\)</span> the identity matrix, <span class="math notranslate nohighlight">\(S\)</span> the single layer term and <span class="math notranslate nohighlight">\(U\)</span> the source velocity. Single and Double layer means that the scattered pressure is projected as dipoles, while the source <span class="math notranslate nohighlight">\(U\)</span> is described as monopoles — see ???.</p>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="conventionstuff" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
+<p>ElectroacPy uses <span class="math notranslate nohighlight">\(-k\)</span> in the boundary and potential equations to change the convention to <span class="math notranslate nohighlight">\(e^{-jkr}\)</span>. Better results were obtained with it. Wouldn’t be able to explain why.</p>
+</aside>
+</aside>
 </section>
-<section id="setting-up-python-with-conda">
-<h3>Setting Up Python with Conda<a class="headerlink" href="#setting-up-python-with-conda" title="Link to this heading">#</a></h3>
-<p>The recommended installation method uses the <strong>Conda</strong> package manager for Python. You can install Conda through one of the following options:</p>
-<ol class="arabic simple">
-<li><p><a class="reference external" href="https://www.anaconda.com/download/">Anaconda</a>: A full Python development suite that includes Spyder (IDE), Jupyter Notebook/Lab, and other tools.</p>
-<ul class="simple">
-<li><p><strong>Windows</strong>: Use the Anaconda Prompt to follow the installation steps.</p></li>
-<li><p><strong>macOS/Linux</strong>: Use your terminal (bash/zsh).</p></li>
-</ul>
-</li>
-<li><p><a class="reference external" href="https://docs.anaconda.com/free/miniconda/miniconda-install/">Miniconda</a>: A minimal version of Anaconda, including only the necessary packages for managing environments.</p>
-<ul class="simple">
-<li><p><strong>Windows</strong>: Use the Miniconda Prompt for installation.</p></li>
-<li><p><strong>macOS/Linux</strong>: Use your terminal (bash/zsh).</p></li>
-</ul>
-</li>
-<li><p><a class="reference external" href="https://conda-forge.org/miniforge/">Miniforge</a>: A lightweight version similar to Miniconda, but community-driven, providing better architecture support (e.g., M1/M2 chips on macOS).</p>
-<ul class="simple">
-<li><p><strong>Windows</strong>: Use the Miniforge Prompt for installation.</p></li>
-<li><p><strong>macOS/Linux</strong>: Use your terminal (bash/zsh).</p></li>
-</ul>
-</li>
-</ol>
-</section>
-<section id="installation-steps">
-<h3>Installation Steps<a class="headerlink" href="#installation-steps" title="Link to this heading">#</a></h3>
-<ol class="arabic simple">
-<li><p><strong>Create a new Conda environment</strong> (recommended but optional):</p></li>
-</ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>acoustic_sim
-</pre></div>
-</div>
-<ol class="arabic simple" start="2">
-<li><p><strong>Activate the environment</strong>:</p></li>
-</ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>acoustic_sim
-</pre></div>
-</div>
-<ol class="arabic simple" start="3">
-<li><p><strong>Install Python 3.11 and pip</strong> (you can adjust the Python version if needed):</p></li>
-</ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11<span class="w"> </span>pip
-</pre></div>
-</div>
-<ol class="arabic simple" start="4">
-<li><p><strong>Install electroacPy</strong>:</p></li>
-</ol>
-<ul class="simple">
-<li><p>For standard installation:
-<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">/path/to/electroacPy</span></code></p></li>
-<li><p>For development (editable) installation:
-<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">/path/to/electroacPy</span></code></p></li>
-</ul>
-</section>
-<section id="notes">
-<h3>Notes<a class="headerlink" href="#notes" title="Link to this heading">#</a></h3>
-<ul class="simple">
-<li><p><strong>Using a separate environment</strong>:  Installing ElectroacPy in its own Conda environment is recommended. This helps prevent conflicts during updates and allows easier management of dependencies.</p></li>
-<li><p><strong>Selecting environments</strong>: In Python IDEs like Spyder or PyCharm, you can choose the specific Conda environment where ElectroacPy is installed.</p></li>
-</ul>
-</section>
-<section id="additional-steps-for-spyder-users">
-<h3>Additional Steps for Spyder Users<a class="headerlink" href="#additional-steps-for-spyder-users" title="Link to this heading">#</a></h3>
-<p>If you plan to use <strong>Spyder</strong>:</p>
-<ul class="simple">
-<li><p>You’ll need to install <code class="docutils literal notranslate"><span class="pre">spyder-kernels</span></code> in the newly created environment:</p></li>
-</ul>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>spyder-kernels
-</pre></div>
-</div>
-<ul class="simple">
-<li><p>Alternatively, you can install <strong>Spyder</strong> directly in the environment to avoid needing <code class="docutils literal notranslate"><span class="pre">spyder-kernels</span></code>:</p></li>
-</ul>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>spyder
-</pre></div>
-</div>
-</section>
-<section id="post-install">
-<h3>Post install<a class="headerlink" href="#post-install" title="Link to this heading">#</a></h3>
-<p>In Windows and Linux, you can actually use the OpenCL backend to reduce computing time. In the corresponding Conda environment:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pyopencl<span class="w"> </span>intel-opencl-rt
-</pre></div>
-</div>
-<p>You’ll also need to install OpenCL drivers, which you’ll find <a class="reference external" href="https://www.intel.com/content/www/us/en/developer/articles/technical/intel-cpu-runtime-for-opencl-applications-with-sycl-support.html">here</a> for intel users. For more informations, you can follow the <strong>OpenCL</strong> section from <a class="reference external" href="https://bempp.com/installation.html">bempp-cl installation guide</a>.</p>
-</section>
-</section>
-<section id="notation">
-<h2>Notation<a class="headerlink" href="#notation" title="Link to this heading">#</a></h2>
-<p>In the following document, some conventions are used:</p>
-<ul class="simple">
-<li><p><strong>class</strong>, bold statements are used for classes,</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">.function()</span></code>, inline code preceded by a dot and closed by parenthesis relates to functions,</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">.dictionary[]</span></code>, inline code preceded by a dot and closed by square brackets refers to Python dictionaries,</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">arg</span></code>, basic inline code is for variables and function arguments.</p></li>
-</ul>
-</section>
-<div class="toctree-wrapper compound">
-</div>
-<div class="toctree-wrapper compound">
-</div>
-<div class="toctree-wrapper compound">
-</div>
 </section>
 
     <script type="text/x-thebe-config">
@@ -543,12 +455,21 @@
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="08-LEM_backend.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">LEM modules</p>
+      </div>
+    </a>
     <a class="right-next"
-       href="02-loudspeaker_system.html"
+       href="100-ref.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Overview</p>
+        <p class="prev-next-title">References</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -569,16 +490,7 @@
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#before-starting">Before Starting</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-python-with-conda">Setting Up Python with Conda</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-steps">Installation Steps</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notes">Notes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-steps-for-spyder-users">Additional Steps for Spyder Users</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#post-install">Post install</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notation">Notation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interior-and-exterior-studies">Interior and exterior studies</a></li>
 </ul>
   </nav></div>
 

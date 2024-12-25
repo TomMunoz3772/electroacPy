@@ -182,6 +182,12 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="06-back_end.html">Back-end</a></li>
 <li class="toctree-l1"><a class="reference internal" href="07-circuitSolver.html">circuitSolver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08-LEM_backend.html">LEM modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09-BEM_backend.html">BEM module</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="100-ref.html">References</a></li>
 </ul>
 
     </div>
@@ -383,7 +389,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="lumped-element-modeler">
+  <section class="tex2jax_ignore mathjax_ignore" id="lumped-element-modeler">
 <h1>Lumped Element Modeler<a class="headerlink" href="#lumped-element-modeler" title="Link to this heading">#</a></h1>
 <p>ElectroacPy lumped modeler allows the simulation of loudspeaker drivers in enclosures. All velocities computed — from driver membrane to port particle velocity — can then be set as input surface-velocity in the BEM modeler. This chapter explains how to create and add <strong>drivers</strong> and <strong>enclosures</strong> to a <strong>loudspeakerSystem</strong>.</p>
 <figure class="align-default" id="id2">
@@ -506,7 +512,7 @@
 </tbody>
 </table>
 </div>
-<p>In our example, we set two parallel woofers inside a ported enclosure. Again, <code class="docutils literal notranslate"><span class="pre">.plotZe()</span></code> and <code class="docutils literal notranslate"><span class="pre">.plotXVA()</span></code> display general characteristics of our system — see <a class="reference internal" href="#ported-ze"><span class="std std-numref">Fig. 11</span></a> and <a class="reference internal" href="#ported-xva"><span class="std std-numref">Fig. 12</span></a>.</p>
+<p>In our example, we create a ported woofer and a sealed midrange. Again, <code class="docutils literal notranslate"><span class="pre">.plotZe()</span></code> and <code class="docutils literal notranslate"><span class="pre">.plotXVA()</span></code> display general characteristics of our system — see <a class="reference internal" href="#ported-ze"><span class="std std-numref">Fig. 11</span></a> and <a class="reference internal" href="#ported-xva"><span class="std std-numref">Fig. 12</span></a>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;ported_LF&quot;</span><span class="p">,</span> <span class="mf">40e-3</span><span class="p">,</span> 
                      <span class="n">Lp</span><span class="o">=</span><span class="mf">35e-2</span><span class="p">,</span> <span class="n">Sp</span><span class="o">=</span><span class="mf">78.6e-4</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span>
                      <span class="n">ref2bem</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> 

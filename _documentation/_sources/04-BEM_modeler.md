@@ -1,4 +1,4 @@
-## Boundary Element Modeler
+# Boundary Element Modeler
 ElectroacPy BEM modeler aims at automating the creation of [bempp-cl studies](https://bempp.com/installation.html): applying velocity to radiating elements, placement of evaluation points in 3D space, definition of the system based on boundary conditions, etc.
 
 The BEM modeler is mostly focused on exterior acoustic radiation (e.g. a loudspeaker radiating in free-air), hence, a lot of functionality that you would find in commercial software are not available, such as interfaces between domains[^interface_note] or structural analysis. However, it is great for:
@@ -15,7 +15,7 @@ The BEM modeler is mostly focused on exterior acoustic radiation (e.g. a loudspe
 Structure of the Boundary-Element Modeler.
 ```
 
-### `.acoustic_study[]` 
+## `.acoustic_study[]` 
 The first computational step is to estimate the acoustic pressure on boundaries. The method `.study_acousticBEM()` is used for that effect. The inputs of `.study_acousticBEM()` are:
 
 - `name`, study name, for reference purpose,
@@ -68,7 +68,7 @@ The tweeter pressure on system's boundaries is shown in {numref}`boundary-pressu
 Estimated pressure on boundary.
 ```
 
-### `.evaluation[]`
+## `.evaluation[]`
 While computing the boundary pressure is the most computationally expensive step, it doesn't provide a complete picture of the system. Information about the system's radiated pressure (e.g. directivity, baffle diffraction, etc.) is obtained through the **evaluation** class, which efficiently automates the placement of observation points and visualization of results.
 
 When an acoustic study is created, an **evaluation** object is automatically created. Hence, in regards to evaluations, the "only" functionality of **loudspeakerSystem** is to populate `.evaluation["reference_study"]` with observation setups. For now, there are five different observation types:
@@ -159,13 +159,13 @@ Polar responses are displayed using a Matplotlib viewer. It helps navigating thr
 ```{figure} ./boundary_images/directivity_plotter_b.svg
     :name: plot-dir
 
-Directivity plotter. Vertical radiation in free-field.
+Directivity plotter. Horizontal radiation in free-field.
 ```
 
 <!-- In that directivity plot, you can clearly see the limits of the simulation mesh. Because the mesh is relatively coarse, the accuracy of the results decreases significantly at high frequencies, to the point where the off-axis (±180°) pressure is no longer correct. Using a finer mesh will give better results, but will be longer to compute.  -->
 
 
-### Code Summary
+## Code Summary
 ```python
 import electroacPy as ep
 from electroacPy.acousticSim.bem import boundaryConditions

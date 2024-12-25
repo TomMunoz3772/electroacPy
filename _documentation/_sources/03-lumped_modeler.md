@@ -1,4 +1,4 @@
-## Lumped Element Modeler
+# Lumped Element Modeler
 ElectroacPy lumped modeler allows the simulation of loudspeaker drivers in enclosures. All velocities computed --- from driver membrane to port particle velocity --- can then be set as input surface-velocity in the BEM modeler. This chapter explains how to create and add **drivers** and **enclosures** to a **loudspeakerSystem**.
 
 
@@ -9,7 +9,7 @@ Lumped-Modeler structure.
 ```
 
 
-### `.driver[]`
+## `.driver[]`
 Loudspeaker drivers are characterized by their Thiele/Small parameters. When creating a **driver**, it is possible to "manually" define its lumped parameters, or to load a file containing the relevant information:
 
 - `.lem_driver()`,
@@ -79,7 +79,7 @@ Ported alignment tool.
 ```
 
 
-### `.enclosure[]`
+## `.enclosure[]`
 The `.lem_enclosure()` method offers seven types of pre-defined cabinets. Each depend on the `**kwargs` called when creating an **enclosure**. When calling the acoustic volume `Vb` alone, the default enclosure is sealed. The following table shows how to get each pre-defined setups.
 
 | Configuration | Inputs | unit | meaning |
@@ -92,7 +92,7 @@ The `.lem_enclosure()` method offers seven types of pre-defined cabinets. Each d
 | Bandpass (port) - 6$^{th}$ order | Vf<br>Lp - Lp2<br>rp - rp2<br>Sp - Sp2 | m$^3$<br>m<br>m<br>m$^2$ | front volume<br>back and front port length<br>back and front port radius<br>back and front port cross-section area |
 | Bandpass (ABR) - 6$^{th}$ order | Vf<br>Mmd - Mmd2<br>Cmd - Cmd2<br>Rmd - Rmd2<br>Sd - Sd2 | m$^3$<br>kg<br>m/N<br>kg/s<br>m$^2$ | front volume<br>back and front moving mass<br>back and front suspension compliance<br>back and front mechanical resistance<br>back and front radiating surface |
 
-In our example, we set two parallel woofers inside a ported enclosure. Again, `.plotZe()` and `.plotXVA()` display general characteristics of our system --- see {numref}`ported-ze` and {numref}`ported-xva`.
+In our example, we create a ported woofer and a sealed midrange. Again, `.plotZe()` and `.plotXVA()` display general characteristics of our system --- see {numref}`ported-ze` and {numref}`ported-xva`.
 
 ```python
 system.lem_enclosure("ported_LF", 40e-3, 
@@ -132,7 +132,7 @@ A few notes about the previous **enclosure** definition:
 - `wiring` is the driver configuration, it defaults to `"parallel"`,
 - the tweeter is not set in an enclosure as we assume that its acoustic load is already accounted for in its lumped parameters.
 
-### Code summary
+## Code summary
 The following snippet is a summary of what has been discussed above. Four modifications are done:
 
 - `frequency` is defined with 125 points (instead of $10^4$), to reduce computation time,

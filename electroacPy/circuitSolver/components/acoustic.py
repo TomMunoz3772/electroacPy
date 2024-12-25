@@ -290,7 +290,7 @@ class cavity:
 
 class port:
     def __init__(self, np, nm, Lp, rp, flange="single", 
-                 mu=1.86e-5, rho=1.22, c=343):
+                 mu=1.82e-5, rho=1.22, c=343):
         """
         Create a resistor component.
 
@@ -355,7 +355,8 @@ class port:
         Lt = self.Lp + self.flangeCoeff * sqrt(self.Sp)
         
         Mp = Lt*self.rho / (self.Sp)
-        Rp = (2*om*self.rho*self.mu)/self.Sp * (Lt/self.rp + 1*0.7)
+        # Rp = (2*om*self.rho*self.mu)/self.Sp * (Lt/self.rp + 1*0.7)
+        Rp = sqrt(2*om*self.rho*self.mu)/self.Sp * (self.Lp/self.rp + 1)
         Zp = s*Mp + Rp
         self.Gs = 1 / Zp # conductance
         

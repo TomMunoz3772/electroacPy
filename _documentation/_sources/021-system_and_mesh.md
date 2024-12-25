@@ -61,6 +61,7 @@ cad.mesh("../geo/mesh/studio_monitor")
 
 ```{figure} ./system_images/mesh_1kHz.png
     :name: mesh-1kHz
+    :scale: 60%
 
 Geometry meshed with a 1 kHz resolution.
 ```
@@ -87,6 +88,7 @@ cad.mesh("../geo/mesh/studio_monitor_refined")
 
 ```{figure} ./system_images/mesh_refined.png
     :name: mesh-refined
+    :scale: 60%
 
 Refined mesh.
 ```
