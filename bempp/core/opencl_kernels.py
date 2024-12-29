@@ -116,10 +116,15 @@ def build_program(assembly_function, options, precision, device_type="cpu"):
     """Build the kernel and return it."""
     file_name = assembly_function + ".cl"
     kernel_file = _os.path.join(_KERNEL_PATH, file_name)
-
-    kernel_string = open(kernel_file).read()
+    
+    # open and read file separately so it doesn't throw a ressource warning
+    kernel_dat = open(kernel_file)
+    kernel_string = kernel_dat.read()
     kernel_options = get_kernel_compile_options(options, precision)
-
+    
+    # close kernel file
+    kernel_dat.close()
+    
     return (
         _cl.Program(default_context(device_type), kernel_string)
         .build(options=kernel_options)
