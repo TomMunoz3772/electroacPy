@@ -10,34 +10,18 @@ def boundary_grid_from_fenics_mesh(fenics_mesh):
     """
     import bempp.api
     import numpy as np
-    from dolfinx.cpp.mesh import entities_to_geometry, exterior_facet_indices
+    from dolfinx.mesh import entities_to_geometry, exterior_facet_indices
 
     fenics_mesh.topology.create_entities(2)
     fenics_mesh.topology.create_connectivity(2, 3)
+    fenics_mesh.topology.create_entity_permutations()
 
-    try:
-        boundary = entities_to_geometry(
-            fenics_mesh._cpp_object,
-            fenics_mesh.topology.dim - 1,
-            exterior_facet_indices(fenics_mesh.topology),
-            True,
-        )
-    except AttributeError:
-        # Works with older versions of FEniCSx
-        try:
-            boundary = entities_to_geometry(
-                fenics_mesh,
-                fenics_mesh.topology.dim - 1,
-                exterior_facet_indices(fenics_mesh.topology),
-                True,
-            )
-        except AttributeError:
-            boundary = entities_to_geometry(
-                fenics_mesh,
-                fenics_mesh.topology.dim - 1,
-                exterior_facet_indices(fenics_mesh),
-                True,
-            )
+    boundary = entities_to_geometry(
+        fenics_mesh,
+        fenics_mesh.topology.dim - 1,
+        exterior_facet_indices(fenics_mesh.topology),
+        True,
+    )
 
     bm_nodes = set()
     for tri in boundary:
@@ -66,9 +50,9 @@ def fenics_to_bempp_trace_data(fenics_space):
 def fenics_space_info(fenics_space):
     """Return tuple (family,degree) containing information about a FEniCS space."""
     element = fenics_space.ufl_element()
-    family = element.family()
-    degree = element.degree()
-    return (family, degree)
+    family = element.basix_element.family.name
+    degree = element.degree
+    return family, degree
 
 
 # pylint: disable=too-many-locals
@@ -157,7 +141,11 @@ class FenicsOperator(object):
 
         if self._sparse_mat is None:
             mat = assemble_matrix(form(self._fenics_weak_form))
-            mat.finalize()
+            try:
+                mat.scatter_reverse()
+            except AttributeError:
+                # Support for older FEniCSx
+                mat.finalize()
             shape = tuple(
                 i._ufl_function_space.dofmap.index_map.size_global
                 for i in self._fenics_weak_form.arguments()

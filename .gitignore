@@ -7,3 +7,4 @@ app_ui
 /bempp/api/space/__pycache__
 /electroacPy/circuitSolver/components/__pycache__
 /bempp/api/space/__pycache__
+*.pyc
