@@ -14,7 +14,7 @@ import pyvista
 def sumPressureArray(bemObj, radiatingSurface):
     p_mesh = bemObj.p_mesh
     radSurf_system = bemObj.radiatingElement
-    if isinstance(radiatingSurface, str):
+    if isinstance(radiatingSurface, str): # should clean that up
         if radiatingSurface == 'all':
             radiatingSurface = radSurf_system
     else:
@@ -130,13 +130,11 @@ def FRF(freq, H, transformation="SPL", logx=True, legend=None, **kwargs):  #logx
                     plt.plot(freq[i], tr(H[i]), label=labels[i])
 
     plt.xlabel('Frequency [Hz]')
-    # plt.title('Frequency Response Function')
     if labels != None:
         if "loc" in kwargs:
             plt.legend(loc=kwargs["loc"])
         else:
             plt.legend(loc="best")
-
     if 'xlim' in kwargs:
         plt.xlim(kwargs['xlim'])
     if 'ylim' in kwargs:
@@ -160,6 +158,7 @@ def FRF(freq, H, transformation="SPL", logx=True, legend=None, **kwargs):  #logx
 
     plt.grid(True, which='both', linestyle='dotted')
 
+    plt.tight_layout()
     if "save" in kwargs:
         if isinstance(kwargs['save'], str):
             if "dpi" in kwargs:
@@ -167,8 +166,7 @@ def FRF(freq, H, transformation="SPL", logx=True, legend=None, **kwargs):  #logx
             else:
                 plt.savefig(kwargs['save'])
         else:
-            print("save argument must str")
-    plt.tight_layout()
+            print("'save' argument must be str")
     plt.show()
 
 
@@ -247,8 +245,8 @@ def directivity(freq, theta, H, transformation='SPL', logx=True, **kwargs):
     else:
         ax.set(ylabel="Angle")
 
-    # ax.set(xlabel='Frequency [Hz]', ylabel="Angle")
     ax.set(xlabel="Frequency [Hz]")
+    plt.tight_layout()
     if "save" in kwargs:
         if isinstance(kwargs['save'], str):
             if "dpi" in kwargs:
@@ -256,7 +254,7 @@ def directivity(freq, theta, H, transformation='SPL', logx=True, **kwargs):
             else:
                 plt.savefig(kwargs['save'])
         else:
-            print("save argument must str")
+            print("'save' argument must be str")
     plt.show()
     return None
  
@@ -395,7 +393,7 @@ def pressureField_3D(bemOBJ, xMic, L, W, pMicData, radiatingElement):
     freq_array = bemOBJ.frequency
     meshPlot = []
     
-    # put inputs into list (facilitate manipulation when switching between
+    # set inputs into list (easier to manipulate when switching between
     # multiple/single plot)
     nObs = len(xMic)
     
