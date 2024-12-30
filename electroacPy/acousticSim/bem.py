@@ -34,22 +34,29 @@ class bem:
 
         Parameters
         ----------
-        meshPath : TYPE
-            DESCRIPTION.
-        radiatingElement : TYPE
-            DESCRIPTION.
-        velocity : TYPE
-            DESCRIPTION.
-        frequency : TYPE
-            DESCRIPTION.
-        domain : TYPE
-            DESCRIPTION.
-        c_0 : TYPE
-            DESCRIPTION.
-        rho_0 : TYPE
-            DESCRIPTION.
+        meshPath : str
+            Path to system's mesh.
+        radiatingElement : int or list of int,
+            Physical group of radiating elements.
+        velocity : numpy array or list of numpy array,
+            Velocity of corresponding radiating surfaces.
+        frequency : numpy array,
+            Range of simulation.
+        domain : str, 
+            Which BEM equation should be solved. 
+            Either 'interior' or 'exterior'. Default is "Exterior"
+        c_0 : float,
+            Sound speed in air (or propagation medium). Default is 343 m/s
+        rho_0 : float,
+            Volumic mass (density) of air or propagation medium. Default is 1.22 kg/m^3
         **kwargs : TYPE
-            DESCRIPTION.
+            - boundary_conditions, boundaryConditions object.
+            - direction, list of (1, 3) vectors containing radiation direction, 
+                                        e.g. [[1, 0, 0], [1, 0, 0]] for two surfaces
+                                        radiating toward x,
+            - vibrometry_points, numpy array of dimension (nPoints, 3) with the 
+                                 cartesian coordinates of measured acceleration points,
+            - tol, tolerance of calculations --- float.
 
         Returns
         -------

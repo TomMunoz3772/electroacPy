@@ -97,7 +97,7 @@ class speakerBox:
         """
         ## 6th order bandpass with ports
         if ("Lp" in kwargs and ("Sp" in kwargs or "rp" in kwargs) and
-                "Vf" in kwargs and "Lp2" in kwargs and ("Sp2" in kwargs or "rp2" in kwargs)):
+            "Vf" in kwargs and "Lp2" in kwargs and ("Sp2" in kwargs or "rp2" in kwargs)):
             self.config = "bandpass_2"
             self.flange = "single"
             for key, value in kwargs.items():
@@ -283,7 +283,8 @@ class speakerBox:
         
         # ABR + RAD of driver
         RAD   = compa.radiator(2, 0, driver.Sd, self.rho, self.c)
-        PR    = compa.membrane(3, 5, self.Cmd, self.Mmd, self.Rmd, self.Sd, self.rho, self.c)
+        PR    = compa.membrane(3, 5, self.Cmd, self.Mmd, self.Rmd, 
+                               self.Sd, self.rho, self.c)
         RADPR = compa.radiator(5, 0, self.Sd, self.rho, self.c)       
         
         # setup and run
@@ -323,7 +324,8 @@ class speakerBox:
         RALF = compe.resistance(2, 0, Ralf)
         RABF = compe.resistance(2, 3, Rabf)
         CABF = compe.capacitance(3, 0, Cabf)
-        PORTF = compa.port(2, 4, self.Lp, self.rp)
+        PORTF = compa.port(2, 4, self.Lp, self.rp, self.flange,
+                           rho=self.rho, c=self.c)
         RADPF = compa.radiator(4, 0, self.Sp, self.rho, self.c)
         
         RAL = compe.resistance(5, 0, Ral)        
@@ -366,19 +368,20 @@ class speakerBox:
         RALF  = compe.resistance(2, 0, Ralf)
         RABF  = compe.resistance(2, 3, Rabf)
         CABF  = compe.capacitance(3, 0, Cabf)
-        PORTF = compa.port(2, 4, self.Lp, self.rp, self.rho, self.c)
+        PORTF = compa.port(2, 4, self.Lp, self.rp, self.flange, 
+                           rho=self.rho, c=self.c)
         RADPF = compa.radiator(4, 0, self.Sp, self.rho, self.c)
         
         RAL   = compe.resistance(5, 0, Ral)
         RAB   = compe.resistance(5, 6, Rab)
         CAB   = compe.capacitance(6, 0, Cab)
-        PORTB = compa.port(5, 7, self.Lp2, self.rp2, self.rho, self.c)
+        PORTB = compa.port(5, 7, self.Lp2, self.rp2, self.flange,
+                           rho=self.rho, c=self.c)
         RADPB = compa.radiator(7, 0, self.Sp2, self.rho, self.c)
     
         # setup and run
-        enclosure.addComponent(U, RALF, RABF, CABF,
-                               RAL, RAB, CAB, PORTF, RADPF, 
-                               PORTB, RADPB)
+        enclosure.addComponent(U, RALF, RABF, CABF,PORTF, RADPF,
+                               RAL, RAB, CAB, PORTB, RADPB)
         enclosure.addBlock(DRV)
         enclosure.run()
         
