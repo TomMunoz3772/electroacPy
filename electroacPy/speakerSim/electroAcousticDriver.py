@@ -190,7 +190,7 @@ class electroAcousticDriver:
             size=None
         
         fig, ax = plt.subplots(3, 1, figsize=size)
-        ax[0].semilogx(self.f_array, np.abs(self.Hx*1e3), label='Displacement')
+        ax[0].semilogx(self.f_array, np.abs(self.Hx)*1e3, label='Displacement')
         ax[1].semilogx(self.f_array, np.abs(self.Hv), label='Velocity')
         ax[2].semilogx(self.f_array, np.abs(self.Ha), label='Acceleration')
         ax[2].set(xlabel="Frequency [Hz]")

@@ -582,7 +582,7 @@ class speakerBox:
         apr2 = self.vpr2 * laplace(self.frequencyRange)
         
         fig, ax = plt.subplots(3, 1, figsize=size)
-        ax[0].semilogx(self.frequencyRange, np.abs(x), label='Displacement')
+        ax[0].semilogx(self.frequencyRange, np.abs(x)*1e3, label='Displacement')
         ax[1].semilogx(self.frequencyRange, np.abs(self.v), label='Velocity')
         ax[2].semilogx(self.frequencyRange, np.abs(a), label='Acceleration')
         ax[2].set(xlabel="Frequency [Hz]")
@@ -601,7 +601,7 @@ class speakerBox:
         
         if np.all(self.vp != 0):
             fig, ax = plt.subplots(3, 1, figsize=size)
-            ax[0].semilogx(self.frequencyRange, np.abs(xp), label='Displacement')
+            ax[0].semilogx(self.frequencyRange, np.abs(xp)*1e3, label='Displacement')
             ax[1].semilogx(self.frequencyRange, np.abs(self.vp), label='Velocity')
             ax[2].semilogx(self.frequencyRange, np.abs(ap), label='Acceleration')
             ax[0].set(ylabel="mm", title="Port")
