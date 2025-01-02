@@ -1,6 +1,8 @@
 # BEM module
 
-## Interior and exterior studies
+**Disclaimer:** I am not an expert in computational physics nor numerical methods, please take the following with a grain of salt, and feel free to add any correction or useful information. 
+
+## Boundary pressure
 The boundary element method (BEM), as explained in {cite:ps}`Mechel2004FormulasOA`, aims to solve the following equation for exterior field studies:
 
 $$
@@ -43,15 +45,7 @@ $$
     \left[ D + \frac{1}{2} I \right] P_s = j\omega \rho S U.
 $$
 
-The following code shows how to compute the acoustic pressure over the boundary of a system. To make it easier to read, a single frequency step is computed. The full frequency response can be computed by looping over a frequency array.
-
-In the case of interior studies, the previous equation becomes
- 
-$$
-    \left[ D + \frac{1}{2} I \right] P_s = j\omega \rho S U.
-$$
-
-The following code shows how to compute the acoustic pressure over the boundary of a system. To make it easier to read, a single frequency step is computed. The full frequency response can be computed by looping over a frequency array.
+The following code shows how to compute the acoustic pressure over the boundary of a system. To make it easier to read, a single frequency step is computed. The full frequency response can be calculated by looping over a frequency array.
 
 ```python
 import bempp.api
@@ -63,7 +57,7 @@ w = 2 * np.pi * f # angular frequency (rad/s)
 k = w / 343       # wavenumber
 
 # importing system "grid"
-mesh = 'path/to/meshFile.msh'      # we can take the studio monitor
+mesh = 'path/to/meshFile.msh'      # let's change for a spherical speaker
 grid = bempp.api.import_grid(mesh)
 
 # domain where scattered pressure is evaluated
@@ -93,4 +87,33 @@ If Gmsh is installed --- and accessible through Python --- `p_total.plot(transfo
 
 Pressure distribution over a spherical loudspeaker.
 ```
+
+It might be important to take a bit of time to explain what is happening in the above code:
+
+- spaces without associated `segments` refer to the whole grid (mesh),
+- `[P, 1]` means that the space is a continuous polynomial of order 1. In other terms, it means that its degrees of freedom (DOFs) are located at each vertices of its cells (triangles in bempp-cl case),
+- `[DP, 0]` refers to a discontinuous space of order 0; its DOFs are located at the centre of each triangles. Discontinuous spaces are often used to describe sources,
+- a GridFunction applies specific coefficients to the considered space, the coefficients are set in an array of length `dof_count`. If we take the example of {numref}`SD-layers`, the single layer would have 3 DOFs (at the center of each cells).
+
+
+## Projected pressure
+The main interest of the **evaluation** class is to automate the placement of observation points in 3D space as well as facilitate the visualization of results. From a calculation point-of-view, an **evaluation** calls the `.getMicPressure()` method of a linked BEM object and solves $p(x)$ for $x \in B_e$. Because we estimated $P_s$ in the previous step, we can directly rewrite the previous equation under its matrix form.
+
+$$
+P = DP_s - j\omega\rho SU,
+$$
+
+with $P$ the pressure at external points. In bempp-cl, it is written as follow.
+
+```python
+from bempp.api.operators.potential import helmholtz as helmholtz_potential
+
+# evaluation at x=0 , y=1 , z=0
+Xmic = np.array([[0, 1, 0]])
+pmic = (helmholtz_potential.double_layer(spaceP, Xmic, k) * p_total
+        -1j*w*rho*helmholtz_potential.single_layer(spaceU, Xmic, k) 
+        * u_in)
+```
+
+The whole process is pretty straightforward and it is always the same. ElectroacPy simply automates the placement of evaluation points and visualizations.
 

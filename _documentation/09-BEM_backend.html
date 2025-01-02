@@ -66,7 +66,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="References" href="100-ref.html" />
-    <link rel="prev" title="LEM modules" href="08-LEM_backend.html" />
+    <link rel="prev" title="LEM module" href="08-LEM_backend.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -182,7 +182,7 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="06-back_end.html">Back-end</a></li>
 <li class="toctree-l1"><a class="reference internal" href="07-circuitSolver.html">circuitSolver</a></li>
-<li class="toctree-l1"><a class="reference internal" href="08-LEM_backend.html">LEM modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08-LEM_backend.html">LEM module</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">BEM module</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">References</span></p>
@@ -375,7 +375,8 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interior-and-exterior-studies">Interior and exterior studies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#boundary-pressure">Boundary pressure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#projected-pressure">Projected pressure</a></li>
 </ul>
             </nav>
         </div>
@@ -389,8 +390,9 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="bem-module">
 <h1>BEM module<a class="headerlink" href="#bem-module" title="Link to this heading">#</a></h1>
-<section id="interior-and-exterior-studies">
-<h2>Interior and exterior studies<a class="headerlink" href="#interior-and-exterior-studies" title="Link to this heading">#</a></h2>
+<p><strong>Disclaimer:</strong> I am not an expert in computational physics nor numerical methods, please take the following with a grain of salt, and feel free to add any correction or useful information.</p>
+<section id="boundary-pressure">
+<h2>Boundary pressure<a class="headerlink" href="#boundary-pressure" title="Link to this heading">#</a></h2>
 <p>The boundary element method (BEM), as explained in <span id="id1">[<a class="reference internal" href="100-ref.html#id2" title="Fridolin P. Mechel. Formulas of Acoustics. 2004.">Mec04</a>]</span>, aims to solve the following equation for exterior field studies:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\iint_S \left[ p(\textbf{y}) \frac{\partial G(\textbf{x}, \textbf{y})}{\partial n(\textbf{y})} - \frac{\partial p(\textbf{y})}{\partial n(\textbf{y})}G(\textbf{x}, \textbf{y}) \right]dS = \begin{cases} p(\textbf{x}), &amp; \textbf{x} \in B_e \\ \frac{1}{2}p(\textbf{x}), &amp; \textbf{x} \in S \\ 0,&amp; \textbf{x} \in B_i \end{cases}\end{split}\]</div>
@@ -422,13 +424,7 @@ G(\textbf{x}, \textbf{y}) = \frac{1}{4\pi ||\textbf{x}-\textbf{y}||} e^{+jk||\te
 \[
     \left[ D + \frac{1}{2} I \right] P_s = j\omega \rho S U.
 \]</div>
-<p>The following code shows how to compute the acoustic pressure over the boundary of a system. To make it easier to read, a single frequency step is computed. The full frequency response can be computed by looping over a frequency array.</p>
-<p>In the case of interior studies, the previous equation becomes</p>
-<div class="math notranslate nohighlight">
-\[
-    \left[ D + \frac{1}{2} I \right] P_s = j\omega \rho S U.
-\]</div>
-<p>The following code shows how to compute the acoustic pressure over the boundary of a system. To make it easier to read, a single frequency step is computed. The full frequency response can be computed by looping over a frequency array.</p>
+<p>The following code shows how to compute the acoustic pressure over the boundary of a system. To make it easier to read, a single frequency step is computed. The full frequency response can be calculated by looping over a frequency array.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">bempp.api</span>
 <span class="kn">from</span> <span class="nn">bempp.api.operators.boundary</span> <span class="kn">import</span> <span class="n">helmholtz</span><span class="p">,</span> <span class="n">sparse</span>
 <span class="kn">from</span> <span class="nn">bempp.api.linalg</span> <span class="kn">import</span> <span class="n">gmres</span>
@@ -438,7 +434,7 @@ G(\textbf{x}, \textbf{y}) = \frac{1}{4\pi ||\textbf{x}-\textbf{y}||} e^{+jk||\te
 <span class="n">k</span> <span class="o">=</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">343</span>       <span class="c1"># wavenumber</span>
 
 <span class="c1"># importing system &quot;grid&quot;</span>
-<span class="n">mesh</span> <span class="o">=</span> <span class="s1">&#39;path/to/meshFile.msh&#39;</span>      <span class="c1"># we can take the studio monitor</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="s1">&#39;path/to/meshFile.msh&#39;</span>      <span class="c1"># let&#39;s change for a spherical speaker</span>
 <span class="n">grid</span> <span class="o">=</span> <span class="n">bempp</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">import_grid</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
 
 <span class="c1"># domain where scattered pressure is evaluated</span>
@@ -467,6 +463,32 @@ G(\textbf{x}, \textbf{y}) = \frac{1}{4\pi ||\textbf{x}-\textbf{y}||} e^{+jk||\te
 <p><span class="caption-number">Fig. 70 </span><span class="caption-text">Pressure distribution over a spherical loudspeaker.</span><a class="headerlink" href="#pressure-sphere" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
+<p>It might be important to take a bit of time to explain what is happening in the above code:</p>
+<ul class="simple">
+<li><p>spaces without associated <code class="docutils literal notranslate"><span class="pre">segments</span></code> refer to the whole grid (mesh),</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[P,</span> <span class="pre">1]</span></code> means that the space is a continuous polynomial of order 1. In other terms, it means that its degrees of freedom (DOFs) are located at each vertices of its cells (triangles in bempp-cl case),</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[DP,</span> <span class="pre">0]</span></code> refers to a discontinuous space of order 0; its DOFs are located at the centre of each triangles. Discontinuous spaces are often used to describe sources,</p></li>
+<li><p>a GridFunction applies specific coefficients to the considered space, the coefficients are set in an array of length <code class="docutils literal notranslate"><span class="pre">dof_count</span></code>. If we take the example of <a class="reference internal" href="#sd-layers"><span class="std std-numref">Fig. 69</span></a>, the single layer would have 3 DOFs (at the center of each cells).</p></li>
+</ul>
+</section>
+<section id="projected-pressure">
+<h2>Projected pressure<a class="headerlink" href="#projected-pressure" title="Link to this heading">#</a></h2>
+<p>The main interest of the <strong>evaluation</strong> class is to automate the placement of observation points in 3D space as well as facilitate the visualization of results. From a calculation point-of-view, an <strong>evaluation</strong> calls the <code class="docutils literal notranslate"><span class="pre">.getMicPressure()</span></code> method of a linked BEM object and solves <span class="math notranslate nohighlight">\(p(x)\)</span> for <span class="math notranslate nohighlight">\(x \in B_e\)</span>. Because we estimated <span class="math notranslate nohighlight">\(P_s\)</span> in the previous step, we can directly rewrite the previous equation under its matrix form.</p>
+<div class="math notranslate nohighlight">
+\[
+P = DP_s - j\omega\rho SU,
+\]</div>
+<p>with <span class="math notranslate nohighlight">\(P\)</span> the pressure at external points. In bempp-cl, it is written as follow.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bempp.api.operators.potential</span> <span class="kn">import</span> <span class="n">helmholtz</span> <span class="k">as</span> <span class="n">helmholtz_potential</span>
+
+<span class="c1"># evaluation at x=0 , y=1 , z=0</span>
+<span class="n">Xmic</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+<span class="n">pmic</span> <span class="o">=</span> <span class="p">(</span><span class="n">helmholtz_potential</span><span class="o">.</span><span class="n">double_layer</span><span class="p">(</span><span class="n">spaceP</span><span class="p">,</span> <span class="n">Xmic</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">p_total</span>
+        <span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">w</span><span class="o">*</span><span class="n">rho</span><span class="o">*</span><span class="n">helmholtz_potential</span><span class="o">.</span><span class="n">single_layer</span><span class="p">(</span><span class="n">spaceU</span><span class="p">,</span> <span class="n">Xmic</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> 
+        <span class="o">*</span> <span class="n">u_in</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The whole process is pretty straightforward and it is always the same. ElectroacPy simply automates the placement of evaluation points and visualizations.</p>
 <hr class="footnotes docutils" />
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="conventionstuff" role="doc-footnote">
@@ -513,7 +535,7 @@ G(\textbf{x}, \textbf{y}) = \frac{1}{4\pi ||\textbf{x}-\textbf{y}||} e^{+jk||\te
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">LEM modules</p>
+        <p class="prev-next-title">LEM module</p>
       </div>
     </a>
     <a class="right-next"
@@ -542,7 +564,8 @@ G(\textbf{x}, \textbf{y}) = \frac{1}{4\pi ||\textbf{x}-\textbf{y}||} e^{+jk||\te
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interior-and-exterior-studies">Interior and exterior studies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#boundary-pressure">Boundary pressure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#projected-pressure">Projected pressure</a></li>
 </ul>
   </nav></div>
 

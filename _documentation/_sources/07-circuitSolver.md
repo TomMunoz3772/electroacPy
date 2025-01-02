@@ -308,7 +308,7 @@ Electro-dynamic blocks connect electrical to mechanical and/or acoustical domain
     :name: block-ead
     :width: 200px
 
-**EAD(A, B, C, D, Le, ..., Sd, v_probe:optional)**. Representative 4-port model of the electro-acoustic-driver block. With `A` and `B` being the positive and negative electrical connections; `C` and `D` the front and back acoustic load. If a *str* (text) is passed to the `v_probe` argument, cone velocity can be extracted using `circuit.get_Flow(your_str)`.
+**EAD(A, B, C, D, Le, ..., Sd, v_probe:optional)**. Representative 4-port model of the electro-acoustic-driver block. With `A` and `B` being the positive and negative electrical connections; `C` and `D` the front and back acoustic load. If a *str* (text) is passed to the `v_probe` argument, cone velocity can be extracted using `circuit.getFlow(your_str)`.
 ```
 
 In the next code, we compare different wiring combination of drive units (single speaker, 2-parallel, 2-series). Here, we consider equivalent input power across all three configuration.
@@ -333,7 +333,7 @@ Rms = 0.9
 Bl  = 7.8
 Sd  = 158e-4
 
-#%% Estimate input voltage to get 1W of power
+#%% Input voltage to get 1W of power
 U_single   = sqrt(Re)
 U_parallel = sqrt(Re/2)
 U_series   = sqrt(Re*2)

@@ -1,4 +1,4 @@
-# LEM modules
+# LEM module
 
 ## speakerSim
 
@@ -45,7 +45,15 @@ A good thing to note is that `.plotZe()` will actually plot the input impedance 
 ### **speakerBox**
 As explained in the lumped-element modeler for enclosures, all **speakerBox** objects are primarily defined by their respective box volumes. Then, depending on user inputs, different types of systems can be created. This section illustrates the various lumped networks for each enclosure design and clarifies which parameters correspond to specific elements of the system.
 
-The alignments given in the following of this section are based on the [Wavecor WF275BD01](https://loudspeakerdatabase.com/Wavecor/WF275BD01) mid-bass driver.
+The alignments given in the following of this section are based on the [Wavecor WF275BD01](https://loudspeakerdatabase.com/Wavecor/WF275BD01) mid-bass driver. These are computed following the monopole equation --- mounted in an infinite baffle:
+
+$$
+
+P = j\omega \rho Q \times \frac{e^{-jkr}}{2\pi r},
+
+$$
+
+where $Q$ is the volume velocity of radiating components and $r=1$ m, the distance from the source to evaluation point.
 
 
 #### sealed enclosure
@@ -91,7 +99,7 @@ $$
 30<Q_{ab}<100, ~~ 10<Q_{al}<30,
 $$
 
-where lower values on the left indicate higher losses, while higher values on the right correspond to lower losses. Of course, these values depend heavily on the amount of damping material in the enclosure and the quality of construction. You will surely need to determine the "correct" values through trial and error, depending on your build.
+where lower values on the left indicate higher losses, while higher values on the right correspond to lower losses. Of course, these values depend heavily on the amount of damping material in the enclosure and the quality of construction. You will surely need to determine the "correct" values through trial and error, depending on your builds.
 
 ```{figure} ./LEM_backend_images/sealed.svg
     :name: sealed-alignment

@@ -1,5 +1,5 @@
 # Post-processing
-ElectroacPy provides some tools for crossover-network / filter-design. These are considered "post-processing" as they are applied on computation results. It might not be the best term, but we'll go with it for now.
+ElectroacPy provides some tools for crossover-network / filter design. These are considered "post-processing" as they are applied on computation results. It might not be the best term, but we'll go with it for now.
 
 
 ## `.crossover[]`
@@ -94,7 +94,7 @@ gtb.plot.FRF(system.frequency, (p_lf[:, 73//2],
 Filtered loudspeaker response.
 ```
 
-It is important to note that electroacPy's crossover tools are considered as digital filters: interaction between speaker and supposed electrical components is not taken into account. In order to have a better understanding of the electrical behavior with passive components, it is either possible to use the **circuitSolver** class, or to export results to an external software for crossover design. 
+It is important to note that electroacPy's crossover tools are considered as digital filters: interactions between speaker and supposed electrical components are not taken into account. In order to have a better understanding of the electrical behavior with passive components, it is either possible to use the **circuitSolver** class, or to export results to an external software for crossover design. 
 
 ## Export simulation data
 For now, it is only possible to export directivity and impedance data. Because it is free and provides a lot of great tools, we'll use VituixCAD to build a crossover network. The following code extracts pressure and impedance with `.export_directivity()` and `.export_impedance()`. Results are then imported into VituixCAD as shown in {numref}`vituixcad-import`. In the import window, you can notice that the "Minimum phase" box is checked: this helps reducing the comb-filtering coming from VituixCAD re-calculation of radiated pressure. Keep in mind that the overall radiation will be slightly off; you can un-check this box if you want a better estimation (although "noisier").

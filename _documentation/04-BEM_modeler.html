@@ -173,7 +173,7 @@
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Loudspeaker System</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="02-loudspeaker_system.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">System overview and meshing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">Geometry import and meshing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="03-lumped_modeler.html">Lumped Element Modeler</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Boundary Element Modeler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05-post_processing.html">Post-processing</a></li>
@@ -417,7 +417,7 @@
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">tol</span></code>, tolerance of the GMRES solver,</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">boundary_conditions</span></code>, a <strong>boundaryCondition</strong> object which defines infinite boundaries and surfaces impedance,</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">direction</span></code>, list of vector that add specific direction coefficients to the radiating surfaces, for example: <code class="docutils literal notranslate"><span class="pre">[[0,</span> <span class="pre">1,</span> <span class="pre">0]]</span></code> for a single driver radiating toward <em>+y</em>, or <code class="docutils literal notranslate"><span class="pre">[[1,</span> <span class="pre">0,</span> <span class="pre">0],</span> <span class="pre">False,</span> <span class="pre">[1,</span> <span class="pre">0,</span> <span class="pre">0]]</span></code> for three drivers, with two radiating toward <em>+x</em> and one with normal radiation direction.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">direction</span></code>, list of vector that add specific direction coefficients to the radiating surfaces, for example: <code class="docutils literal notranslate"><span class="pre">[[0,</span> <span class="pre">1,</span> <span class="pre">0]]</span></code> for a single driver radiating toward <em>+y</em>, or <code class="docutils literal notranslate"><span class="pre">[[1,</span> <span class="pre">0,</span> <span class="pre">0],</span> <span class="pre">False,</span> <span class="pre">[1,</span> <span class="pre">0,</span> <span class="pre">0]]</span></code> for three drivers, with two radiating toward <em>+x</em> and one with normal radiation direction. This last parameter is mostly useful when your radiators have a depth (e.g. a loudspeaker membrane not modeled as a flat surface).</p></li>
 </ul>
 <p>In the following code, we define a free-field and a ground-reflected study.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">electroacPy</span> <span class="k">as</span> <span class="nn">ep</span>

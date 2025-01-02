@@ -27,7 +27,7 @@ A few `**kwargs` are also available:
 
 - `tol`, tolerance of the GMRES solver,
 - `boundary_conditions`, a **boundaryCondition** object which defines infinite boundaries and surfaces impedance,
-- `direction`, list of vector that add specific direction coefficients to the radiating surfaces, for example: `[[0, 1, 0]]` for a single driver radiating toward *+y*, or `[[1, 0, 0], False, [1, 0, 0]]` for three drivers, with two radiating toward *+x* and one with normal radiation direction.
+- `direction`, list of vector that add specific direction coefficients to the radiating surfaces, for example: `[[0, 1, 0]]` for a single driver radiating toward *+y*, or `[[1, 0, 0], False, [1, 0, 0]]` for three drivers, with two radiating toward *+x* and one with normal radiation direction. This last parameter is mostly useful when your radiators have a depth (e.g. a loudspeaker membrane not modeled as a flat surface).
 
 In the following code, we define a free-field and a ground-reflected study.
 

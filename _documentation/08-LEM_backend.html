@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>LEM modules &#8212; ElectroacPy</title>
+    <title>LEM module &#8212; ElectroacPy</title>
   
   
   
@@ -173,7 +173,7 @@
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Loudspeaker System</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="02-loudspeaker_system.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">System overview and meshing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">Geometry import and meshing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="03-lumped_modeler.html">Lumped Element Modeler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04-BEM_modeler.html">Boundary Element Modeler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05-post_processing.html">Post-processing</a></li>
@@ -182,7 +182,7 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="06-back_end.html">Back-end</a></li>
 <li class="toctree-l1"><a class="reference internal" href="07-circuitSolver.html">circuitSolver</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">LEM modules</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">LEM module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="09-BEM_backend.html">BEM module</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">References</span></p>
@@ -365,7 +365,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>LEM modules</h1>
+    <h1>LEM module</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -398,8 +398,8 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="lem-modules">
-<h1>LEM modules<a class="headerlink" href="#lem-modules" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="lem-module">
+<h1>LEM module<a class="headerlink" href="#lem-module" title="Link to this heading">#</a></h1>
 <section id="speakersim">
 <h2>speakerSim<a class="headerlink" href="#speakersim" title="Link to this heading">#</a></h2>
 <p>In electroacPy, all speaker-related classes are grouped within the <strong>speakerSim</strong> submodule:</p>
@@ -437,7 +437,10 @@ Z_{ms} = R_{ms} + j\omega M_{ms} + \frac{1}{j\omega C_{ms}}.
 <section id="speakerbox">
 <h3><strong>speakerBox</strong><a class="headerlink" href="#speakerbox" title="Link to this heading">#</a></h3>
 <p>As explained in the lumped-element modeler for enclosures, all <strong>speakerBox</strong> objects are primarily defined by their respective box volumes. Then, depending on user inputs, different types of systems can be created. This section illustrates the various lumped networks for each enclosure design and clarifies which parameters correspond to specific elements of the system.</p>
-<p>The alignments given in the following of this section are based on the <a class="reference external" href="https://loudspeakerdatabase.com/Wavecor/WF275BD01">Wavecor WF275BD01</a> mid-bass driver.</p>
+<p>The alignments given in the following of this section are based on the <a class="reference external" href="https://loudspeakerdatabase.com/Wavecor/WF275BD01">Wavecor WF275BD01</a> mid-bass driver. These are computed following the monopole equation — mounted in an infinite baffle:</p>
+<div class="math notranslate nohighlight">
+\[P = j\omega \rho Q \times \frac{e^{-jkr}}{2\pi r},\]</div>
+<p>where <span class="math notranslate nohighlight">\(Q\)</span> is the volume velocity of radiating components and <span class="math notranslate nohighlight">\(r=1\)</span> m, the distance from the source to evaluation point.</p>
 <section id="sealed-enclosure">
 <h4>sealed enclosure<a class="headerlink" href="#sealed-enclosure" title="Link to this heading">#</a></h4>
 <p>The sealed box is the default configuration. In this case, the back of the driver is loaded by a simple acoustic volume.</p>
@@ -472,7 +475,7 @@ Z_{ms} = R_{ms} + j\omega M_{ms} + \frac{1}{j\omega C_{ms}}.
 \[
 30&lt;Q_{ab}&lt;100, ~~ 10&lt;Q_{al}&lt;30,
 \]</div>
-<p>where lower values on the left indicate higher losses, while higher values on the right correspond to lower losses. Of course, these values depend heavily on the amount of damping material in the enclosure and the quality of construction. You will surely need to determine the “correct” values through trial and error, depending on your build.</p>
+<p>where lower values on the left indicate higher losses, while higher values on the right correspond to lower losses. Of course, these values depend heavily on the amount of damping material in the enclosure and the quality of construction. You will surely need to determine the “correct” values through trial and error, depending on your builds.</p>
 <figure class="align-default" id="sealed-alignment">
 <img alt="_images/sealed.svg" src="_images/sealed.svg" />
 <figcaption>
