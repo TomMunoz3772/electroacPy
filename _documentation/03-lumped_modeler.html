@@ -66,7 +66,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Boundary Element Modeler" href="04-BEM_modeler.html" />
-    <link rel="prev" title="System overview and meshing" href="021-system_and_mesh.html" />
+    <link rel="prev" title="Geometry import and meshing" href="021-system_and_mesh.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -173,7 +173,7 @@
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Loudspeaker System</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="02-loudspeaker_system.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">System overview and meshing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">Geometry import and meshing</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Lumped Element Modeler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04-BEM_modeler.html">Boundary Element Modeler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05-post_processing.html">Post-processing</a></li>
@@ -502,19 +502,20 @@
 <tr class="row-odd"><td><p>Bandpass (port) - 6<span class="math notranslate nohighlight">\(^{th}\)</span> order</p></td>
 <td><p>Vf<br>Lp - Lp2<br>rp - rp2<br>Sp - Sp2</p></td>
 <td><p>m<span class="math notranslate nohighlight">\(^3\)</span><br>m<br>m<br>m<span class="math notranslate nohighlight">\(^2\)</span></p></td>
-<td><p>front volume<br>back and front port length<br>back and front port radius<br>back and front port cross-section area</p></td>
+<td><p>front volume<br>front and back port length<br>front and back port radius<br>front and back port cross-section area</p></td>
 </tr>
 <tr class="row-even"><td><p>Bandpass (ABR) - 6<span class="math notranslate nohighlight">\(^{th}\)</span> order</p></td>
 <td><p>Vf<br>Mmd - Mmd2<br>Cmd - Cmd2<br>Rmd - Rmd2<br>Sd - Sd2</p></td>
 <td><p>m<span class="math notranslate nohighlight">\(^3\)</span><br>kg<br>m/N<br>kg/s<br>m<span class="math notranslate nohighlight">\(^2\)</span></p></td>
-<td><p>front volume<br>back and front moving mass<br>back and front suspension compliance<br>back and front mechanical resistance<br>back and front radiating surface</p></td>
+<td><p>front volume<br>front and back moving mass<br>front and back suspension compliance<br>front and back mechanical resistance<br>front and back radiating surface</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <p>In our example, we create a ported woofer and a sealed midrange. Again, <code class="docutils literal notranslate"><span class="pre">.plotZe()</span></code> and <code class="docutils literal notranslate"><span class="pre">.plotXVA()</span></code> display general characteristics of our system — see <a class="reference internal" href="#ported-ze"><span class="std std-numref">Fig. 11</span></a> and <a class="reference internal" href="#ported-xva"><span class="std std-numref">Fig. 12</span></a>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;ported_LF&quot;</span><span class="p">,</span> <span class="mf">40e-3</span><span class="p">,</span> 
-                     <span class="n">Lp</span><span class="o">=</span><span class="mf">35e-2</span><span class="p">,</span> <span class="n">Sp</span><span class="o">=</span><span class="mf">78.6e-4</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span>
+                     <span class="n">Lp</span><span class="o">=</span><span class="mf">35e-2</span><span class="p">,</span> <span class="n">Sp</span><span class="o">=</span><span class="mf">78.6e-4</span><span class="p">,</span> 
+                     <span class="n">Qab</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">Qal</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
                      <span class="n">ref2bem</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> 
                      <span class="n">setDriver</span><span class="o">=</span><span class="s2">&quot;SB34&quot;</span><span class="p">,</span> <span class="n">Nd</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                      <span class="n">wiring</span><span class="o">=</span><span class="s2">&quot;parallel&quot;</span><span class="p">)</span>
@@ -530,23 +531,24 @@
 <figure class="align-default" id="ported-ze">
 <img alt="_images/ported_ze_b.svg" src="_images/ported_ze_b.svg" />
 <figcaption>
-<p><span class="caption-number">Fig. 11 </span><span class="caption-text">Electrical impedance of one SB34 woofer in a ported enclosure.</span><a class="headerlink" href="#ported-ze" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 11 </span><span class="caption-text">Electrical impedance of the SB34 woofer in its ported enclosure.</span><a class="headerlink" href="#ported-ze" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="ported-xva">
 <img alt="_images/ported_xva_b.svg" src="_images/ported_xva_b.svg" />
 <figcaption>
-<p><span class="caption-number">Fig. 12 </span><span class="caption-text">Displacement, velocity and acceleration of one SB34 woofer in a ported enclosure.</span><a class="headerlink" href="#ported-xva" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 12 </span><span class="caption-text">SB34 displacement, velocity and acceleration in its ported enclosure.</span><a class="headerlink" href="#ported-xva" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>A few notes about the previous <strong>enclosure</strong> definition:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">eta</span></code> is the acoustic loss coefficient,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Qab</span></code> is the quality factor linked to acoustic losses inside the enclosure, generally <code class="docutils literal notranslate"><span class="pre">30&lt;Qab&lt;120</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Qal</span></code> is the quality factor of acoustic leakage, generally <code class="docutils literal notranslate"><span class="pre">10&lt;Qal&lt;30</span></code>,</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ref2bem</span></code> allows to link velocities to radiating surfaces in the BEM simulations. Port and passive radiator should always be defined as the last item,</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">setDriver</span></code> takes the corresponding driver (from <code class="docutils literal notranslate"><span class="pre">.driver[]</span></code>) and compute its velocity inside the corresponding enclosure,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">setDriver</span></code> takes the corresponding driver (from <code class="docutils literal notranslate"><span class="pre">.driver[]</span></code>) and compute its velocity inside the enclosure,</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Nd</span></code> represent the number of drivers to set in the enclosure,</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">wiring</span></code> is the driver configuration, it defaults to <code class="docutils literal notranslate"><span class="pre">&quot;parallel&quot;</span></code>,</p></li>
-<li><p>the tweeter is not set in an enclosure as we assume that its acoustic load is already accounted for in its lumped parameters.</p></li>
+<li><p>the tweeter is not set in an enclosure as we assume that its acoustic load is already accounted for in its lumped parameters (which is not a generality).</p></li>
 </ul>
 </section>
 <section id="code-summary">
@@ -572,7 +574,8 @@
 
 <span class="c1">#%% Define ported enclosure</span>
 <span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;ported_LF&quot;</span><span class="p">,</span> <span class="mf">40e-3</span><span class="p">,</span> 
-                     <span class="n">Lp</span><span class="o">=</span><span class="mf">35e-2</span><span class="p">,</span> <span class="n">Sp</span><span class="o">=</span><span class="mf">78.6e-4</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span>
+                     <span class="n">Lp</span><span class="o">=</span><span class="mf">35e-2</span><span class="p">,</span> <span class="n">Sp</span><span class="o">=</span><span class="mf">78.6e-4</span><span class="p">,</span> 
+                     <span class="n">Qab</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">Qal</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
                      <span class="n">ref2bem</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> 
                      <span class="n">setDriver</span><span class="o">=</span><span class="s2">&quot;SB34&quot;</span><span class="p">,</span> <span class="n">Nd</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                      <span class="n">wiring</span><span class="o">=</span><span class="s2">&quot;parallel&quot;</span><span class="p">)</span>
@@ -630,7 +633,7 @@
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">System overview and meshing</p>
+        <p class="prev-next-title">Geometry import and meshing</p>
       </div>
     </a>
     <a class="right-next"

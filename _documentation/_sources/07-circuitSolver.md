@@ -1,6 +1,6 @@
 (chapter:circuitSolver)=
 # circuitSolver
-Before diving into the lumped-element wrappers, it is best to present the **circuitSolver** class. It lets the user create electrical networks and uses (a relatively simplified) Modified Nodal Analysis (MNA) to solve nodes potential and sources current in the frequency domain. It is the basis on which electroacPy's lumped-element classes are built. Using networks through **circuitSolver** allows much more flexibility when describing electro-acoustic networks --- as long as you know how to describe your system with lumped-elements.
+Before diving into the lumped-element wrappers, it is best to present the **circuitSolver** class. It lets the user create electrical networks and uses (a fairly simplified) Modified Nodal Analysis (MNA) to solve nodes potential and sources current in the frequency domain. It is the basis on which electroacPy's lumped-element classes are built. Using networks through **circuitSolver** allows much more flexibility when describing electro-acoustic networks --- as long as you know how to describe your system with lumped-elements.
 
 Networks are initialized by creating a **circuit** object:
 

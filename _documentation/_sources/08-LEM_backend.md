@@ -45,6 +45,9 @@ A good thing to note is that `.plotZe()` will actually plot the input impedance 
 ### **speakerBox**
 As explained in the lumped-element modeler for enclosures, all **speakerBox** objects are primarily defined by their respective box volumes. Then, depending on user inputs, different types of systems can be created. This section illustrates the various lumped networks for each enclosure design and clarifies which parameters correspond to specific elements of the system.
 
+The alignments given in the following of this section are based on the [Wavecor WF275BD01](https://loudspeakerdatabase.com/Wavecor/WF275BD01) mid-bass driver.
+
+
 #### sealed enclosure
 The sealed box is the default configuration. In this case, the back of the driver is loaded by a simple acoustic volume.
 
@@ -56,7 +59,7 @@ Physical representation of the sealed box.
 ```
 
 ```python
-system.lem_enclosure("sealed", Vb)
+system.lem_enclosure("sealed", Vb=20e-3, setDriver="wf250")  # volume in m^3
 ```
 
 
@@ -90,6 +93,13 @@ $$
 
 where lower values on the left indicate higher losses, while higher values on the right correspond to lower losses. Of course, these values depend heavily on the amount of damping material in the enclosure and the quality of construction. You will surely need to determine the "correct" values through trial and error, depending on your build.
 
+```{figure} ./LEM_backend_images/sealed.svg
+    :name: sealed-alignment
+
+Example a sealed box loudspeaker alignment.
+```
+
+
 #### ported enclosure
 Ported enclosures[^ported-box] are defined by adding --- to the `.lem_enclosure()` method --- a port's length $L_p$ and a corresponding radius *or* cross-section area: $r_p$ or $S_p$, respectively. Since ports are more than just straight tubes, it is possible to specify whether none, one, or both ends are flanged. This can be adjusted by setting the `flange` argument to either `"none"`, `"single"` or `"both"`. The following code shows the basics arguments for defining a ported box:
 
@@ -103,7 +113,8 @@ Representation of a bass-reflex system with a port at the back of the enclosure.
 ```
 
 ```python
-system.lem_enclosure("port", Vb, Lp, rp, flange="single")
+system.lem_enclosure("port", Vb=20e-3, Lp=30e-2, rp=5e-2,        # length in m
+                             flange="single", setDriver="wf250")
 ```
 
 ```{figure} ./LEM_backend_images/02_ported_enclosure.svg
@@ -132,6 +143,12 @@ where
 - $\mu$ is the air viscosity (approximately $1.82\times 10^{-5}$ kg/(m.s) at 20°C).
 
 
+```{figure} ./LEM_backend_images/ported.svg
+    :name: ported-alignment
+
+Example of bass-reflex alignment.
+```
+
 
 #### ABR configuration
 
@@ -145,7 +162,8 @@ ABR setup, with the auxiliary radiator represented in red.
 ```
 
 ```python
-system.lem_enclosure("abr", Vb, Mmd, Cmd, Rmd, Sd)
+system.lem_enclosure("abr", Vb=20e-3, Mmd=190e-3, Cmd=0.35e-3, 
+                            Rmd=0.368, Sd=314e-4, setDriver="wf250")
 ```
 
 ```{figure} ./LEM_backend_images/03_abr_enclosure.svg
@@ -164,6 +182,11 @@ $$
 
 where $Mmd$ is the mass of the passive radiator in $kg$, $Rmd$ the mechanical resistance of suspensions in $N.s/m$ and Cmd is the suspensions compliance in $m/N$. Finally, $Sd$ is the radiating surface of the ABR, which is used to translate the mechanical elements into their acoustical counterparts.
 
+```{figure} ./LEM_backend_images/abr.svg
+    :name: abr-alignment
+
+Example of ABR alignment.
+```
 
 #### 4th order bandpass (port / ABR)
 The 4th order bandpass enclosure has its loudspeaker radiating into a front volume $V_f$. In that configuration, the port (or ABR) is the only radiating element of the system --- connected to the front volume. Similarly to bass-reflex or ABR enclosures, the port dimensions or ABR parameters must be given as key arguments.
@@ -196,7 +219,8 @@ ABR bandpass enclosure.
 <br>
 
 ```python
-system.lem_enclosure("bp_port", Vb, Vf, Lp, rp)
+system.lem_enclosure("bp_port", Vb=20e-3, Vf=15e-3, 
+                                Lp=35e-2, rp=5e-2, setDriver="wf250")
 system.lem_enclosure("bp_abr", Vb, Vf, Mmd, Cmd, Rmd, Sd)
 ```
 
@@ -212,9 +236,16 @@ system.lem_enclosure("bp_abr", Vb, Vf, Mmd, Cmd, Rmd, Sd)
 4th order bandpass enclosure. A passive radiator replaces the port.
 ```
 
+```{figure} ./LEM_backend_images/bp4p.svg
+    :name: bp4p-alignment
+
+Example of a 4th order bandpass alignment. In this case, the front volume is loaded by a port.
+```
+
 
 #### 6th order bandpass (port / ABR)
 
+These configurations are achieved by setting an additional port / ABR into the `.lem_enclosure()` method. It will be connected to the back volume `Vb` of the driver.
 
 ```{figure} ./LEM_backend_images/0h_bandpassp6_box.svg
     :name: bp6-box-h
@@ -243,8 +274,8 @@ system.lem_enclosure("bp_abr", Vb, Vf, Mmd, Cmd, Rmd, Sd)
 <br>
 
 ```python
-system.lem_enclosure("bp_port", Vb, Vf, Lp, rp, 
-                                        Lp2, rp2)
+system.lem_enclosure("bp_port", Vb=50e-3, Vf=18e-3, Lp=35e-2, rp=5e-2, 
+                                Lp2=25e-2, rp2=2.5e-2, setDriver="wf250")
 system.lem_enclosure("bp_abr", Vb, Vf, Mmd, Cmd, Rmd, Sd, 
                                        Mmd2, Cmd2, Rmd2, Sd2)
 ```
@@ -261,4 +292,11 @@ system.lem_enclosure("bp_abr", Vb, Vf, Mmd, Cmd, Rmd, Sd,
     :align: center
 
 6th order bandpass --- ABR.
+```
+
+
+```{figure} ./LEM_backend_images/bp6p.svg
+    :name: bp6p-alignment-plot
+
+Example of a 6th order bandpass alignment. Port configuration.
 ```

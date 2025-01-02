@@ -437,6 +437,7 @@ Z_{ms} = R_{ms} + j\omega M_{ms} + \frac{1}{j\omega C_{ms}}.
 <section id="speakerbox">
 <h3><strong>speakerBox</strong><a class="headerlink" href="#speakerbox" title="Link to this heading">#</a></h3>
 <p>As explained in the lumped-element modeler for enclosures, all <strong>speakerBox</strong> objects are primarily defined by their respective box volumes. Then, depending on user inputs, different types of systems can be created. This section illustrates the various lumped networks for each enclosure design and clarifies which parameters correspond to specific elements of the system.</p>
+<p>The alignments given in the following of this section are based on the <a class="reference external" href="https://loudspeakerdatabase.com/Wavecor/WF275BD01">Wavecor WF275BD01</a> mid-bass driver.</p>
 <section id="sealed-enclosure">
 <h4>sealed enclosure<a class="headerlink" href="#sealed-enclosure" title="Link to this heading">#</a></h4>
 <p>The sealed box is the default configuration. In this case, the back of the driver is loaded by a simple acoustic volume.</p>
@@ -446,7 +447,7 @@ Z_{ms} = R_{ms} + j\omega M_{ms} + \frac{1}{j\omega C_{ms}}.
 <p><span class="caption-number">Fig. 50 </span><span class="caption-text">Physical representation of the sealed box.</span><a class="headerlink" href="#sealed-box-a" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;sealed&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;sealed&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="o">=</span><span class="mf">20e-3</span><span class="p">,</span> <span class="n">setDriver</span><span class="o">=</span><span class="s2">&quot;wf250&quot;</span><span class="p">)</span>  <span class="c1"># volume in m^3</span>
 </pre></div>
 </div>
 <figure class="align-default" id="sealed-box">
@@ -472,6 +473,12 @@ Z_{ms} = R_{ms} + j\omega M_{ms} + \frac{1}{j\omega C_{ms}}.
 30&lt;Q_{ab}&lt;100, ~~ 10&lt;Q_{al}&lt;30,
 \]</div>
 <p>where lower values on the left indicate higher losses, while higher values on the right correspond to lower losses. Of course, these values depend heavily on the amount of damping material in the enclosure and the quality of construction. You will surely need to determine the “correct” values through trial and error, depending on your build.</p>
+<figure class="align-default" id="sealed-alignment">
+<img alt="_images/sealed.svg" src="_images/sealed.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 52 </span><span class="caption-text">Example a sealed box loudspeaker alignment.</span><a class="headerlink" href="#sealed-alignment" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
 </section>
 <section id="ported-enclosure">
 <h4>ported enclosure<a class="headerlink" href="#ported-enclosure" title="Link to this heading">#</a></h4>
@@ -479,16 +486,17 @@ Z_{ms} = R_{ms} + j\omega M_{ms} + \frac{1}{j\omega C_{ms}}.
 <figure class="align-default" id="ported-box-b">
 <a class="reference internal image-reference" href="_images/0b_ported_box.svg"><img alt="_images/0b_ported_box.svg" src="_images/0b_ported_box.svg" style="width: 132.0px; height: 188.5px;" /></a>
 <figcaption>
-<p><span class="caption-number">Fig. 52 </span><span class="caption-text">Representation of a bass-reflex system with a port at the back of the enclosure.</span><a class="headerlink" href="#ported-box-b" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 53 </span><span class="caption-text">Representation of a bass-reflex system with a port at the back of the enclosure.</span><a class="headerlink" href="#ported-box-b" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;port&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="p">,</span> <span class="n">Lp</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> <span class="n">flange</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;port&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="o">=</span><span class="mf">20e-3</span><span class="p">,</span> <span class="n">Lp</span><span class="o">=</span><span class="mf">30e-2</span><span class="p">,</span> <span class="n">rp</span><span class="o">=</span><span class="mf">5e-2</span><span class="p">,</span>        <span class="c1"># length in m</span>
+                             <span class="n">flange</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span> <span class="n">setDriver</span><span class="o">=</span><span class="s2">&quot;wf250&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id4">
 <img alt="_images/02_ported_enclosure.svg" src="_images/02_ported_enclosure.svg" />
 <figcaption>
-<p><span class="caption-number">Fig. 53 </span><span class="caption-text">Ported enclosure. The port radiation is modeled with an additional radiation impedance.</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 54 </span><span class="caption-text">Ported enclosure. The port radiation is modeled with an additional radiation impedance.</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>Relative to the acoustic network, a ported enclosure adds an acoustic mass and resistance linked to the port dimensions and another radiation impedance <span class="math notranslate nohighlight">\(Z_{radp}\)</span> linked to the area of the opening. These are defined as:</p>
@@ -508,6 +516,12 @@ R_p = \frac{\sqrt{2\omega \rho \mu}}{Sp} \times \left( \frac{Lp}{rp} + 1\right)
 <li><p><span class="math notranslate nohighlight">\(\omega\)</span> is the angular frequency,</p></li>
 <li><p><span class="math notranslate nohighlight">\(\mu\)</span> is the air viscosity (approximately <span class="math notranslate nohighlight">\(1.82\times 10^{-5}\)</span> kg/(m.s) at 20°C).</p></li>
 </ul>
+<figure class="align-default" id="ported-alignment">
+<img alt="_images/ported.svg" src="_images/ported.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 55 </span><span class="caption-text">Example of bass-reflex alignment.</span><a class="headerlink" href="#ported-alignment" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
 </section>
 <section id="abr-configuration">
 <h4>ABR configuration<a class="headerlink" href="#abr-configuration" title="Link to this heading">#</a></h4>
@@ -515,22 +529,29 @@ R_p = \frac{\sqrt{2\omega \rho \mu}}{Sp} \times \left( \frac{Lp}{rp} + 1\right)
 <figure class="align-default" id="abr-box-c">
 <a class="reference internal image-reference" href="_images/0c_abr_box.svg"><img alt="_images/0c_abr_box.svg" src="_images/0c_abr_box.svg" style="width: 132.0px; height: 188.5px;" /></a>
 <figcaption>
-<p><span class="caption-number">Fig. 54 </span><span class="caption-text">ABR setup, with the auxiliary radiator represented in red.</span><a class="headerlink" href="#abr-box-c" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 56 </span><span class="caption-text">ABR setup, with the auxiliary radiator represented in red.</span><a class="headerlink" href="#abr-box-c" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;abr&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="p">,</span> <span class="n">Mmd</span><span class="p">,</span> <span class="n">Cmd</span><span class="p">,</span> <span class="n">Rmd</span><span class="p">,</span> <span class="n">Sd</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;abr&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="o">=</span><span class="mf">20e-3</span><span class="p">,</span> <span class="n">Mmd</span><span class="o">=</span><span class="mf">190e-3</span><span class="p">,</span> <span class="n">Cmd</span><span class="o">=</span><span class="mf">0.35e-3</span><span class="p">,</span> 
+                            <span class="n">Rmd</span><span class="o">=</span><span class="mf">0.368</span><span class="p">,</span> <span class="n">Sd</span><span class="o">=</span><span class="mf">314e-4</span><span class="p">,</span> <span class="n">setDriver</span><span class="o">=</span><span class="s2">&quot;wf250&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id5">
 <img alt="_images/03_abr_enclosure.svg" src="_images/03_abr_enclosure.svg" />
 <figcaption>
-<p><span class="caption-number">Fig. 55 </span><span class="caption-text">ABR enclosure. Here, the port is replaced by a mechanical radiator expressed in the acoustic domain.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 57 </span><span class="caption-text">ABR enclosure. Here, the port is replaced by a mechanical radiator expressed in the acoustic domain.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>These mechanical parameters are given by:</p>
 <div class="math notranslate nohighlight">
 \[Mma = \frac{Mmd}{Sd^2}, ~~ Rma = \frac{Rmd}{Sd^2}, ~~ Cma = Cmd \times Sd^2,\]</div>
 <p>where <span class="math notranslate nohighlight">\(Mmd\)</span> is the mass of the passive radiator in <span class="math notranslate nohighlight">\(kg\)</span>, <span class="math notranslate nohighlight">\(Rmd\)</span> the mechanical resistance of suspensions in <span class="math notranslate nohighlight">\(N.s/m\)</span> and Cmd is the suspensions compliance in <span class="math notranslate nohighlight">\(m/N\)</span>. Finally, <span class="math notranslate nohighlight">\(Sd\)</span> is the radiating surface of the ABR, which is used to translate the mechanical elements into their acoustical counterparts.</p>
+<figure class="align-default" id="abr-alignment">
+<img alt="_images/abr.svg" src="_images/abr.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 58 </span><span class="caption-text">Example of ABR alignment.</span><a class="headerlink" href="#abr-alignment" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
 </section>
 <section id="th-order-bandpass-port-abr">
 <h4>4th order bandpass (port / ABR)<a class="headerlink" href="#th-order-bandpass-port-abr" title="Link to this heading">#</a></h4>
@@ -538,13 +559,13 @@ R_p = \frac{\sqrt{2\omega \rho \mu}}{Sp} \times \left( \frac{Lp}{rp} + 1\right)
 <figure class="align-left" id="bp-box-d">
 <a class="reference internal image-reference" href="_images/0d_bandpassp_box.svg"><img alt="_images/0d_bandpassp_box.svg" src="_images/0d_bandpassp_box.svg" style="width: 207.5px; height: 188.5px;" /></a>
 <figcaption>
-<p><span class="caption-number">Fig. 56 </span><span class="caption-text">Ported bandpass enclosure.</span><a class="headerlink" href="#bp-box-d" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 59 </span><span class="caption-text">Ported bandpass enclosure.</span><a class="headerlink" href="#bp-box-d" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <figure class="align-right" id="abr-box-d">
 <a class="reference internal image-reference" href="_images/0e_bandpassabr_box.svg"><img alt="_images/0e_bandpassabr_box.svg" src="_images/0e_bandpassabr_box.svg" style="width: 207.5px; height: 188.5px;" /></a>
 <figcaption>
-<p><span class="caption-number">Fig. 57 </span><span class="caption-text">ABR bandpass enclosure.</span><a class="headerlink" href="#abr-box-d" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 60 </span><span class="caption-text">ABR bandpass enclosure.</span><a class="headerlink" href="#abr-box-d" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <br>
@@ -557,35 +578,43 @@ R_p = \frac{\sqrt{2\omega \rho \mu}}{Sp} \times \left( \frac{Lp}{rp} + 1\right)
 <br>
 <br>
 <br>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;bp_port&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="p">,</span> <span class="n">Vf</span><span class="p">,</span> <span class="n">Lp</span><span class="p">,</span> <span class="n">rp</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;bp_port&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="o">=</span><span class="mf">20e-3</span><span class="p">,</span> <span class="n">Vf</span><span class="o">=</span><span class="mf">15e-3</span><span class="p">,</span> 
+                                <span class="n">Lp</span><span class="o">=</span><span class="mf">35e-2</span><span class="p">,</span> <span class="n">rp</span><span class="o">=</span><span class="mf">5e-2</span><span class="p">,</span> <span class="n">setDriver</span><span class="o">=</span><span class="s2">&quot;wf250&quot;</span><span class="p">)</span>
 <span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;bp_abr&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="p">,</span> <span class="n">Vf</span><span class="p">,</span> <span class="n">Mmd</span><span class="p">,</span> <span class="n">Cmd</span><span class="p">,</span> <span class="n">Rmd</span><span class="p">,</span> <span class="n">Sd</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id6">
 <img alt="_images/04_bandpass_port.svg" src="_images/04_bandpass_port.svg" />
 <figcaption>
-<p><span class="caption-number">Fig. 58 </span><span class="caption-text">4th order bandpass enclosure. The port is in the volume in front of the woofer.</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 61 </span><span class="caption-text">4th order bandpass enclosure. The port is in the volume in front of the woofer.</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id7">
 <img alt="_images/05_bandpass_abr.svg" src="_images/05_bandpass_abr.svg" />
 <figcaption>
-<p><span class="caption-number">Fig. 59 </span><span class="caption-text">4th order bandpass enclosure. A passive radiator replaces the port.</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 62 </span><span class="caption-text">4th order bandpass enclosure. A passive radiator replaces the port.</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="bp4p-alignment">
+<img alt="_images/bp4p.svg" src="_images/bp4p.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 63 </span><span class="caption-text">Example of a 4th order bandpass alignment. In this case, the front volume is loaded by a port.</span><a class="headerlink" href="#bp4p-alignment" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
 <section id="id3">
 <h4>6th order bandpass (port / ABR)<a class="headerlink" href="#id3" title="Link to this heading">#</a></h4>
+<p>These configurations are achieved by setting an additional port / ABR into the <code class="docutils literal notranslate"><span class="pre">.lem_enclosure()</span></code> method. It will be connected to the back volume <code class="docutils literal notranslate"><span class="pre">Vb</span></code> of the driver.</p>
 <figure class="align-left" id="bp6-box-h">
 <a class="reference internal image-reference" href="_images/0h_bandpassp6_box.svg"><img alt="_images/0h_bandpassp6_box.svg" src="_images/0h_bandpassp6_box.svg" style="width: 207.5px; height: 188.5px;" /></a>
 <figcaption>
-<p><span class="caption-number">Fig. 60 </span><span class="caption-text">6th order bandpass — port.</span><a class="headerlink" href="#bp6-box-h" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 64 </span><span class="caption-text">6th order bandpass — port.</span><a class="headerlink" href="#bp6-box-h" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <figure class="align-right" id="abr6-box-g">
 <a class="reference internal image-reference" href="_images/0g_bandpassabr6_box.svg"><img alt="_images/0g_bandpassabr6_box.svg" src="_images/0g_bandpassabr6_box.svg" style="width: 207.5px; height: 188.5px;" /></a>
 <figcaption>
-<p><span class="caption-number">Fig. 61 </span><span class="caption-text">6th order bandpass — ABR.</span><a class="headerlink" href="#abr6-box-g" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 65 </span><span class="caption-text">6th order bandpass — ABR.</span><a class="headerlink" href="#abr6-box-g" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <br>
@@ -598,8 +627,8 @@ R_p = \frac{\sqrt{2\omega \rho \mu}}{Sp} \times \left( \frac{Lp}{rp} + 1\right)
 <br>
 <br>
 <br>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;bp_port&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="p">,</span> <span class="n">Vf</span><span class="p">,</span> <span class="n">Lp</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> 
-                                        <span class="n">Lp2</span><span class="p">,</span> <span class="n">rp2</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;bp_port&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="o">=</span><span class="mf">50e-3</span><span class="p">,</span> <span class="n">Vf</span><span class="o">=</span><span class="mf">18e-3</span><span class="p">,</span> <span class="n">Lp</span><span class="o">=</span><span class="mf">35e-2</span><span class="p">,</span> <span class="n">rp</span><span class="o">=</span><span class="mf">5e-2</span><span class="p">,</span> 
+                                <span class="n">Lp2</span><span class="o">=</span><span class="mf">25e-2</span><span class="p">,</span> <span class="n">rp2</span><span class="o">=</span><span class="mf">2.5e-2</span><span class="p">,</span> <span class="n">setDriver</span><span class="o">=</span><span class="s2">&quot;wf250&quot;</span><span class="p">)</span>
 <span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;bp_abr&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="p">,</span> <span class="n">Vf</span><span class="p">,</span> <span class="n">Mmd</span><span class="p">,</span> <span class="n">Cmd</span><span class="p">,</span> <span class="n">Rmd</span><span class="p">,</span> <span class="n">Sd</span><span class="p">,</span> 
                                        <span class="n">Mmd2</span><span class="p">,</span> <span class="n">Cmd2</span><span class="p">,</span> <span class="n">Rmd2</span><span class="p">,</span> <span class="n">Sd2</span><span class="p">)</span>
 </pre></div>
@@ -607,13 +636,19 @@ R_p = \frac{\sqrt{2\omega \rho \mu}}{Sp} \times \left( \frac{Lp}{rp} + 1\right)
 <figure class="align-default" id="id8">
 <img alt="_images/06_bandpass6_port.svg" src="_images/06_bandpass6_port.svg" />
 <figcaption>
-<p><span class="caption-number">Fig. 62 </span><span class="caption-text">6th order bandpass — port.</span><a class="headerlink" href="#id8" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 66 </span><span class="caption-text">6th order bandpass — port.</span><a class="headerlink" href="#id8" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id9">
 <img alt="_images/07_bandpass6_abr.svg" src="_images/07_bandpass6_abr.svg" />
 <figcaption>
-<p><span class="caption-number">Fig. 63 </span><span class="caption-text">6th order bandpass — ABR.</span><a class="headerlink" href="#id9" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 67 </span><span class="caption-text">6th order bandpass — ABR.</span><a class="headerlink" href="#id9" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="bp6p-alignment-plot">
+<img alt="_images/bp6p.svg" src="_images/bp6p.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 68 </span><span class="caption-text">Example of a 6th order bandpass alignment. Port configuration.</span><a class="headerlink" href="#bp6p-alignment-plot" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <hr class="footnotes docutils" />

@@ -173,7 +173,7 @@
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Loudspeaker System</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="02-loudspeaker_system.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">System overview and meshing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">Geometry import and meshing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="03-lumped_modeler.html">Lumped Element Modeler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04-BEM_modeler.html">Boundary Element Modeler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05-post_processing.html">Post-processing</a></li>
@@ -391,7 +391,7 @@
 <h1>BEM module<a class="headerlink" href="#bem-module" title="Link to this heading">#</a></h1>
 <section id="interior-and-exterior-studies">
 <h2>Interior and exterior studies<a class="headerlink" href="#interior-and-exterior-studies" title="Link to this heading">#</a></h2>
-<p>The boundary element method (BEM), as explained in <span id="id1">[<a class="reference internal" href="100-ref.html#id2" title="Fridolin P. Mechel. Formulas of Acoustics. 2004.">Mec04</a>]</span>, aims to solve the following equation:</p>
+<p>The boundary element method (BEM), as explained in <span id="id1">[<a class="reference internal" href="100-ref.html#id2" title="Fridolin P. Mechel. Formulas of Acoustics. 2004.">Mec04</a>]</span>, aims to solve the following equation for exterior field studies:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\iint_S \left[ p(\textbf{y}) \frac{\partial G(\textbf{x}, \textbf{y})}{\partial n(\textbf{y})} - \frac{\partial p(\textbf{y})}{\partial n(\textbf{y})}G(\textbf{x}, \textbf{y}) \right]dS = \begin{cases} p(\textbf{x}), &amp; \textbf{x} \in B_e \\ \frac{1}{2}p(\textbf{x}), &amp; \textbf{x} \in S \\ 0,&amp; \textbf{x} \in B_i \end{cases}\end{split}\]</div>
 <p>where <strong>x</strong> is a point in space, <strong>y</strong> is a point on the system boundary <span class="math notranslate nohighlight">\(S\)</span>; and where <span class="math notranslate nohighlight">\(B_e\)</span> and <span class="math notranslate nohighlight">\(B_i\)</span> the exterior and interior domains. In the case of bempp-cl (and these equations) the propagation convention is <span class="math notranslate nohighlight">\(e^{+jkr}\)</span><a class="footnote-reference brackets" href="#conventionstuff" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. The green function <span class="math notranslate nohighlight">\(G(\textbf{x}, \textbf{y})\)</span> used is:</p>
@@ -399,22 +399,74 @@
 \[
 G(\textbf{x}, \textbf{y}) = \frac{1}{4\pi ||\textbf{x}-\textbf{y}||} e^{+jk||\textbf{x}-\textbf{y}||}.
 \]</div>
-<p>Generally, a such system is solved in two steps:</p>
+<p>The BEM is done in two steps:</p>
 <ul class="simple">
-<li><p>calculation of the pressure on the system’s boundaries (scattered field),</p></li>
-<li><p>calculation of the pressure at external points or grids. This second step will be discussed in the next section, because it is closely related to the <strong>evaluation</strong> class.</p></li>
+<li><p>calculation of the pressure on the system’s boundaries,</p></li>
+<li><p>calculation of the pressure at external points (or grids). Because it is closely related to the <strong>evaluation</strong> class, this point is discussed in the next section.</p></li>
 </ul>
-<p>By writing the integral equations in a matrix form we can rewrite the integral equation under the form <span class="math notranslate nohighlight">\(Ax=b\)</span>, where we solve for <span class="math notranslate nohighlight">\(x\)</span>. For exterior-field calculations, the equation is the following:</p>
+<p>By writing the integral equation under the matrix form <span class="math notranslate nohighlight">\(Ax=b\)</span>, we can solve for <span class="math notranslate nohighlight">\(x\)</span> — the acoustic pressure:</p>
 <div class="math notranslate nohighlight">
 \[
     \left[ D - \frac{1}{2} I \right] P_s = j\omega \rho S U,
 \]</div>
-<p>while it is</p>
+<p>Where <span class="math notranslate nohighlight">\(P_s\)</span>​ represents the acoustic pressure on the boundaries, <span class="math notranslate nohighlight">\(I\)</span> is the identity matrix, <span class="math notranslate nohighlight">\(D\)</span> and <span class="math notranslate nohighlight">\(S\)</span> denote the double and single layer terms, and <span class="math notranslate nohighlight">\(U\)</span> is the source velocity.</p>
+<p>The single and double layer terms correspond to the configuration of direct (acoustic radiator) and indirect sources (system boundaries). Simply put, the single layer represents monopole sources, while the double layer corresponds to dipole sources.</p>
+<figure class="align-default" id="sd-layers">
+<img alt="_images/single_double_layer.svg" src="_images/single_double_layer.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 69 </span><span class="caption-text">Single layer (blue) and double layer (black). The external pressure is the sum of the two projected fields. This is a simplified representation of BEM — see <span id="id3">[<a class="reference internal" href="100-ref.html#id2" title="Fridolin P. Mechel. Formulas of Acoustics. 2004.">Mec04</a>]</span> for more complete explanation.</span><a class="headerlink" href="#sd-layers" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>In the case of interior studies, the previous equation becomes</p>
 <div class="math notranslate nohighlight">
 \[
-    \left[ D + \frac{1}{2} I \right] P_s = j\omega \rho S U,
+    \left[ D + \frac{1}{2} I \right] P_s = j\omega \rho S U.
 \]</div>
-<p>for interior-field calculation. With <span class="math notranslate nohighlight">\(P_s\)</span> the scattered field, <span class="math notranslate nohighlight">\(D\)</span> the double layer term, <span class="math notranslate nohighlight">\(I\)</span> the identity matrix, <span class="math notranslate nohighlight">\(S\)</span> the single layer term and <span class="math notranslate nohighlight">\(U\)</span> the source velocity. Single and Double layer means that the scattered pressure is projected as dipoles, while the source <span class="math notranslate nohighlight">\(U\)</span> is described as monopoles — see ???.</p>
+<p>The following code shows how to compute the acoustic pressure over the boundary of a system. To make it easier to read, a single frequency step is computed. The full frequency response can be computed by looping over a frequency array.</p>
+<p>In the case of interior studies, the previous equation becomes</p>
+<div class="math notranslate nohighlight">
+\[
+    \left[ D + \frac{1}{2} I \right] P_s = j\omega \rho S U.
+\]</div>
+<p>The following code shows how to compute the acoustic pressure over the boundary of a system. To make it easier to read, a single frequency step is computed. The full frequency response can be computed by looping over a frequency array.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">bempp.api</span>
+<span class="kn">from</span> <span class="nn">bempp.api.operators.boundary</span> <span class="kn">import</span> <span class="n">helmholtz</span><span class="p">,</span> <span class="n">sparse</span>
+<span class="kn">from</span> <span class="nn">bempp.api.linalg</span> <span class="kn">import</span> <span class="n">gmres</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="mi">5000</span>          <span class="c1"># frequency (Hz)</span>
+<span class="n">w</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f</span> <span class="c1"># angular frequency (rad/s)</span>
+<span class="n">k</span> <span class="o">=</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">343</span>       <span class="c1"># wavenumber</span>
+
+<span class="c1"># importing system &quot;grid&quot;</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="s1">&#39;path/to/meshFile.msh&#39;</span>      <span class="c1"># we can take the studio monitor</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="n">bempp</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">import_grid</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+
+<span class="c1"># domain where scattered pressure is evaluated</span>
+<span class="n">spaceP</span>       <span class="o">=</span> <span class="n">bempp</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">function_space</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="s2">&quot;P&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">identity</span>     <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">spaceP</span><span class="p">,</span> <span class="n">spaceP</span><span class="p">,</span> <span class="n">spaceP</span><span class="p">)</span>
+<span class="n">double_layer</span> <span class="o">=</span> <span class="n">helmholtz</span><span class="o">.</span><span class="n">double_layer</span><span class="p">(</span><span class="n">spaceP</span><span class="p">,</span> <span class="n">spaceP</span><span class="p">,</span> <span class="n">spaceP</span><span class="p">)</span>
+
+<span class="c1"># domain where source velocity is defined (known quantity)</span>
+<span class="n">spaceU</span>       <span class="o">=</span> <span class="n">bempp</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">function_space</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="s2">&quot;DP&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">segments</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># segment=[1]: physical group corresponding to the driver</span>
+<span class="n">dof_count</span>    <span class="o">=</span> <span class="n">spaceU</span><span class="o">.</span><span class="n">grid_dof_count</span>  <span class="c1"># to apply the same velocity on all elements of the radiator</span>
+<span class="n">u_in</span>         <span class="o">=</span> <span class="n">bempp</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">GridFunction</span><span class="p">(</span><span class="n">spaceU</span><span class="p">,</span> 
+                                      <span class="n">coefficients</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">dof_count</span><span class="p">))</span>
+<span class="n">single_layer</span> <span class="o">=</span> <span class="n">helmholtz</span><span class="o">.</span><span class="n">single_layer</span><span class="p">(</span><span class="n">spaceU</span><span class="p">,</span> <span class="n">spaceP</span><span class="p">,</span> <span class="n">spaceP</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+
+<span class="c1"># get total scattered field</span>
+<span class="n">p_total</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">gmres</span><span class="p">(</span><span class="n">double_layer</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">identity</span><span class="p">,</span> 
+                <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">w</span> <span class="o">*</span> <span class="n">rho</span> <span class="o">*</span> <span class="n">single_layer</span> <span class="o">*</span> <span class="n">u_in</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+<span class="c1"># if Gmsh is installed and linked to Python:</span>
+<span class="n">p_total</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">transformation</span><span class="o">=</span><span class="s2">&quot;real&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If Gmsh is installed — and accessible through Python — <code class="docutils literal notranslate"><span class="pre">p_total.plot(transformation=&quot;real&quot;)</span></code> will display the pressure over the system’s mesh:</p>
+<figure class="align-default" id="pressure-sphere">
+<a class="reference internal image-reference" href="_images/pressure_sphere.png"><img alt="_images/pressure_sphere.png" src="_images/pressure_sphere.png" style="width: 490.5px; height: 413.25px;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 70 </span><span class="caption-text">Pressure distribution over a spherical loudspeaker.</span><a class="headerlink" href="#pressure-sphere" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
 <hr class="footnotes docutils" />
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="conventionstuff" role="doc-footnote">
