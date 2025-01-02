@@ -570,6 +570,7 @@ class pyvista_spkPlotter:
         self.nObs = len(pMicData)
 
         self.speaker = pyvista.read(bemOBJ.meshPath)
+        
         meshPlot = []
         # pmicdata
         for i in range(nObs):
