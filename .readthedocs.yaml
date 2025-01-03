@@ -12,7 +12,7 @@ build:
 python:
   install:
     - method: pip
-    - requirements: requirements.txt
+    - requirements: docs/requirements.txt
       path: .
       extra_requirements:
       - sphinx
