@@ -10,7 +10,7 @@ import numpy as np
 import pyvista
 import os
 import electroacPy
-import generalToolbox.plot as gplot
+from ..general import plot as gplot
 directory_path = os.path.abspath(electroacPy.__file__)
 
 pi = np.pi

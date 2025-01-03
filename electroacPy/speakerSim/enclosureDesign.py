@@ -8,9 +8,7 @@ Created on Tue Oct  3 15:56:03 2023
 
 from electroacPy.global_ import air
 from electroacPy.speakerSim.electroAcousticDriver import electroAcousticDriver as ead
-from generalToolbox.freqop import freq_log10 as f10
-from generalToolbox.freqop import laplace
-from generalToolbox import parallel
+from electroacPy.general.freqop import freq_log10, laplace
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -24,7 +22,7 @@ pi = np.pi
 
 ## New approach
 class speakerBox:
-    def __init__(self, Vb, frequencyRange=f10(20, 2500, 50),
+    def __init__(self, Vb, frequencyRange=freq_log10(20, 2500, 50),
                  eta=1e-5, c=air.c, rho=air.rho, **kwargs):
         """
         Setup a louspeaker enclosure as a lumped-element object.

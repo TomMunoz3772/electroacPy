@@ -20,3 +20,6 @@ from electroacPy.circuitSolver.solver import circuit
 from electroacPy.circuitSolver import components as csc
 from electroacPy.circuitSolver import blocks as csb
 
+#%% "general" module
+from electroacPy import general as gtb
+

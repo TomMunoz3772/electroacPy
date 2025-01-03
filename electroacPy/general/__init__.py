@@ -1,12 +1,12 @@
+# import acoustics
+# import gain
+# import freqop
+# import geometry
+# import io
+# import signals
+# import plot
+# from mesh import CAD as meshCAD
 import numpy as np
-import generalToolbox.acoustics
-import generalToolbox.gain
-import generalToolbox.freqop
-import generalToolbox.geometry
-import generalToolbox.io
-import generalToolbox.signals
-import generalToolbox.plot
-from generalToolbox.mesh import CAD as meshCAD
 from re import findall
 
 ## General functions

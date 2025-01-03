@@ -4,7 +4,7 @@ Helpful plotting functions.
 """
 
 import numpy as np
-import generalToolbox as gtb
+import electroacPy.general as gtb
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Cursor
 from matplotlib.backend_bases import MouseButton
@@ -48,7 +48,7 @@ def FRF(freq, H, transformation="SPL", logx=True, legend=None, **kwargs):  #logx
     Returns:
         None
     """
-    from generalToolbox.gain import SPL, dB
+    from electroacPy.general.gain import SPL, dB
 
     # get kwargs
     labels = legend
@@ -181,7 +181,7 @@ def directivity(freq, theta, H, transformation='SPL', logx=True, **kwargs):
     :param transformation:
     :return:
     """
-    from generalToolbox.gain import dB, SPL
+    from electroacPy.general.gain import dB, SPL
 
     # associate transformations
     if transformation == "SPL":

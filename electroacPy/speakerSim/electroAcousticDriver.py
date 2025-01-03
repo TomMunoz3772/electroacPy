@@ -6,10 +6,10 @@ Created on Tue Oct  3 15:50:43 2023
 @author: tom.munoz
 """
 import numpy as np
+import electroacPy.general as gtb
 from electroacPy.global_ import air
+from electroacPy.general import lp_loaders as lpl
 import matplotlib.pyplot as plt
-import generalToolbox as gtb
-import generalToolbox.lp_loaders as lpl
 import tkinter as tk
 from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg

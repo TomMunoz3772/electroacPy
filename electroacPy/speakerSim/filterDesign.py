@@ -8,7 +8,7 @@ Created on Tue Oct  3 15:55:45 2023
 
 import numpy as np
 import matplotlib.pyplot as plt
-import generalToolbox as gtb
+import electroacPy.general as gtb
 from scipy.signal import butter, freqs, freqz
 from numpy import sin, cos, sqrt, pi
 import scipy as sp

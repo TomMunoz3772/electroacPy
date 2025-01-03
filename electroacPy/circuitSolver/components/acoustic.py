@@ -7,8 +7,7 @@ Created on Tue Sep  3 10:40:49 2024
 """
 
 from numpy import array, zeros, ones, pi, sqrt, tan, sin
-from numpy import max as npmax
-from generalToolbox.freqop import laplace
+from electroacPy.general.freqop import laplace
 
 
 class pressureSource:

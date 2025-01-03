@@ -27,8 +27,8 @@ from electroacPy.measurements.laserVibrometry import laserVibrometry as laser_v
 
 # general
 from electroacPy.global_ import air
-from generalToolbox.freqop import freq_log10
-from generalToolbox.gain import dB
+from electroacPy.general.freqop import freq_log10
+from electroacPy.general.gain import dB
 
 # external libraries
 import numpy as np

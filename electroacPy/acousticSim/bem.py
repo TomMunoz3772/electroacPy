@@ -13,10 +13,11 @@ from bempp.api.assembly.discrete_boundary_operator import DiagonalOperator
 from scipy.sparse.linalg import gmres as scipy_gmres
 from bempp.api.linalg import gmres
 import numpy as np
-import generalToolbox as gtb
 from tqdm import tqdm
 import warnings
 from pyopencl import CompilerWarning
+import electroacPy.general as gtb
+
 warnings.filterwarnings("ignore", message="splu requires CSC matrix format")
 warnings.filterwarnings("ignore", message="splu converted its input to CSC format")
 warnings.filterwarnings("ignore", category=CompilerWarning)
