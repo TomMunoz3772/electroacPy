@@ -12,12 +12,10 @@ build:
 python:
   install:
     - method: pip
-    - requirements: docs/requirements.txt
       path: .
       extra_requirements:
       - sphinx
 
 sphinx:
   builder: html
-  configuration: docs/conf.py
   fail_on_warning: true
