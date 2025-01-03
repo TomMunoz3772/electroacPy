@@ -1,6 +1,6 @@
 # electroacPy
 
-Welcome to the electroacPy toolbox! This toolbox provides a collection of tools designed to streamline prototyping and analysis tasks in the field of electroacoustics. It consists of multiple modules, addressing specific aspects of loudspeaker system design, signal processing, and data manipulation.
+Welcome! This toolbox provides a collection of tools designed to streamline prototyping and analysis tasks in the field of electroacoustics. It consists of multiple modules, addressing specific aspects of loudspeaker system design.
 
 ## Installation
 **Before Starting**
@@ -39,20 +39,23 @@ Optionally, you can use Python 3.11 (or newer).
 conda install python=3.11
 ```
 4. **Install electroacPy**:
-- For standard installation:
-    ```bash
-    pip install /path/to/electroacPy
-    ```
-- For development (editable) installation:
-    ```bash
-    pip install -e /path/to/electroacPy
-    ```
+
+For standard installation:
+```bash
+pip install /path/to/electroacPy
+```
+For development (editable) installation:
+```bash
+pip install -e /path/to/electroacPy
+```
 
 ### Notes
-- **Using a separate environment**:  Installing ElectroacPy in its own Conda environment is recommended. This helps prevent conflicts during updates and allows easier management of dependencies.
-- **Selecting environments**: In Python IDEs like Spyder or PyCharm, you can choose the specific Conda environment where ElectroacPy is installed.
+**Using a separate environment**:  Installing ElectroacPy in its own Conda environment is recommended. This helps prevent conflicts during updates and allows easier management of dependencies.
 
-## Additional Steps for Spyder Users
+**Selecting environments**: In Python IDEs like Spyder or PyCharm, you can choose the specific Conda environment where ElectroacPy is installed.
+
+
+### Additional Steps for Spyder Users
 If you plan to use **Spyder**:
 - You'll need to install `spyder-kernels` in the newly created environment:
 ```shell
@@ -63,23 +66,23 @@ pip install spyder-kernels
 conda install spyder
 ```
 
-## Post install
+---
+
+## OpenCL
 In Windows and Linux, you can actually use the OpenCL backend to reduce computing time. In the corresponding Conda environment:
 ```shell
 pip install pyopencl intel-opencl-rt
 ```
 You'll also need to install OpenCL drivers, which you'll find [here](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-cpu-runtime-for-opencl-applications-with-sycl-support.html) for windows users. Linux users can follow the **OpenCL** section from [bempp-cl installation guide](https://bempp.com/installation.html).
 
+---
+
 # Modules
-This toolbox is divided into multiple sub-modules.
+This toolbox is divided into two modules.
 
 ## electroacPy
 
 The `electroacPy` module is a toolkit for prototyping loudspeaker systems using Lumped Element Method (LEM). It is also a set of wrappers for bempp-cl to solve acoustic radiation problems using Boundary Elements. It offers capabilities to design filters and crossover networks.
-
-## generalToolbox
-
-The `generalToolbox` module provides a set of tools that simplify various tasks related to electroacoustics and data manipulation. It offers functions to compute gains, manipulate arrays and point clouds, plot frequency-response functions, as well as loading UFF files (acceleration data) and directivities saved as CSV files.
 
 ## bempp-cl
 From [bempp-cl website](https://bempp.com):
@@ -95,7 +98,7 @@ Bempp is an open-source computational boundary element platform to solve electro
 
 # Documentation
 
-Waiting for documentation. For now, please refer to the examples.
+In progress.
 
 # Contributing
 
