@@ -1,0 +1,21 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+format: jb-book
+root: 01-introduction
+parts:
+- caption: Loudspeaker System
+  chapters:
+  - file: 02-loudspeaker_system
+  - file: 021-system_and_mesh
+  - file: 03-lumped_modeler
+  - file: 04-BEM_modeler
+  - file: 05-post_processing
+- caption: Back-end
+  chapters:
+  - file: 06-back_end
+  - file: 07-circuitSolver
+  - file: 08-LEM_backend
+  - file: 09-BEM_backend
+- caption: References
+  chapters:
+  - file: 100-ref
