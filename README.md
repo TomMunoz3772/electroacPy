@@ -98,7 +98,7 @@ Bempp is an open-source computational boundary element platform to solve electro
 
 # Documentation
 
-In progress.
+Right [here](https://electroacpy.readthedocs.io).
 
 # Contributing
 
