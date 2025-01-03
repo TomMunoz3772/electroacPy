@@ -115,10 +115,10 @@ class loudspeakerSystem:
         self.radiator_id[name] = 'EAD'
         return None
 
-    def lem_enclosure(self, name, Vb, eta=1e-5, setDriver=None, Nd=1, 
+    def lem_enclosure(self, name, Vb, Qab=120, Qal=30, setDriver=None, Nd=1, 
                       wiring="parallel", ref2bem=None, **kwargs):
         physics = speakerBox(Vb, frequencyRange=self.frequency, c=self.c, rho=self.rho,
-                                eta=eta, **kwargs)
+                             Qab=Qab, Qal=Qal, **kwargs)
         physics.ref2bem = ref2bem
         self.enclosure[name] = physics
         self.radiator_id[name] = 'SPKBOX'
@@ -510,6 +510,7 @@ class loudspeakerSystem:
             if bool(self.evaluation[obs].setup) is True:
                 self.evaluation[obs].solve()
             else:
+                print("\n")
                 print("No evaluation to compute for study {}.".format(obs))
         return None
 
@@ -663,7 +664,7 @@ class loudspeakerSystem:
         return out
     
     
-    def export_directivity(self, folder_name, 
+    def export_directivity(self, folder_name, prefix,
                            study, evaluation, radiatingElement=[], 
                            bypass_xover=False):
         """
@@ -692,10 +693,10 @@ class loudspeakerSystem:
         pmic = self.get_pMic(study, evaluation, radiatingElement, bypass_xover)
         theta = self.evaluation[study].setup[evaluation].theta
         frequency = self.frequency
-        export_directivity(folder_name, frequency, theta, pmic)
+        export_directivity(folder_name, prefix, frequency, theta, pmic)
         
         
-    def export_impedance(self, filename, objName):
+    def export_impedance(self, folder_name, file_name, objName):
         """
         Export impedance into .txt file
 
@@ -712,9 +713,9 @@ class loudspeakerSystem:
 
         """
         if objName in self.enclosure:
-            self.enclosure[objName].exportZe(filename + ".txt")
+            self.enclosure[objName].exportZe(folder_name, file_name + ".txt")
         elif objName in self.driver:
-            self.driver[objName].exportZe(filename + ".txt")
+            self.driver[objName].exportZe(folder_name, file_name + ".txt")
 
         
         

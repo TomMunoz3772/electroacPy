@@ -190,7 +190,7 @@ class electroAcousticDriver:
             size=None
         
         fig, ax = plt.subplots(3, 1, figsize=size)
-        ax[0].semilogx(self.f_array, np.abs(self.Hx*1e3), label='Displacement')
+        ax[0].semilogx(self.f_array, np.abs(self.Hx)*1e3, label='Displacement')
         ax[1].semilogx(self.f_array, np.abs(self.Hv), label='Velocity')
         ax[2].semilogx(self.f_array, np.abs(self.Ha), label='Acceleration')
         ax[2].set(xlabel="Frequency [Hz]")
@@ -553,10 +553,17 @@ class electroAcousticDriver:
         # Run the tkinter loop
         root.mainloop()
     
-    def exportZe(self, filename):
+    def exportZe(self, folder_name, file_name):
+        import os
+        
+        # Create the folder if it doesn't exist
+        if not os.path.exists(folder_name):
+            os.makedirs(folder_name)
+        
         module = np.abs(self.ZeTot)
         phase = np.angle(self.ZeTot, deg=True)
-        np.savetxt(filename, np.array([self.f_array, module, phase]).T,
+        path = os.path.join(folder_name, file_name)
+        np.savetxt(path, np.array([self.f_array, module, phase]).T,
                    fmt="%.3f", 
                    header="Freq[Hz]  Imp[Ohm]  Phase[Deg]",
                    delimiter=',',

@@ -116,13 +116,15 @@ def build_program(assembly_function, options, precision, device_type="cpu"):
     """Build the kernel and return it."""
     file_name = assembly_function + ".cl"
     kernel_file = _os.path.join(_KERNEL_PATH, file_name)
-
-    open_kernel_file = open(kernel_file)
-    kernel_string = open_kernel_file.read()  #open(kernel_file).read()
+    
+    # open and read file separately so it doesn't throw a ressource warning
+    kernel_dat = open(kernel_file)
+    kernel_string = kernel_dat.read()
     kernel_options = get_kernel_compile_options(options, precision)
-
-    open_kernel_file.close()
-
+    
+    # close kernel file
+    kernel_dat.close()
+    
     return (
         _cl.Program(default_context(device_type), kernel_string)
         .build(options=kernel_options)
@@ -200,7 +202,7 @@ def default_cpu_device():
     if _DEFAULT_CPU_DEVICE is None:
         try:
             ctx, device = find_cpu_driver(name)
-        except:
+        except:  # noqa: E722
             raise RuntimeError("Could not find suitable OpenCL CPU driver.")
         _DEFAULT_CPU_CONTEXT = ctx
         _DEFAULT_CPU_DEVICE = device
@@ -225,7 +227,7 @@ def default_gpu_device():
     if _DEFAULT_GPU_DEVICE is None:
         try:
             ctx, device = find_gpu_driver(name)
-        except:
+        except:  # noqa: E722
             raise RuntimeError("Could not find a suitable OpenCL GPU driver.")
         _DEFAULT_GPU_CONTEXT = ctx
         _DEFAULT_GPU_DEVICE = device
@@ -334,7 +336,7 @@ def set_default_cpu_device_by_name(name):
 
     try:
         context, device = find_cpu_driver(name)
-    except:
+    except:  # noqa: E722
         raise RuntimeError("No CPU driver with given name found.")
 
     _DEFAULT_CPU_CONTEXT = context
@@ -391,7 +393,7 @@ def set_default_gpu_device_by_name(name):
     try:
         pair = find_gpu_driver(name)
         context, device = pair[0], pair[1]
-    except:
+    except:  # noqa: E722
         raise RuntimeError("No GPU driver with given name found.")
 
     _DEFAULT_GPU_CONTEXT = context

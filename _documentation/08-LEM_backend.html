@@ -1,0 +1,804 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>LEM module &#8212; ElectroacPy</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '08-LEM_backend';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="BEM module" href="09-BEM_backend.html" />
+    <link rel="prev" title="circuitSolver" href="07-circuitSolver.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="01-introduction.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="ElectroacPy - Home"/>
+    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="ElectroacPy - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="01-introduction.html">
+                    Introduction
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Loudspeaker System</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="02-loudspeaker_system.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">Geometry import and meshing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03-lumped_modeler.html">Lumped Element Modeler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04-BEM_modeler.html">Boundary Element Modeler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05-post_processing.html">Post-processing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Back-end</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="06-back_end.html">Back-end</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07-circuitSolver.html">circuitSolver</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">LEM module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09-BEM_backend.html">BEM module</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="100-ref.html">References</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2F08-LEM_backend.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/08-LEM_backend.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>LEM module</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#speakersim">speakerSim</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#electroacousticdriver"><strong>electroAcousticDriver</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#speakerbox"><strong>speakerBox</strong></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sealed-enclosure">sealed enclosure</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ported-enclosure">ported enclosure</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#abr-configuration">ABR configuration</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#th-order-bandpass-port-abr">4th order bandpass (port / ABR)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">6th order bandpass (port / ABR)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="lem-module">
+<h1>LEM module<a class="headerlink" href="#lem-module" title="Link to this heading">#</a></h1>
+<section id="speakersim">
+<h2>speakerSim<a class="headerlink" href="#speakersim" title="Link to this heading">#</a></h2>
+<p>In electroacPy, all speaker-related classes are grouped within the <strong>speakerSim</strong> submodule:</p>
+<ul class="simple">
+<li><p><strong>electroAcousticDriver</strong>: basic class to store driver parameters and plot related impedance and mechanical behavior — where functions like <code class="docutils literal notranslate"><span class="pre">.plotZe()</span></code> and <code class="docutils literal notranslate"><span class="pre">.plotXVA()</span></code> are defined. These objects are stored in the <code class="docutils literal notranslate"><span class="pre">.driver[]</span></code> dictionary of loudspeaker systems,</p></li>
+<li><p><strong>speakerBox</strong>: class to create enclosures based on given dimensions. Can be associated to drivers to estimate related velocities. <strong>speakerBox</strong> are saved in the <code class="docutils literal notranslate"><span class="pre">.enclosure[]</span></code> dictionary.</p></li>
+<li><p><strong>xovers</strong>: filtering functions applied to radiated pressure. Stored in the <code class="docutils literal notranslate"><span class="pre">.network[]</span></code> dictionary.</p></li>
+</ul>
+<section id="electroacousticdriver">
+<h3><strong>electroAcousticDriver</strong><a class="headerlink" href="#electroacousticdriver" title="Link to this heading">#</a></h3>
+<p>When creating a driver object, the circuit shown in <a class="reference internal" href="#ead-model"><span class="std std-numref">Fig. 49</span></a> is used to compute its free-air electrical impedance from electrical and mechanical behavior<a class="footnote-reference brackets" href="#driverlimit" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. The object itself receives the <code class="docutils literal notranslate"><span class="pre">EAC</span></code> identifier for the <strong>loudspeakerSystem</strong> class.</p>
+<figure class="align-default" id="ead-model">
+<img alt="_images/00_electroacoustic_driver.svg" src="_images/00_electroacoustic_driver.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 49 </span><span class="caption-text">Lumped Element Model used in <strong>electroAcousticDriver</strong>.</span><a class="headerlink" href="#ead-model" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>From this initial circuit we get</p>
+<div class="math notranslate nohighlight">
+\[
+Z_{in} = Z_e + \frac{(Bl)^2}{Z_{ms}},
+\]</div>
+<p>with <span class="math notranslate nohighlight">\(Z_e\)</span> the coil impedance expressed as</p>
+<div class="math notranslate nohighlight">
+\[
+Z_e = R_e + j\omega L_e
+\]</div>
+<p>and <span class="math notranslate nohighlight">\(Z_{ms}\)</span> the mechanical impedance of moving parts:</p>
+<div class="math notranslate nohighlight">
+\[
+Z_{ms} = R_{ms} + j\omega M_{ms} + \frac{1}{j\omega C_{ms}}.
+\]</div>
+<p>A good thing to note is that <code class="docutils literal notranslate"><span class="pre">.plotZe()</span></code> will actually plot the input impedance <span class="math notranslate nohighlight">\(Z_{in}\)</span> and not the coil impedance <span class="math notranslate nohighlight">\(Z_e\)</span>.</p>
+</section>
+<section id="speakerbox">
+<h3><strong>speakerBox</strong><a class="headerlink" href="#speakerbox" title="Link to this heading">#</a></h3>
+<p>As explained in the lumped-element modeler for enclosures, all <strong>speakerBox</strong> objects are primarily defined by their respective box volumes. Then, depending on user inputs, different types of systems can be created. This section illustrates the various lumped networks for each enclosure design and clarifies which parameters correspond to specific elements of the system.</p>
+<p>The alignments given in the following of this section are based on the <a class="reference external" href="https://loudspeakerdatabase.com/Wavecor/WF275BD01">Wavecor WF275BD01</a> mid-bass driver. These are computed following the monopole equation — mounted in an infinite baffle:</p>
+<div class="math notranslate nohighlight">
+\[P = j\omega \rho Q \times \frac{e^{-jkr}}{2\pi r},\]</div>
+<p>where <span class="math notranslate nohighlight">\(Q\)</span> is the volume velocity of radiating components and <span class="math notranslate nohighlight">\(r=1\)</span> m, the distance from the source to evaluation point.</p>
+<section id="sealed-enclosure">
+<h4>sealed enclosure<a class="headerlink" href="#sealed-enclosure" title="Link to this heading">#</a></h4>
+<p>The sealed box is the default configuration. In this case, the back of the driver is loaded by a simple acoustic volume.</p>
+<figure class="align-default" id="sealed-box-a">
+<a class="reference internal image-reference" href="_images/0a_sealed_box.svg"><img alt="_images/0a_sealed_box.svg" src="_images/0a_sealed_box.svg" style="width: 132.0px; height: 188.5px;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 50 </span><span class="caption-text">Physical representation of the sealed box.</span><a class="headerlink" href="#sealed-box-a" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;sealed&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="o">=</span><span class="mf">20e-3</span><span class="p">,</span> <span class="n">setDriver</span><span class="o">=</span><span class="s2">&quot;wf250&quot;</span><span class="p">)</span>  <span class="c1"># volume in m^3</span>
+</pre></div>
+</div>
+<figure class="align-default" id="sealed-box">
+<img alt="_images/01_sealed_enclosure.svg" src="_images/01_sealed_enclosure.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 51 </span><span class="caption-text">Acoustic network of a sealed enclosure. Connector <code class="docutils literal notranslate"><span class="pre">C</span></code> is linked to the front radiation impedance, while <code class="docutils literal notranslate"><span class="pre">D</span></code> is connected to the back radiation of the driver.</span><a class="headerlink" href="#sealed-box" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>This acoustic volume is represented as a capacitance <span class="math notranslate nohighlight">\(C_{ab}\)</span>​, coupled with two resistances, <span class="math notranslate nohighlight">\(R_{ab}\)</span>​ and <span class="math notranslate nohighlight">\(R_{al}\)</span>​, which account for damping within the enclosure and acoustic leakage, respectively. These elements are defined as:</p>
+<div class="math notranslate nohighlight">
+\[C_{ab} = \frac{V_b}{\rho c}, ~~ R_{ab} = \frac{1}{2 \pi f_c C_{ab} Q_{ab}}, ~~ R_{al} = \frac{Q_l}{2\pi f_c C_{ab}},\]</div>
+<p>with:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(V_b\)</span> the enclosure volume,</p></li>
+<li><p><span class="math notranslate nohighlight">\(rho\)</span>, <span class="math notranslate nohighlight">\(c\)</span> the air density and speed of sound,</p></li>
+<li><p><span class="math notranslate nohighlight">\(f_c\)</span> the resonance frequency of the driver inside the enclosure,</p></li>
+<li><p><span class="math notranslate nohighlight">\(Q_{ab}\)</span> the quality factor linked to acoustic losses in the enclosure,</p></li>
+<li><p><span class="math notranslate nohighlight">\(Q_{al}\)</span> the quality factor linked to acoustic leakage out of the enclosure.</p></li>
+</ul>
+<p>By default in the <code class="docutils literal notranslate"><span class="pre">.lem_enclosure()</span></code> method, the Q factors are set to be <code class="docutils literal notranslate"><span class="pre">Qab=120</span></code> and <code class="docutils literal notranslate"><span class="pre">Qal=30</span></code>. These values usually sits between:</p>
+<div class="math notranslate nohighlight">
+\[
+30&lt;Q_{ab}&lt;100, ~~ 10&lt;Q_{al}&lt;30,
+\]</div>
+<p>where lower values on the left indicate higher losses, while higher values on the right correspond to lower losses. Of course, these values depend heavily on the amount of damping material in the enclosure and the quality of construction. You will surely need to determine the “correct” values through trial and error, depending on your builds.</p>
+<figure class="align-default" id="sealed-alignment">
+<img alt="_images/sealed.svg" src="_images/sealed.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 52 </span><span class="caption-text">Example a sealed box loudspeaker alignment.</span><a class="headerlink" href="#sealed-alignment" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="ported-enclosure">
+<h4>ported enclosure<a class="headerlink" href="#ported-enclosure" title="Link to this heading">#</a></h4>
+<p>Ported enclosures<a class="footnote-reference brackets" href="#ported-box" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> are defined by adding — to the <code class="docutils literal notranslate"><span class="pre">.lem_enclosure()</span></code> method — a port’s length <span class="math notranslate nohighlight">\(L_p\)</span> and a corresponding radius <em>or</em> cross-section area: <span class="math notranslate nohighlight">\(r_p\)</span> or <span class="math notranslate nohighlight">\(S_p\)</span>, respectively. Since ports are more than just straight tubes, it is possible to specify whether none, one, or both ends are flanged. This can be adjusted by setting the <code class="docutils literal notranslate"><span class="pre">flange</span></code> argument to either <code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;single&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;both&quot;</span></code>. The following code shows the basics arguments for defining a ported box:</p>
+<figure class="align-default" id="ported-box-b">
+<a class="reference internal image-reference" href="_images/0b_ported_box.svg"><img alt="_images/0b_ported_box.svg" src="_images/0b_ported_box.svg" style="width: 132.0px; height: 188.5px;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 53 </span><span class="caption-text">Representation of a bass-reflex system with a port at the back of the enclosure.</span><a class="headerlink" href="#ported-box-b" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;port&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="o">=</span><span class="mf">20e-3</span><span class="p">,</span> <span class="n">Lp</span><span class="o">=</span><span class="mf">30e-2</span><span class="p">,</span> <span class="n">rp</span><span class="o">=</span><span class="mf">5e-2</span><span class="p">,</span>        <span class="c1"># length in m</span>
+                             <span class="n">flange</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span> <span class="n">setDriver</span><span class="o">=</span><span class="s2">&quot;wf250&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id4">
+<img alt="_images/02_ported_enclosure.svg" src="_images/02_ported_enclosure.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 54 </span><span class="caption-text">Ported enclosure. The port radiation is modeled with an additional radiation impedance.</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Relative to the acoustic network, a ported enclosure adds an acoustic mass and resistance linked to the port dimensions and another radiation impedance <span class="math notranslate nohighlight">\(Z_{radp}\)</span> linked to the area of the opening. These are defined as:</p>
+<div class="math notranslate nohighlight">
+\[
+M_p = \frac{\rho}{Sp} \left( Lp + \sigma \sqrt{Sp} \right) 
+\]</div>
+<div class="math notranslate nohighlight">
+\[
+R_p = \frac{\sqrt{2\omega \rho \mu}}{Sp} \times \left( \frac{Lp}{rp} + 1\right)
+\]</div>
+<p>where</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho\)</span> is the air density,</p></li>
+<li><p><span class="math notranslate nohighlight">\(Lp\)</span>, <span class="math notranslate nohighlight">\(rp\)</span> and <span class="math notranslate nohighlight">\(Sp\)</span> are the length, radius and cross-sectional area of the port,</p></li>
+<li><p><span class="math notranslate nohighlight">\(\sigma\)</span> is the flange coefficient: 0.96 for both ends flanged, 0.84 for one flanged end, and 0.72 for both ends unflanged,</p></li>
+<li><p><span class="math notranslate nohighlight">\(\omega\)</span> is the angular frequency,</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mu\)</span> is the air viscosity (approximately <span class="math notranslate nohighlight">\(1.82\times 10^{-5}\)</span> kg/(m.s) at 20°C).</p></li>
+</ul>
+<figure class="align-default" id="ported-alignment">
+<img alt="_images/ported.svg" src="_images/ported.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 55 </span><span class="caption-text">Example of bass-reflex alignment.</span><a class="headerlink" href="#ported-alignment" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="abr-configuration">
+<h4>ABR configuration<a class="headerlink" href="#abr-configuration" title="Link to this heading">#</a></h4>
+<p>The ABR (or passive radiator) setup is really similar to the ported enclosure. The only difference is that it replaces the port (acoustic mass and resistance) by a membrane. Hence, the ABR is expressed as mechanical mass, resistance and compliance (<code class="docutils literal notranslate"><span class="pre">Mmd</span></code>, <code class="docutils literal notranslate"><span class="pre">Rmd</span></code>, <code class="docutils literal notranslate"><span class="pre">Cmd</span></code> and associated radiating surface <code class="docutils literal notranslate"><span class="pre">Sd</span></code>) — similar to what is found in the mechanical circuit of a electro-dynamic loudspeaker.</p>
+<figure class="align-default" id="abr-box-c">
+<a class="reference internal image-reference" href="_images/0c_abr_box.svg"><img alt="_images/0c_abr_box.svg" src="_images/0c_abr_box.svg" style="width: 132.0px; height: 188.5px;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 56 </span><span class="caption-text">ABR setup, with the auxiliary radiator represented in red.</span><a class="headerlink" href="#abr-box-c" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;abr&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="o">=</span><span class="mf">20e-3</span><span class="p">,</span> <span class="n">Mmd</span><span class="o">=</span><span class="mf">190e-3</span><span class="p">,</span> <span class="n">Cmd</span><span class="o">=</span><span class="mf">0.35e-3</span><span class="p">,</span> 
+                            <span class="n">Rmd</span><span class="o">=</span><span class="mf">0.368</span><span class="p">,</span> <span class="n">Sd</span><span class="o">=</span><span class="mf">314e-4</span><span class="p">,</span> <span class="n">setDriver</span><span class="o">=</span><span class="s2">&quot;wf250&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id5">
+<img alt="_images/03_abr_enclosure.svg" src="_images/03_abr_enclosure.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 57 </span><span class="caption-text">ABR enclosure. Here, the port is replaced by a mechanical radiator expressed in the acoustic domain.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>These mechanical parameters are given by:</p>
+<div class="math notranslate nohighlight">
+\[Mma = \frac{Mmd}{Sd^2}, ~~ Rma = \frac{Rmd}{Sd^2}, ~~ Cma = Cmd \times Sd^2,\]</div>
+<p>where <span class="math notranslate nohighlight">\(Mmd\)</span> is the mass of the passive radiator in <span class="math notranslate nohighlight">\(kg\)</span>, <span class="math notranslate nohighlight">\(Rmd\)</span> the mechanical resistance of suspensions in <span class="math notranslate nohighlight">\(N.s/m\)</span> and Cmd is the suspensions compliance in <span class="math notranslate nohighlight">\(m/N\)</span>. Finally, <span class="math notranslate nohighlight">\(Sd\)</span> is the radiating surface of the ABR, which is used to translate the mechanical elements into their acoustical counterparts.</p>
+<figure class="align-default" id="abr-alignment">
+<img alt="_images/abr.svg" src="_images/abr.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 58 </span><span class="caption-text">Example of ABR alignment.</span><a class="headerlink" href="#abr-alignment" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="th-order-bandpass-port-abr">
+<h4>4th order bandpass (port / ABR)<a class="headerlink" href="#th-order-bandpass-port-abr" title="Link to this heading">#</a></h4>
+<p>The 4th order bandpass enclosure has its loudspeaker radiating into a front volume <span class="math notranslate nohighlight">\(V_f\)</span>. In that configuration, the port (or ABR) is the only radiating element of the system — connected to the front volume. Similarly to bass-reflex or ABR enclosures, the port dimensions or ABR parameters must be given as key arguments.</p>
+<figure class="align-left" id="bp-box-d">
+<a class="reference internal image-reference" href="_images/0d_bandpassp_box.svg"><img alt="_images/0d_bandpassp_box.svg" src="_images/0d_bandpassp_box.svg" style="width: 207.5px; height: 188.5px;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 59 </span><span class="caption-text">Ported bandpass enclosure.</span><a class="headerlink" href="#bp-box-d" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-right" id="abr-box-d">
+<a class="reference internal image-reference" href="_images/0e_bandpassabr_box.svg"><img alt="_images/0e_bandpassabr_box.svg" src="_images/0e_bandpassabr_box.svg" style="width: 207.5px; height: 188.5px;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 60 </span><span class="caption-text">ABR bandpass enclosure.</span><a class="headerlink" href="#abr-box-d" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;bp_port&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="o">=</span><span class="mf">20e-3</span><span class="p">,</span> <span class="n">Vf</span><span class="o">=</span><span class="mf">15e-3</span><span class="p">,</span> 
+                                <span class="n">Lp</span><span class="o">=</span><span class="mf">35e-2</span><span class="p">,</span> <span class="n">rp</span><span class="o">=</span><span class="mf">5e-2</span><span class="p">,</span> <span class="n">setDriver</span><span class="o">=</span><span class="s2">&quot;wf250&quot;</span><span class="p">)</span>
+<span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;bp_abr&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="p">,</span> <span class="n">Vf</span><span class="p">,</span> <span class="n">Mmd</span><span class="p">,</span> <span class="n">Cmd</span><span class="p">,</span> <span class="n">Rmd</span><span class="p">,</span> <span class="n">Sd</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id6">
+<img alt="_images/04_bandpass_port.svg" src="_images/04_bandpass_port.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 61 </span><span class="caption-text">4th order bandpass enclosure. The port is in the volume in front of the woofer.</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id7">
+<img alt="_images/05_bandpass_abr.svg" src="_images/05_bandpass_abr.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 62 </span><span class="caption-text">4th order bandpass enclosure. A passive radiator replaces the port.</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="bp4p-alignment">
+<img alt="_images/bp4p.svg" src="_images/bp4p.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 63 </span><span class="caption-text">Example of a 4th order bandpass alignment. In this case, the front volume is loaded by a port.</span><a class="headerlink" href="#bp4p-alignment" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="id3">
+<h4>6th order bandpass (port / ABR)<a class="headerlink" href="#id3" title="Link to this heading">#</a></h4>
+<p>These configurations are achieved by setting an additional port / ABR into the <code class="docutils literal notranslate"><span class="pre">.lem_enclosure()</span></code> method. It will be connected to the back volume <code class="docutils literal notranslate"><span class="pre">Vb</span></code> of the driver.</p>
+<figure class="align-left" id="bp6-box-h">
+<a class="reference internal image-reference" href="_images/0h_bandpassp6_box.svg"><img alt="_images/0h_bandpassp6_box.svg" src="_images/0h_bandpassp6_box.svg" style="width: 207.5px; height: 188.5px;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 64 </span><span class="caption-text">6th order bandpass — port.</span><a class="headerlink" href="#bp6-box-h" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-right" id="abr6-box-g">
+<a class="reference internal image-reference" href="_images/0g_bandpassabr6_box.svg"><img alt="_images/0g_bandpassabr6_box.svg" src="_images/0g_bandpassabr6_box.svg" style="width: 207.5px; height: 188.5px;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 65 </span><span class="caption-text">6th order bandpass — ABR.</span><a class="headerlink" href="#abr6-box-g" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;bp_port&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="o">=</span><span class="mf">50e-3</span><span class="p">,</span> <span class="n">Vf</span><span class="o">=</span><span class="mf">18e-3</span><span class="p">,</span> <span class="n">Lp</span><span class="o">=</span><span class="mf">35e-2</span><span class="p">,</span> <span class="n">rp</span><span class="o">=</span><span class="mf">5e-2</span><span class="p">,</span> 
+                                <span class="n">Lp2</span><span class="o">=</span><span class="mf">25e-2</span><span class="p">,</span> <span class="n">rp2</span><span class="o">=</span><span class="mf">2.5e-2</span><span class="p">,</span> <span class="n">setDriver</span><span class="o">=</span><span class="s2">&quot;wf250&quot;</span><span class="p">)</span>
+<span class="n">system</span><span class="o">.</span><span class="n">lem_enclosure</span><span class="p">(</span><span class="s2">&quot;bp_abr&quot;</span><span class="p">,</span> <span class="n">Vb</span><span class="p">,</span> <span class="n">Vf</span><span class="p">,</span> <span class="n">Mmd</span><span class="p">,</span> <span class="n">Cmd</span><span class="p">,</span> <span class="n">Rmd</span><span class="p">,</span> <span class="n">Sd</span><span class="p">,</span> 
+                                       <span class="n">Mmd2</span><span class="p">,</span> <span class="n">Cmd2</span><span class="p">,</span> <span class="n">Rmd2</span><span class="p">,</span> <span class="n">Sd2</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id8">
+<img alt="_images/06_bandpass6_port.svg" src="_images/06_bandpass6_port.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 66 </span><span class="caption-text">6th order bandpass — port.</span><a class="headerlink" href="#id8" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id9">
+<img alt="_images/07_bandpass6_abr.svg" src="_images/07_bandpass6_abr.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 67 </span><span class="caption-text">6th order bandpass — ABR.</span><a class="headerlink" href="#id9" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="bp6p-alignment-plot">
+<img alt="_images/bp6p.svg" src="_images/bp6p.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 68 </span><span class="caption-text">Example of a 6th order bandpass alignment. Port configuration.</span><a class="headerlink" href="#bp6p-alignment-plot" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="driverlimit" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>For now the only lumped element model supported in electroacPy is [Le, Re], if necessary, other models will be added in the future.</p>
+</aside>
+<aside class="footnote brackets" id="ported-box" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Also known as bass-reflex.</p>
+</aside>
+</aside>
+</section>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="07-circuitSolver.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">circuitSolver</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="09-BEM_backend.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">BEM module</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#speakersim">speakerSim</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#electroacousticdriver"><strong>electroAcousticDriver</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#speakerbox"><strong>speakerBox</strong></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sealed-enclosure">sealed enclosure</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ported-enclosure">ported enclosure</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#abr-configuration">ABR configuration</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#th-order-bandpass-port-abr">4th order bandpass (port / ABR)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">6th order bandpass (port / ABR)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Tom Munoz
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

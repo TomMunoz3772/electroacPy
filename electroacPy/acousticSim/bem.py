@@ -34,22 +34,29 @@ class bem:
 
         Parameters
         ----------
-        meshPath : TYPE
-            DESCRIPTION.
-        radiatingElement : TYPE
-            DESCRIPTION.
-        velocity : TYPE
-            DESCRIPTION.
-        frequency : TYPE
-            DESCRIPTION.
-        domain : TYPE
-            DESCRIPTION.
-        c_0 : TYPE
-            DESCRIPTION.
-        rho_0 : TYPE
-            DESCRIPTION.
+        meshPath : str
+            Path to system's mesh.
+        radiatingElement : int or list of int,
+            Physical group of radiating elements.
+        velocity : numpy array or list of numpy array,
+            Velocity of corresponding radiating surfaces.
+        frequency : numpy array,
+            Range of simulation.
+        domain : str, 
+            Which BEM equation should be solved. 
+            Either 'interior' or 'exterior'. Default is "Exterior"
+        c_0 : float,
+            Sound speed in air (or propagation medium). Default is 343 m/s
+        rho_0 : float,
+            Volumic mass (density) of air or propagation medium. Default is 1.22 kg/m^3
         **kwargs : TYPE
-            DESCRIPTION.
+            - boundary_conditions, boundaryConditions object.
+            - direction, list of (1, 3) vectors containing radiation direction, 
+                                        e.g. [[1, 0, 0], [1, 0, 0]] for two surfaces
+                                        radiating toward x,
+            - vibrometry_points, numpy array of dimension (nPoints, 3) with the 
+                                 cartesian coordinates of measured acceleration points,
+            - tol, tolerance of calculations --- float.
 
         Returns
         -------
@@ -57,7 +64,7 @@ class bem:
 
         """
         # get main parameters
-        self.meshPath = meshPath
+        # self.meshPath = meshPath
         self.radiatingElement = radiatingElement
         self.velocity = velocity
         self.frequency = frequency
@@ -66,8 +73,8 @@ class bem:
         self.domain = domain
         self.kwargs = kwargs
         
-        # check if mesh is v2
-        check_mesh(self.meshPath)
+        # check if mesh is v2 -- or convert if not .msh
+        self.meshPath = check_mesh(meshPath)
         
         # initialize possible boundary conditions
         self.impedanceSurfaceIndex = []
@@ -92,8 +99,8 @@ class bem:
         self.p_total_mesh = np.empty([len(frequency)], dtype=object)   # summed sources
         
         # load simulation grid and mirror mesh if needed
-        self.grid_sim = bempp.api.import_grid(meshPath)
-        self.grid_init = bempp.api.import_grid(meshPath)
+        self.grid_sim = bempp.api.import_grid(self.meshPath)
+        self.grid_init = bempp.api.import_grid(self.meshPath)
         self.grid_sim, self.sizeFactor = mirror_mesh(self.grid_init, self.boundary_conditions)
         self.vertices = np.shape(self.grid_sim.vertices)[1]
 
@@ -335,14 +342,32 @@ class bem:
 
 
 # %%useful functions
-def check_mesh(mesh_path):
-    meshFile = open(mesh_path)
-    lines = meshFile.readlines()
-    if lines[1][0] != '2':
-        raise TypeError(
-            "Mesh file is not in version 2. Errors will appear when mirroring mesh along boundaries.")
-    meshFile.close()
-
+def check_mesh(mesh_path):   
+    if mesh_path[-4:] == ".msh":
+        meshFile = open(mesh_path)
+        lines = meshFile.readlines()
+        if lines[1][0] != '2':
+            raise TypeError(
+                "Mesh file is not in version 2. Errors will appear when mirroring mesh along boundaries.")
+        meshFile.close()
+        mesh_path_update = mesh_path
+        
+    elif mesh_path[-4:] == ".med": # conversion from med to msh to keep groups
+        import gmsh
+        print("\n")
+        print("Conversion from *.med to *.msh... \n")
+        gmsh.initialize()
+        gmsh.option.setNumber("Mesh.MshFileVersion", 2.2)
+        gmsh.open(mesh_path)
+        gmsh.write(mesh_path[:-4] + ".msh")
+        gmsh.finalize()
+        mesh_path_update = mesh_path[:-4] + ".msh"
+        
+    else: # conversion from med to msh to keep groups
+        mesh_path_update = mesh_path
+        raise Exception(
+            "Not compatible file format. Try *.med or *.msh.")
+    return mesh_path_update
 
 def checkVelocityInput(velocity):
     """
@@ -351,7 +376,7 @@ def checkVelocityInput(velocity):
     :param velocity:
     :return:
     """
-    isVibData      = []
+    isVibData = []
     for i in range(len(velocity)):
         if len(velocity[i].shape) == 1:
             isVibData.append(False)
@@ -361,6 +386,24 @@ def checkVelocityInput(velocity):
 
 
 def mirror_mesh(grid_init, boundary_conditions):
+    """
+    Mirror a mesh depending on the boundary conditions.
+
+    Parameters
+    ----------
+    grid_init : grid object (bempp),
+        Mesh of the system.
+    boundary_conditions : boundaryConditions object,
+        List all infinite-reflective surface conditions.
+
+    Returns
+    -------
+    grid_tot : grid object,
+        Initial system + images.
+    size_factor : int,
+        How many more object of the system have been created.
+
+    """
     bc = boundary_conditions
     size_factor = 1
     grid_tot = grid_init
@@ -399,6 +442,7 @@ def mirror_mesh(grid_init, boundary_conditions):
                                                 [grid_tot.domain_indices, grid_mirror.domain_indices])
                 size_factor *= 2
     return grid_tot, size_factor
+
 
 
 #%% Radiation coefficients

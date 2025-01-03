@@ -1,6 +1,6 @@
 (chapter:circuitSolver)=
-## circuitSolver
-Before diving into the lumped-element wrappers, it is best to present the **circuitSolver** class. It lets the user create electrical networks and uses (a relatively simplified) Modified Nodal Analysis (MNA) to solve nodes potential and sources current in the frequency domain. It is the basis on which electroacPy's lumped-element classes are built. Using networks through **circuitSolver** allows much more flexibility when describing electro-acoustic networks --- as long as you know how to describe your system with lumped-elements.
+# circuitSolver
+Before diving into the lumped-element wrappers, it is best to present the **circuitSolver** class. It lets the user create electrical networks and uses (a fairly simplified) Modified Nodal Analysis (MNA) to solve nodes potential and sources current in the frequency domain. It is the basis on which electroacPy's lumped-element classes are built. Using networks through **circuitSolver** allows much more flexibility when describing electro-acoustic networks --- as long as you know how to describe your system with lumped-elements.
 
 Networks are initialized by creating a **circuit** object:
 
@@ -23,8 +23,8 @@ Five methods are then available to the user:
 For those interested in MNA, [QUCS](https://qucs.sourceforge.net/tech/node14.html) documentation does a really good job explaining its functioning.
 
 
-### Components
-#### electric
+## Components
+### electric
 The five basic electrical components are given in {numref}`cir-esource` and {numref}`cir-ecomponents`. These are defined by their positive and negative nodes (`np` and `nm`, respectively) and associated value in either Volt, Ampere, Ohm, Henry or Farad.
 
 ```{figure} ./svg_circuitikz/electric_sources.svg
@@ -81,7 +81,7 @@ gtb.plot.FRF(frequency, H, "dB", ylim=(-20, 3),
 Transfer function of lowpass filter.
 ```
 
-#### acoustic
+### acoustic
 Because the three basic acoustic analogies[^acoustic-analogies] can be represented using electric resistance, capacitance and inductance, the acoustic elements discussed here are more complex and use combinations of these smaller components. The pressure source remains similar to the voltage source, this duplicate was made to "simplify" the reading of acoustic circuits.
 
 [^acoustic-analogies]: These are: acoustic mass, compliance, and loss.
@@ -186,7 +186,7 @@ Volume velocity at membrane.
 ```
 
 
-#### Coupler / Controlled sources
+### Coupler / Controlled sources
 For now, a single controlled source as been implemented. In electro-acoustics, controlled sources are generally used as a way to link two different domains (e.g. electric to mechanic).
 
 ```{figure} ./svg_circuitikz/coupler_ccvs.svg
@@ -253,16 +253,16 @@ Free-air impedance, phase.
 Free-air velocity.
 ```
 
-### Blocks
+## Blocks
 Blocks regroup components into sub-circuits, allowing complex structures to be condensed into manageable 2- or 4-port modules for easier manipulation.
 
-#### electric
+### electric
 At this stage of development, electric blocks are:
 
 - `.lowpass_butter(A, B, order, fc, Re)`,
 - `.highpass_butter(A, B, order, fc, Re)`.
 
-Both are built using the definitions of Butterworth high- and low-pass filters from @beranek2019acoustics.
+Both are built using the definitions of Butterworth high- and low-pass filters from {cite:ps}`beranek2019acoustics`.
 
 ```python
 import generalToolbox as gtb
@@ -301,14 +301,14 @@ gtb.plot.FRF(frequency, (H_lp, H_hp, H_lp+H_hp), "dB",
 Frequency-response function of a 3rd order crossover stage.
 ```
 
-#### electrodynamic
+### electrodynamic
 Electro-dynamic blocks connect electrical to mechanical and/or acoustical domain. For now, only the electro-acoustic driver (EAD) block exists. It essentially regroup the network of {numref}`coupler-spk` with two additional ports in the acoustical domain: front and back load.
 
 ```{figure} ./svg_circuitikz/EAD_component.svg
     :name: block-ead
     :width: 200px
 
-**EAD(A, B, C, D, Le, ..., Sd, v_probe:optional)**. Representative 4-port model of the electro-acoustic-driver block. With `A` and `B` being the positive and negative electrical connections; `C` and `D` the front and back acoustic load. If a *str* (text) is passed to the `v_probe` argument, cone velocity can be extracted using `circuit.get_Flow(your_str)`.
+**EAD(A, B, C, D, Le, ..., Sd, v_probe:optional)**. Representative 4-port model of the electro-acoustic-driver block. With `A` and `B` being the positive and negative electrical connections; `C` and `D` the front and back acoustic load. If a *str* (text) is passed to the `v_probe` argument, cone velocity can be extracted using `circuit.getFlow(your_str)`.
 ```
 
 In the next code, we compare different wiring combination of drive units (single speaker, 2-parallel, 2-series). Here, we consider equivalent input power across all three configuration.
@@ -333,7 +333,7 @@ Rms = 0.9
 Bl  = 7.8
 Sd  = 158e-4
 
-#%% Estimate input voltage to get 1W of power
+#%% Input voltage to get 1W of power
 U_single   = sqrt(Re)
 U_parallel = sqrt(Re/2)
 U_series   = sqrt(Re*2)
@@ -399,9 +399,8 @@ Velocity comparison between single, parallel and series configuration.
 ```
 
 (chapter:monitorCrossover)=
-### Application example
-Here we take the studio monitor from the **{ref}`Loudspeaker System <loudspeakerSystem>`** section, and re-create the passive crossover done in VituixCAD. Both electric and acoustic domain are modeled, the coupling is done with `EAD` blocks, as explained above.
-
+## Application example
+Here we take the studio monitor from the **{ref}`Loudspeaker System <loudspeakerSystem>`** part, and re-create the passive crossover done in VituixCAD. Both electric and acoustic domain are modeled, the coupling handled with `EAD` blocks, as explained above.
 
 ```python
 import numpy as np
@@ -411,13 +410,13 @@ from electroacPy import csc, csb
 from electroacPy import circuit
 
 #%% initialize component to avoid long declarations
-inductance = csc.electric.inductance
-resistance = csc.electric.resistance
+inductance  = csc.electric.inductance
+resistance  = csc.electric.resistance
 capacitance = csc.electric.capacitance
-EAD = csb.electrodynamic.EADFromFile
-cavity = csc.acoustic.cavity
-port = csc.acoustic.port
-radiator = csc.acoustic.radiator
+EAD         = csb.electrodynamic.EADFromFile
+cavity      = csc.acoustic.cavity
+port        = csc.acoustic.port
+radiator    = csc.acoustic.radiator
 
 #%% load radiation data (without post-processing)
 system = ep.load("06_acoustic_radiation_refined")
@@ -497,7 +496,7 @@ system.filter_network("HF_xover", ref2bem=4, ref2study="free-field")
 system.filter_addTransferFunction("HF_xover", "hhf", H_hf)
 ```
 
-This code gives horizontal and vertical directivity responses as seen in {numref}`xover-rad-polar-hor` and {numref}`xover-rad-polar-ver`.
+This code gives horizontal and vertical directivity responses as seen in {numref}`xover-rad-polar-hor` and {numref}`xover-rad-polar-ver`. The transfer functions of the crossover network is shown in {numref}`xover-TF`
 
 ```{figure} ./circuitSolver_images/monitor_passive_xover_rad_b.svg
     :name: xover-rad-polar-hor
@@ -512,16 +511,8 @@ Vertical directivity with passive crossovers.
 ```
 
 
+```{figure} ./circuitSolver_images/xover_transfer_functions.svg
+    :name: xover-tf
 
-
-
-
-
-
-
-
-
-
-
-
-
+Lowpass, bandpass, highpass and total response of the passive filter network.
+```

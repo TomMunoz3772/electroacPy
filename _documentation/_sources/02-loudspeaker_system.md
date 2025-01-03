@@ -1,4 +1,4 @@
-(chapter:loudspeakerSystem)=
+(loudspeakerSystem)=
 # Overview
 The main advantage of using electroacPy is its **loudspeakerSystem** class. It
 provides multiple tools such as:

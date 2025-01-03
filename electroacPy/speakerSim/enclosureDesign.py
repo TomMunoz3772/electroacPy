@@ -25,7 +25,7 @@ pi = np.pi
 ## New approach
 class speakerBox:
     def __init__(self, Vb, frequencyRange=f10(20, 2500, 50),
-                 eta=1e-5, c=air.c, rho=air.rho, **kwargs):
+                 Qab=120, Qal=30, c=air.c, rho=air.rho, **kwargs):
         """
         Setup a louspeaker enclosure as a lumped-element object.
 
@@ -33,14 +33,20 @@ class speakerBox:
             Back volume (set behind the drive unit)
         :param frequencyRange: array,
 
-        :param eta:
-        :param c:
-        :param rho:
+        :param Qab: float,
+            Quality factor linked to losses in enclosure (damping). Default is 120
+        :param Qal: float,
+            Quality factor linked to losses out of enclosure (leakage). Default is 30
+        :param c: float,
+            Speed of sound in air. Default is 343 m/s
+        :param rho: float,
+            Air density. Default is 1.22 kg/m^3
         """
         # simulation parameters
         self.c = c
         self.rho = rho
-        self.eta = eta
+        self.Qab = Qab
+        self.Qal = Qal
         self.frequencyRange = frequencyRange
         self.s = laplace(frequencyRange)
 
@@ -91,8 +97,9 @@ class speakerBox:
         """
         ## 6th order bandpass with ports
         if ("Lp" in kwargs and ("Sp" in kwargs or "rp" in kwargs) and
-                "Vf" in kwargs and "Lp2" in kwargs and ("Sp2" in kwargs or "rp2" in kwargs)):
+            "Vf" in kwargs and "Lp2" in kwargs and ("Sp2" in kwargs or "rp2" in kwargs)):
             self.config = "bandpass_2"
+            self.flange = "single"
             for key, value in kwargs.items():
                 setattr(self, key, value)
                 if key == "Sp":
@@ -103,6 +110,8 @@ class speakerBox:
                     self.rp2 = np.sqrt(value / np.pi)
                 elif key == "rp2":
                     self.Sp2 = np.pi * value**2
+                elif key == "flange":
+                    self.flange = value
 
         ## 6th order bandpass with passive radiators
         elif ("Mmd" in kwargs and "Cmd" in kwargs and "Rmd" in kwargs and
@@ -115,12 +124,15 @@ class speakerBox:
         ## 4th order bandpass with port
         elif "Lp" in kwargs and ("Sp" in kwargs or "rp" in kwargs) and "Vf" in kwargs:
             self.config = "bandpass"
+            self.flange = "single"
             for key, value in kwargs.items():
                 setattr(self, key, value)
                 if key == "Sp":
                     self.rp = np.sqrt(value / np.pi)
                 elif key == "rp":
                     self.Sp = np.pi * value**2
+                elif key == "flange":
+                    self.flange = value
 
         ## 4th order bandpass with passive radiator
         elif ("Mmd" in kwargs and "Cmd" in kwargs and
@@ -132,12 +144,15 @@ class speakerBox:
         ## ported enclosure
         elif "Lp" in kwargs and ("Sp" in kwargs or "rp" in kwargs):
             self.config = "vented"
+            self.flange = "single"
             for key, value in kwargs.items():
                 setattr(self, key, value)
                 if key == "Sp":
                     self.rp = np.sqrt(value / np.pi)
                 elif key == "rp":
                     self.Sp = np.pi * value**2
+                elif key == "flange":
+                    self.flange = value
 
         ## passive radiator enclosure
         elif "Mmd" in kwargs and "Cmd" in kwargs and "Rmd" in kwargs and "Sd" in kwargs:
@@ -183,18 +198,26 @@ class speakerBox:
 
     ### ======================================
     ## IMPEDANCE AND VOLUME VELOCITY FUNCTIONS
-    def sealed_box(self, driver):   
+    def sealed_box(self, driver):
+        # prepare some values for components
+        Cab = self.Vb / self.rho / self.c**2    # box volume
+        wc  = 2 * np.pi * driver.Fs * np.sqrt(1 + driver.Vas / self.Vb)
+        Rab = 1 / wc / Cab / self.Qab    # internal losses  
+        Ral = self.Qal / wc / Cab        # leakage 
+        
         # define components
         enclosure = circuit(self.frequencyRange)
         U   = compe.voltageSource(1, 0, driver.U)
         DRV = EAD(1, 0, 2, 3, driver.Le, driver.Re, 
                   driver.Cms, driver.Mms, driver.Rms, 
                   driver.Bl, driver.Sd, v_probe="v") 
-        BOX = compa.cavity(3, 0, self.Vb, self.eta, self.rho, self.c)
+        RAL = compe.resistance(3, 0, Ral)
+        RAB = compe.resistance(3, 4, Rab)
+        CAB = compe.capacitance(4, 0, Cab)
         RAD = compa.radiator(2, 0, driver.Sd, self.rho, self.c)
         
         # setup and run
-        enclosure.addComponent(U, BOX, RAD)
+        enclosure.addComponent(U, RAL, RAB, CAB, RAD)
         enclosure.addBlock(DRV)
         enclosure.run()
         
@@ -205,104 +228,167 @@ class speakerBox:
         return Q, v, Ze
 
     def vented_box(self, driver):   
+        # prepare some values for components
+        Cab = self.Vb / self.rho / self.c**2    # box volume
+        wc  = 2 * np.pi * driver.Fs * np.sqrt(1 + driver.Vas / self.Vb)
+        Rab = 1 / wc / Cab / self.Qab    # internal losses  
+        Ral = self.Qal / wc / Cab        # leakage 
+        
         # define component
         enclosure = circuit(self.frequencyRange)
         U    = compe.voltageSource(1, 0, driver.U)
         DRV  = EAD(1, 0, 2, 3, driver.Le, driver.Re, 
                    driver.Cms, driver.Mms, driver.Rms, 
                    driver.Bl, driver.Sd, v_probe="v") 
-        BOX  = compa.cavity(3, 0, self.Vb, self.eta, self.rho, self.c)
-       
+
+        RAL = compe.resistance(3, 0, Ral)
+        RAB = compe.resistance(3, 4, Rab)
+        CAB = compe.capacitance(4, 0, Cab)
+        
         RAD  = compa.radiator(2, 0, driver.Sd, self.rho, self.c)
-        PORT = compa.port(3, 4, self.Lp, self.rp, self.rho, self.c)
-        RADP = compa.radiator(4, 0, self.Sp, self.rho, self.c)
+        PORT = compa.port(3, 5, self.Lp, self.rp, self.flange, rho=self.rho, c=self.c)
+        RADP = compa.radiator(5, 0, self.Sp, self.rho, self.c)
         
         # setup and run
-        enclosure.addComponent(U, BOX, RAD, PORT, RADP)
+        enclosure.addComponent(U, RAL, RAB, CAB, RAD, PORT, RADP)
         enclosure.addBlock(DRV)
         enclosure.run()
         
         # extract data
         Q  = enclosure.getPotential(2) * RAD.Gs
-        Qp = enclosure.getPotential(4) * RADP.Gs
+        Qp = enclosure.getPotential(5) * RADP.Gs
         v  = enclosure.getFlow("v")
         vp =  Qp / self.Sp
         Ze = -enclosure.getPotential(1) / enclosure.getFlow(1)
         return Q, Qp, v, vp, Ze
 
     def passive_radiator(self, driver):
+        # prepare some values for components
+        Cab = self.Vb / self.rho / self.c**2    # box volume
+        wc  = 2 * np.pi * driver.Fs * np.sqrt(1 + driver.Vas / self.Vb)
+        Rab = 1 / wc / Cab / self.Qab    # internal losses  
+        Ral = self.Qal / wc / Cab        # leakage 
+        
         # define components
         enclosure = circuit(self.frequencyRange)
         U     = compe.voltageSource(1, 0, driver.U)
         DRV   = EAD(1, 0, 2, 3, driver.Le, driver.Re, 
                     driver.Cms, driver.Mms, driver.Rms, 
                     driver.Bl, driver.Sd, v_probe="v") 
-        BOX   = compa.cavity(3, 0, self.Vb, self.eta, self.rho, self.c)
+        
+        # box
+        RAL = compe.resistance(3, 0, Ral)        
+        RAB = compe.resistance(3, 4, Rab)
+        CAB = compe.capacitance(4, 0, Cab)
+        
+        # ABR + RAD of driver
         RAD   = compa.radiator(2, 0, driver.Sd, self.rho, self.c)
-        PR    = compa.membrane(3, 4, self.Cmd, self.Mmd, self.Rmd, self.Sd, self.rho, self.c)
-        RADPR = compa.radiator(4, 0, self.Sd, self.rho, self.c)       
+        PR    = compa.membrane(3, 5, self.Cmd, self.Mmd, self.Rmd, 
+                               self.Sd, self.rho, self.c)
+        RADPR = compa.radiator(5, 0, self.Sd, self.rho, self.c)       
         
         # setup and run
-        enclosure.addComponent(U, BOX, RAD, PR, RADPR)
+        enclosure.addComponent(U, RAL, RAB, CAB, RAD, PR, RADPR)
         enclosure.addBlock(DRV)
         enclosure.run()
         
         # extract data
         Q   = enclosure.getPotential(2) * RAD.Gs
-        Qpr = enclosure.getPotential(4) * RADPR.Gs
+        Qpr = enclosure.getPotential(5) * RADPR.Gs
         v   = enclosure.getFlow("v")
         vpr =  Qpr / self.Sd
         Ze  = -enclosure.getPotential(1) / enclosure.getFlow(1)
         return Q, Qpr, v, vpr, Ze
 
     def bandpass4_port(self, driver):
+        # for simplicity, we consider same losses for front and back enclosure
+        # prepare some values for components
+        Cab = self.Vb / self.rho / self.c**2    # box volume
+        wc  = 2 * np.pi * driver.Fs * np.sqrt(1 + driver.Vas / self.Vb)
+        Rab = 1 / wc / Cab / self.Qab    # internal losses  
+        Ral = self.Qal / wc / Cab        # leakage 
+        
+        Cabf = self.Vf / self.rho / self.c**2
+        wcf  = 2 * np.pi * driver.Fs * np.sqrt(1 + driver.Vas / self.Vf)
+        Rabf = 1 / wcf / Cabf / self.Qab    # internal losses (front)
+        Ralf = self.Qal / wcf / Cabf        # leakage (front)
+        
+        
         # define component
         enclosure = circuit(self.frequencyRange)
         U     = compe.voltageSource(1, 0, driver.U)
-        DRV   = EAD(1, 0, 2, 4, driver.Le, driver.Re, 
+        DRV   = EAD(1, 0, 2, 5, driver.Le, driver.Re, 
                     driver.Cms, driver.Mms, driver.Rms, 
                     driver.Bl, driver.Sd, v_probe="v") 
-        BOXF  = compa.cavity(2, 0, self.Vf, self.eta, self.rho, self.c)
-        PORTF = compa.port(2, 3, self.Lp, self.rp, self.rho, self.c)
-        RADPF = compa.radiator(3, 0, self.Sp, self.rho, self.c)
-        BOXB  = compa.cavity(4, 0, self.Vb, self.eta, self.rho, self.c)
+        
+        RALF = compe.resistance(2, 0, Ralf)
+        RABF = compe.resistance(2, 3, Rabf)
+        CABF = compe.capacitance(3, 0, Cabf)
+        PORTF = compa.port(2, 4, self.Lp, self.rp, self.flange,
+                           rho=self.rho, c=self.c)
+        RADPF = compa.radiator(4, 0, self.Sp, self.rho, self.c)
+        
+        RAL = compe.resistance(5, 0, Ral)        
+        RAB = compe.resistance(5, 6, Rab)
+        CAB = compe.capacitance(6, 0, Cab)
     
         # setup and run
-        enclosure.addComponent(U, BOXF, PORTF, RADPF, BOXB)
+        enclosure.addComponent(U, RALF, RABF, CABF, 
+                               RAL, RAB, CAB, PORTF, RADPF)
         enclosure.addBlock(DRV)
         enclosure.run()
         
         # extract data
-        Qp = enclosure.getPotential(3) * RADPF.Gs
+        Qp = enclosure.getPotential(4) * RADPF.Gs
         vp = Qp / self.Sp
         v  = enclosure.getFlow("v")
         Ze = -enclosure.getPotential(1) / enclosure.getFlow(1)
         return Qp, vp, v, Ze
 
     def bandpass6_port(self, driver):
+        # for simplicity, we consider same losses for front and back enclosure
+        # prepare some values for components
+        Cab = self.Vb / self.rho / self.c**2    # box volume
+        wc  = 2 * np.pi * driver.Fs * np.sqrt(1 + driver.Vas / self.Vb)
+        Rab = 1 / wc / Cab / self.Qab    # internal losses  
+        Ral = self.Qal / wc / Cab        # leakage 
+        
+        Cabf = self.Vf / self.rho / self.c**2
+        wcf  = 2 * np.pi * driver.Fs * np.sqrt(1 + driver.Vas / self.Vf)
+        Rabf = 1 / wcf / Cabf / self.Qab    # internal losses (front)
+        Ralf = self.Qal / wcf / Cabf        # leakage (front)
+                
         # define component
         enclosure = circuit(self.frequencyRange)
         U     = compe.voltageSource(1, 0, driver.U)
-        DRV   = EAD(1, 0, 2, 4, driver.Le, driver.Re, 
+        DRV   = EAD(1, 0, 2, 5, driver.Le, driver.Re, 
                     driver.Cms, driver.Mms, driver.Rms, 
-                    driver.Bl, driver.Sd, v_probe="v") 
-        BOXF  = compa.cavity(2, 0, self.Vf, self.eta, self.rho, self.c)
-        PORTF = compa.port(2, 3, self.Lp, self.rp, self.rho, self.c)
-        RADPF = compa.radiator(3, 0, self.Sp, self.rho, self.c)
-        BOXB  = compa.cavity(4, 0, self.Vb, self.eta, self.rho, self.c)
-        PORTB = compa.port(4, 5, self.Lp2, self.rp2, self.rho, self.c)
-        RADPB = compa.radiator(5, 0, self.Sp2, self.rho, self.c)
+                    driver.Bl, driver.Sd, v_probe="v")
+        
+        RALF  = compe.resistance(2, 0, Ralf)
+        RABF  = compe.resistance(2, 3, Rabf)
+        CABF  = compe.capacitance(3, 0, Cabf)
+        PORTF = compa.port(2, 4, self.Lp, self.rp, self.flange, 
+                           rho=self.rho, c=self.c)
+        RADPF = compa.radiator(4, 0, self.Sp, self.rho, self.c)
+        
+        RAL   = compe.resistance(5, 0, Ral)
+        RAB   = compe.resistance(5, 6, Rab)
+        CAB   = compe.capacitance(6, 0, Cab)
+        PORTB = compa.port(5, 7, self.Lp2, self.rp2, self.flange,
+                           rho=self.rho, c=self.c)
+        RADPB = compa.radiator(7, 0, self.Sp2, self.rho, self.c)
     
         # setup and run
-        enclosure.addComponent(U, BOXF, PORTF, RADPF, BOXB, PORTB, RADPB)
+        enclosure.addComponent(U, RALF, RABF, CABF,PORTF, RADPF,
+                               RAL, RAB, CAB, PORTB, RADPB)
         enclosure.addBlock(DRV)
         enclosure.run()
         
-        
         # extract data
-        Qp = enclosure.getPotential(3) * RADPF.Gs
+        Qp = enclosure.getPotential(4) * RADPF.Gs  # front 
         vp = Qp / self.Sp
-        Qp2 = enclosure.getPotential(5) * RADPB.Gs
+        Qp2 = enclosure.getPotential(7) * RADPB.Gs # back
         vp2 = Qp2 / self.Sp2
         v  = enclosure.getFlow("v")
         Ze = -enclosure.getPotential(1) / enclosure.getFlow(1)
@@ -310,53 +396,91 @@ class speakerBox:
 
 
     def bandpass4_passive_radiator(self, driver):
+        # for simplicity, we consider same losses for front and back enclosure
+        # prepare some values for components
+        Cab = self.Vb / self.rho / self.c**2    # box volume
+        wc  = 2 * np.pi * driver.Fs * np.sqrt(1 + driver.Vas / self.Vb)
+        Rab = 1 / wc / Cab / self.Qab    # internal losses  
+        Ral = self.Qal / wc / Cab        # leakage 
+        
+        Cabf = self.Vf / self.rho / self.c**2
+        wcf  = 2 * np.pi * driver.Fs * np.sqrt(1 + driver.Vas / self.Vf)
+        Rabf = 1 / wcf / Cabf / self.Qab    # internal losses (front)
+        Ralf = self.Qal / wcf / Cabf        # leakage (front)
+        
         # define component
         enclosure = circuit(self.frequencyRange)
         U     = compe.voltageSource(1, 0, driver.U)
-        DRV   = EAD(1, 0, 2, 4, driver.Le, driver.Re, 
+        DRV   = EAD(1, 0, 2, 5, driver.Le, driver.Re, 
                     driver.Cms, driver.Mms, driver.Rms, 
                     driver.Bl, driver.Sd, v_probe="v") 
-        BOXF  = compa.cavity(2, 0, self.Vf, self.eta, self.rho, self.c)
-        PRF   = compa.membrane(2, 3, self.Cmd, self.Mmd, self.Rmd, self.Sd, self.rho, self.c)
-        RADPF = compa.radiator(3, 0, self.Sd, self.rho, self.c)
-        BOXB  = compa.cavity(4, 0, self.Vb, self.eta, self.rho, self.c)
+        
+        RALF  = compe.resistance(2, 0, Ralf)
+        RABF  = compe.resistance(2, 3, Rabf)
+        CABF  = compe.capacitance(3, 0, Cabf)
+        PRF   = compa.membrane(2, 4, self.Cmd, self.Mmd, self.Rmd, self.Sd, self.rho, self.c)
+        RADPF = compa.radiator(4, 0, self.Sd, self.rho, self.c)
+        
+        RAL = compe.resistance(5, 0, Ral)        
+        RAB = compe.resistance(5, 6, Rab)
+        CAB = compe.capacitance(6, 0, Cab)
     
         # setup and run
-        enclosure.addComponent(U, BOXF, PRF, RADPF, BOXB)
+        enclosure.addComponent(U, RALF, RABF, CABF, PRF, RADPF,
+                               RAL, RAB, CAB)
         enclosure.addBlock(DRV)
         enclosure.run()
         
         # extract data
-        Qpr = enclosure.getPotential(3) * RADPF.Gs
+        Qpr = enclosure.getPotential(4) * RADPF.Gs
         vpr = Qpr / self.Sd
         v   = enclosure.getFlow("v")
         Ze  = -enclosure.getPotential(1) / enclosure.getFlow(1)
         return Qpr, vpr, v, Ze
     
     
-    def bandpass6_passive_radiator(self, driver):     
+    def bandpass6_passive_radiator(self, driver):   
+        # for simplicity, we consider same losses for front and back enclosure
+        # prepare some values for components
+        Cab = self.Vb / self.rho / self.c**2    # box volume
+        wc  = 2 * np.pi * driver.Fs * np.sqrt(1 + driver.Vas / self.Vb)
+        Rab = 1 / wc / Cab / self.Qab    # internal losses  
+        Ral = self.Qal / wc / Cab        # leakage 
+        
+        Cabf = self.Vf / self.rho / self.c**2
+        wcf  = 2 * np.pi * driver.Fs * np.sqrt(1 + driver.Vas / self.Vf)
+        Rabf = 1 / wcf / Cabf / self.Qab    # internal losses (front)
+        Ralf = self.Qal / wcf / Cabf        # leakage (front)
+        
         # define component
         enclosure = circuit(self.frequencyRange)
         U     = compe.voltageSource(1, 0, driver.U)
         DRV   = EAD(1, 0, 2, 4, driver.Le, driver.Re, 
                     driver.Cms, driver.Mms, driver.Rms, 
                     driver.Bl, driver.Sd, v_probe="v") 
-        BOXF  = compa.cavity(2, 0, self.Vf, self.eta, self.rho, self.c)
-        PRF   = compa.membrane(2, 3, self.Cmd, self.Mmd, self.Rmd, self.Sd, self.rho, self.c)
-        RADPF = compa.radiator(3, 0, self.Sd, self.rho, self.c)
-        BOXB  = compa.cavity(4, 0, self.Vb, self.eta, self.rho, self.c)
-        PRB   = compa.membrane(4, 5, self.Cmd2, self.Mmd2, self.Rmd2, self.Sd2, self.rho, self.c) 
-        RADPB = compa.radiator(5, 0, self.Sd2, self.rho, self.c)
+        
+        RALF  = compe.resistance(2, 0, Ralf)
+        RABF  = compe.resistance(2, 3, Rabf)
+        CABF  = compe.capacitance(3, 0, Cabf)
+        PRF   = compa.membrane(2, 4, self.Cmd, self.Mmd, self.Rmd, self.Sd, self.rho, self.c)
+        RADPF = compa.radiator(4, 0, self.Sd, self.rho, self.c)
+        
+        RAL   = compe.resistance(5, 0, Ral)
+        RAB   = compe.resistance(5, 6, Rab)
+        CAB   = compe.capacitance(6, 0, Cab)
+        PRB   = compa.membrane(5, 7, self.Cmd2, self.Mmd2, self.Rmd2, self.Sd2, self.rho, self.c) 
+        RADPB = compa.radiator(7, 0, self.Sd2, self.rho, self.c)
         
         # setup and run
-        enclosure.addComponent(U, BOXF, PRF, RADPF, BOXB, PRB, RADPB)
+        enclosure.addComponent(U, RALF, RABF, CABF, PRF, RADPF,
+                               RAL, RAB, CAB, PRB, RADPB)
         enclosure.addBlock(DRV)
         enclosure.run()
         
         # extract data
-        Qpr  = enclosure.getPotential(3) * RADPF.Gs
+        Qpr  = enclosure.getPotential(4) * RADPF.Gs  # front
         vpr  = Qpr / self.Sd
-        Qpr2 = enclosure.getPotential(5) * RADPB.Gs
+        Qpr2 = enclosure.getPotential(7) * RADPB.Gs  # back
         vpr2 = Qpr2 / self.Sd2
         v    = enclosure.getFlow("v")
         Ze   = -enclosure.getPotential(1) / enclosure.getFlow(1)
@@ -458,7 +582,7 @@ class speakerBox:
         apr2 = self.vpr2 * laplace(self.frequencyRange)
         
         fig, ax = plt.subplots(3, 1, figsize=size)
-        ax[0].semilogx(self.frequencyRange, np.abs(x), label='Displacement')
+        ax[0].semilogx(self.frequencyRange, np.abs(x)*1e3, label='Displacement')
         ax[1].semilogx(self.frequencyRange, np.abs(self.v), label='Velocity')
         ax[2].semilogx(self.frequencyRange, np.abs(a), label='Acceleration')
         ax[2].set(xlabel="Frequency [Hz]")
@@ -477,7 +601,7 @@ class speakerBox:
         
         if np.all(self.vp != 0):
             fig, ax = plt.subplots(3, 1, figsize=size)
-            ax[0].semilogx(self.frequencyRange, np.abs(xp), label='Displacement')
+            ax[0].semilogx(self.frequencyRange, np.abs(xp)*1e3, label='Displacement')
             ax[1].semilogx(self.frequencyRange, np.abs(self.vp), label='Velocity')
             ax[2].semilogx(self.frequencyRange, np.abs(ap), label='Acceleration')
             ax[0].set(ylabel="mm", title="Port")
@@ -545,10 +669,17 @@ class speakerBox:
         
         return plt.show()
     
-    def exportZe(self, filename):
+    def exportZe(self, folder_name, file_name):
+        import os
+        
+        # Create the folder if it doesn't exist
+        if not os.path.exists(folder_name):
+            os.makedirs(folder_name)
+        
         module = np.abs(self.Ze)
         phase = np.angle(self.Ze, deg=True)
-        np.savetxt(filename, np.array([self.frequencyRange, module, phase]).T,
+        path = os.path.join(folder_name, file_name)
+        np.savetxt(path, np.array([self.frequencyRange, module, phase]).T,
                    fmt="%.3f",
                    header="Freq[Hz]  Imp[Ohm]  Phase[Deg]",
                    delimiter=',',

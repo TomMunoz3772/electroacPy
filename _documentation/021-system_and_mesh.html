@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>System overview and meshing &#8212; ElectroacPy</title>
+    <title>Geometry import and meshing &#8212; ElectroacPy</title>
   
   
   
@@ -171,7 +171,7 @@
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Loudspeaker System</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="02-loudspeaker_system.html">Overview</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">System overview and meshing</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Geometry import and meshing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="03-lumped_modeler.html">Lumped Element Modeler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04-BEM_modeler.html">Boundary Element Modeler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05-post_processing.html">Post-processing</a></li>
@@ -180,6 +180,12 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="06-back_end.html">Back-end</a></li>
 <li class="toctree-l1"><a class="reference internal" href="07-circuitSolver.html">circuitSolver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08-LEM_backend.html">LEM modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09-BEM_backend.html">BEM module</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="100-ref.html">References</a></li>
 </ul>
 
     </div>
@@ -357,7 +363,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>System overview and meshing</h1>
+    <h1>Geometry import and meshing</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -379,9 +385,9 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="system-overview-and-meshing">
-<h1>System overview and meshing<a class="headerlink" href="#system-overview-and-meshing" title="Link to this heading">#</a></h1>
-<p>In the following sections, a three-way monitor is used as an example. <a class="reference internal" href="#cad-model"><span class="std std-numref">Fig. 2</span></a> shows the system in its relatively complex CAD form: drivers are fully detailed, including the cone, basket, motor, etc., and the enclosure accounts for internal separations, port dimensions, and wall thicknesses to ensure everything fits properly. However, for our specific case study, this level of detail is unnecessary, as many features will not significantly impact acoustic radiation. Therefore, we simplify the system by retaining only the outer shell and representing each radiating element as flat surfaces — see <a class="reference internal" href="#sim-model"><span class="std std-numref">Fig. 3</span></a>. These significant simplifications should still provide valuable insights into acoustic radiation.</p>
+  <section id="geometry-import-and-meshing">
+<h1>Geometry import and meshing<a class="headerlink" href="#geometry-import-and-meshing" title="Link to this heading">#</a></h1>
+<p>In the following sections, we demonstrate ElectroacPy’s capabilities using a three-way loudspeaker. <a class="reference internal" href="#cad-model"><span class="std std-numref">Fig. 2</span></a> shows the system in its relatively complex CAD form: drivers are fully detailed, including the cone, basket, motor, etc., and the enclosure accounts for internal separations, port dimensions, and wall thickness. However, this level of detail is unnecessary for simple exterior-field studies, as many features will not significantly impact the acoustic radiation. Therefore, we simplify the system by retaining only the outer shell and representing each radiating element as flat surfaces — see <a class="reference internal" href="#sim-model"><span class="std std-numref">Fig. 3</span></a>. These significant simplifications should still provide valuable insights into acoustic radiation.</p>
 <figure class="align-left" id="cad-model">
 <a class="reference internal image-reference" href="_images/studio_monitor.png"><img alt="_images/studio_monitor.png" src="_images/studio_monitor.png" style="width: 300px;" /></a>
 <figcaption>
@@ -396,7 +402,7 @@
 </figure>
 <section id="mesh">
 <h2>Mesh<a class="headerlink" href="#mesh" title="Link to this heading">#</a></h2>
-<p>A mesh of the system is required for simulation with bempp. As noted in the bempp documentation, mesh imports are handled with <a class="reference external" href="https://github.com/nschloe/meshio">meshio</a>. Compatible mesh formats are listed on its GitHub page. To simplify the process of meshing geometries, ElectroacPy provides a wrapper for the <a class="reference external" href="https://gmsh.info/">Gmsh</a> API. This is what we’ll use for our study.</p>
+<p>A mesh of the system is required for simulation with bempp. As noted in its documentation, mesh imports are handled with <a class="reference external" href="https://github.com/nschloe/meshio">meshio</a>. Compatible mesh formats are listed on its GitHub page<a class="footnote-reference brackets" href="#troublesahead" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. To simplify the process of meshing geometries, ElectroacPy provides a small wrapper for the <a class="reference external" href="https://gmsh.info/">Gmsh</a> API. This is what we’ll use for our study.</p>
 <p>Once your geometry is exported as a <code class="docutils literal notranslate"><span class="pre">.step</span></code> file, you can create a <code class="docutils literal notranslate"><span class="pre">CAD</span></code> object with <code class="docutils literal notranslate"><span class="pre">generalToolbox</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">generalToolbox</span> <span class="k">as</span> <span class="nn">gtb</span>
 
@@ -427,7 +433,7 @@
 </pre></div>
 </div>
 <figure class="align-default" id="mesh-1khz">
-<img alt="_images/mesh_1kHz.png" src="_images/mesh_1kHz.png" />
+<a class="reference internal image-reference" href="_images/mesh_1kHz.png"><img alt="_images/mesh_1kHz.png" src="_images/mesh_1kHz.png" style="width: 369.59999999999997px; height: 302.4px;" /></a>
 <figcaption>
 <p><span class="caption-number">Fig. 5 </span><span class="caption-text">Geometry meshed with a 1 kHz resolution.</span><a class="headerlink" href="#mesh-1khz" title="Link to this image">#</a></p>
 </figcaption>
@@ -451,13 +457,20 @@
 </pre></div>
 </div>
 <figure class="align-default" id="mesh-refined">
-<img alt="_images/mesh_refined.png" src="_images/mesh_refined.png" />
+<a class="reference internal image-reference" href="_images/mesh_refined.png"><img alt="_images/mesh_refined.png" src="_images/mesh_refined.png" style="width: 398.4px; height: 326.4px;" /></a>
 <figcaption>
 <p><span class="caption-number">Fig. 6 </span><span class="caption-text">Refined mesh.</span><a class="headerlink" href="#mesh-refined" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>As you can see, although the smaller mesh was intended to be applied only to the tweeter and baffle, it is also present on the subwoofer, midrange, and port. This is a potential area for improvement in ElectroacPy’s automated API calls.</p>
 <p>A final note: after creating surface groups, <code class="docutils literal notranslate"><span class="pre">meshCAD</span></code> will automatically regroup all remaining surfaces into a single group called “enclosure” — this ensures that all surfaces are properly loaded into bempp.</p>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="troublesahead" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>For now the import of other file than *.med and *.msh as been removed, as meshio has a tendency of removing physical groups.</p>
+</aside>
+</aside>
 </section>
 </section>
 

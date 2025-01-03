@@ -1,6 +1,6 @@
-## System overview and meshing
+## Geometry import and meshing
 
-In the following sections, a three-way monitor is used as an example. {numref}`cad-model` shows the system in its relatively complex CAD form: drivers are fully detailed, including the cone, basket, motor, etc., and the enclosure accounts for internal separations, port dimensions, and wall thicknesses to ensure everything fits properly. However, for our specific case study, this level of detail is unnecessary, as many features will not significantly impact acoustic radiation. Therefore, we simplify the system by retaining only the outer shell and representing each radiating element as flat surfaces --- see {numref}`sim-model`. These significant simplifications should still provide valuable insights into acoustic radiation.
+In the following sections, we demonstrate ElectroacPy's capabilities using a three-way loudspeaker. {numref}`cad-model` shows the system in its relatively complex CAD form: drivers are fully detailed, including the cone, basket, motor, etc., and the enclosure accounts for internal separations, port dimensions, and wall thickness. However, this level of detail is unnecessary for simple exterior-field studies, as many features will not significantly impact the acoustic radiation. Therefore, we simplify the system by retaining only the outer shell and representing each radiating element as flat surfaces --- see {numref}`sim-model`. These significant simplifications should still provide valuable insights into acoustic radiation.
 
 
 ```{figure} ./system_images/studio_monitor.png
@@ -20,7 +20,9 @@ Simplified model for simulations.
 ```
 
 ### Mesh
-A mesh of the system is required for simulation with bempp. As noted in the bempp documentation, mesh imports are handled with [meshio](https://github.com/nschloe/meshio). Compatible mesh formats are listed on its GitHub page. To simplify the process of meshing geometries, ElectroacPy provides a wrapper for the [Gmsh](https://gmsh.info/) API. This is what we'll use for our study.
+A mesh of the system is required for simulation with bempp. As noted in its documentation, mesh imports are handled with [meshio](https://github.com/nschloe/meshio). Compatible mesh formats are listed on its GitHub page[^troublesAhead]. To simplify the process of meshing geometries, ElectroacPy provides a small wrapper for the [Gmsh](https://gmsh.info/) API. This is what we'll use for our study.
+
+[^troublesAhead]: For now the import of other file than *.med and *.msh as been removed, as meshio has a tendency of removing physical groups.
 
 Once your geometry is exported as a `.step` file, you can create a `CAD` object with `generalToolbox`:
 
@@ -61,6 +63,7 @@ cad.mesh("../geo/mesh/studio_monitor")
 
 ```{figure} ./system_images/mesh_1kHz.png
     :name: mesh-1kHz
+    :scale: 60%
 
 Geometry meshed with a 1 kHz resolution.
 ```
@@ -87,6 +90,7 @@ cad.mesh("../geo/mesh/studio_monitor_refined")
 
 ```{figure} ./system_images/mesh_refined.png
     :name: mesh-refined
+    :scale: 60%
 
 Refined mesh.
 ```
