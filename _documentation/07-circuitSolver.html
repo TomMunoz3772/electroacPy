@@ -65,6 +65,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = '07-circuitSolver';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="LEM module" href="08-LEM_backend.html" />
     <link rel="prev" title="Back-end" href="06-back_end.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -172,7 +173,7 @@
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Loudspeaker System</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="02-loudspeaker_system.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">System overview and meshing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">Geometry import and meshing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="03-lumped_modeler.html">Lumped Element Modeler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04-BEM_modeler.html">Boundary Element Modeler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05-post_processing.html">Post-processing</a></li>
@@ -181,6 +182,12 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="06-back_end.html">Back-end</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">circuitSolver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08-LEM_backend.html">LEM module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09-BEM_backend.html">BEM module</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="100-ref.html">References</a></li>
 </ul>
 
     </div>
@@ -391,9 +398,9 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="circuitsolver">
+  <section class="tex2jax_ignore mathjax_ignore" id="circuitsolver">
 <span id="chapter-circuitsolver"></span><h1>circuitSolver<a class="headerlink" href="#circuitsolver" title="Link to this heading">#</a></h1>
-<p>Before diving into the lumped-element wrappers, it is best to present the <strong>circuitSolver</strong> class. It lets the user create electrical networks and uses (a relatively simplified) Modified Nodal Analysis (MNA) to solve nodes potential and sources current in the frequency domain. It is the basis on which electroacPy’s lumped-element classes are built. Using networks through <strong>circuitSolver</strong> allows much more flexibility when describing electro-acoustic networks — as long as you know how to describe your system with lumped-elements.</p>
+<p>Before diving into the lumped-element wrappers, it is best to present the <strong>circuitSolver</strong> class. It lets the user create electrical networks and uses (a fairly simplified) Modified Nodal Analysis (MNA) to solve nodes potential and sources current in the frequency domain. It is the basis on which electroacPy’s lumped-element classes are built. Using networks through <strong>circuitSolver</strong> allows much more flexibility when describing electro-acoustic networks — as long as you know how to describe your system with lumped-elements.</p>
 <p>Networks are initialized by creating a <strong>circuit</strong> object:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">circuitSolver.solver</span> <span class="kn">import</span> <span class="n">circuit</span>
@@ -516,7 +523,7 @@
 </figure>
 <p>The following code demonstrates how to simulate the sound transmission within a duct split by a membrane. <a class="reference internal" href="#membrane-system"><span class="std std-numref">Fig. 34</span></a> represents the simulated system while the resulting transfer function and membrane volume velocity are shown in <a class="reference internal" href="#membrane-h"><span class="std std-numref">Fig. 35</span></a> and <a class="reference internal" href="#membrane-q"><span class="std std-numref">Fig. 36</span></a>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">csc</span><span class="p">,</span> <span class="n">circuit</span>
-<span class="kn">import</span> <span class="nn">generalToolbox</span> <span class="k">as</span> <span class="nn">gtb</span>
+<span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">gtb</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">arange</span><span class="p">,</span> <span class="n">pi</span>
 
 <span class="c1">#%% Define study parameters</span>
@@ -579,7 +586,7 @@
 </figcaption>
 </figure>
 <p>As an example, we simulate a loudspeaker radiating in free-air (see <a class="reference internal" href="#coupler-spk"><span class="std std-numref">Fig. 38</span></a>). The resulting impedance and membrane velocity are shown in <a class="reference internal" href="#lspk-modulus"><span class="std std-numref">Fig. 39</span></a>-<a class="reference internal" href="#lspk-phase"><span class="std std-numref">Fig. 40</span></a> and <a class="reference internal" href="#lspk-velocity"><span class="std std-numref">Fig. 41</span></a>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">generalToolbox</span> <span class="k">as</span> <span class="nn">gtb</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">gtb</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">circuit</span>
 <span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">csc</span>
@@ -645,8 +652,8 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">.lowpass_butter(A,</span> <span class="pre">B,</span> <span class="pre">order,</span> <span class="pre">fc,</span> <span class="pre">Re)</span></code>,</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">.highpass_butter(A,</span> <span class="pre">B,</span> <span class="pre">order,</span> <span class="pre">fc,</span> <span class="pre">Re)</span></code>.</p></li>
 </ul>
-<p>Both are built using the definitions of Butterworth high- and low-pass filters from &#64;beranek2019acoustics.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">generalToolbox</span> <span class="k">as</span> <span class="nn">gtb</span>
+<p>Both are built using the definitions of Butterworth high- and low-pass filters from <span id="id3">[<a class="reference internal" href="100-ref.html#id3" title="L. Beranek and T. Mellow. Acoustics: Sound Fields, Transducers and Vibration. Elsevier Science, 2019. ISBN 9780128152270. URL: https://books.google.co.uk/books?id=rcopvQEACAAJ.">BM19</a>]</span>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">gtb</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">arange</span>
 <span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">csc</span><span class="p">,</span> <span class="n">csb</span><span class="p">,</span> <span class="n">circuit</span>
 
@@ -689,11 +696,11 @@
 <figure class="align-default" id="block-ead">
 <a class="reference internal image-reference" href="_images/EAD_component.svg"><img alt="_images/EAD_component.svg" src="_images/EAD_component.svg" style="width: 200px;" /></a>
 <figcaption>
-<p><span class="caption-number">Fig. 43 </span><span class="caption-text"><strong>EAD(A, B, C, D, Le, …, Sd, v_probe:optional)</strong>. Representative 4-port model of the electro-acoustic-driver block. With <code class="docutils literal notranslate"><span class="pre">A</span></code> and <code class="docutils literal notranslate"><span class="pre">B</span></code> being the positive and negative electrical connections; <code class="docutils literal notranslate"><span class="pre">C</span></code> and <code class="docutils literal notranslate"><span class="pre">D</span></code> the front and back acoustic load. If a <em>str</em> (text) is passed to the <code class="docutils literal notranslate"><span class="pre">v_probe</span></code> argument, cone velocity can be extracted using <code class="docutils literal notranslate"><span class="pre">circuit.get_Flow(your_str)</span></code>.</span><a class="headerlink" href="#block-ead" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 43 </span><span class="caption-text"><strong>EAD(A, B, C, D, Le, …, Sd, v_probe:optional)</strong>. Representative 4-port model of the electro-acoustic-driver block. With <code class="docutils literal notranslate"><span class="pre">A</span></code> and <code class="docutils literal notranslate"><span class="pre">B</span></code> being the positive and negative electrical connections; <code class="docutils literal notranslate"><span class="pre">C</span></code> and <code class="docutils literal notranslate"><span class="pre">D</span></code> the front and back acoustic load. If a <em>str</em> (text) is passed to the <code class="docutils literal notranslate"><span class="pre">v_probe</span></code> argument, cone velocity can be extracted using <code class="docutils literal notranslate"><span class="pre">circuit.getFlow(your_str)</span></code>.</span><a class="headerlink" href="#block-ead" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>In the next code, we compare different wiring combination of drive units (single speaker, 2-parallel, 2-series). Here, we consider equivalent input power across all three configuration.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">generalToolbox</span> <span class="k">as</span> <span class="nn">gtb</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">gtb</span>
 <span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">csc</span><span class="p">,</span> <span class="n">csb</span><span class="p">,</span> <span class="n">circuit</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">arange</span><span class="p">,</span> <span class="n">sqrt</span>
 
@@ -712,7 +719,7 @@
 <span class="n">Bl</span>  <span class="o">=</span> <span class="mf">7.8</span>
 <span class="n">Sd</span>  <span class="o">=</span> <span class="mf">158e-4</span>
 
-<span class="c1">#%% Estimate input voltage to get 1W of power</span>
+<span class="c1">#%% Input voltage to get 1W of power</span>
 <span class="n">U_single</span>   <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">Re</span><span class="p">)</span>
 <span class="n">U_parallel</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">Re</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">U_series</span>   <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">Re</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
@@ -781,21 +788,21 @@
 </section>
 <section id="application-example">
 <span id="chapter-monitorcrossover"></span><h2>Application example<a class="headerlink" href="#application-example" title="Link to this heading">#</a></h2>
-<p>Here we take the studio monitor from the <strong><span class="xref std std-ref">Loudspeaker System</span></strong> section, and re-create the passive crossover done in VituixCAD. Both electric and acoustic domain are modeled, the coupling is done with <code class="docutils literal notranslate"><span class="pre">EAD</span></code> blocks, as explained above.</p>
+<p>Here we take the studio monitor from the <strong><a class="reference internal" href="02-loudspeaker_system.html#loudspeakersystem"><span class="std std-ref">Loudspeaker System</span></a></strong> part, and re-create the passive crossover done in VituixCAD. Both electric and acoustic domain are modeled, the coupling handled with <code class="docutils literal notranslate"><span class="pre">EAD</span></code> blocks, as explained above.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">generalToolbox</span> <span class="k">as</span> <span class="nn">gtb</span>
 <span class="kn">import</span> <span class="nn">electroacPy</span> <span class="k">as</span> <span class="nn">ep</span>
+<span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">gtb</span>
 <span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">csc</span><span class="p">,</span> <span class="n">csb</span>
 <span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">circuit</span>
 
 <span class="c1">#%% initialize component to avoid long declarations</span>
-<span class="n">inductance</span> <span class="o">=</span> <span class="n">csc</span><span class="o">.</span><span class="n">electric</span><span class="o">.</span><span class="n">inductance</span>
-<span class="n">resistance</span> <span class="o">=</span> <span class="n">csc</span><span class="o">.</span><span class="n">electric</span><span class="o">.</span><span class="n">resistance</span>
+<span class="n">inductance</span>  <span class="o">=</span> <span class="n">csc</span><span class="o">.</span><span class="n">electric</span><span class="o">.</span><span class="n">inductance</span>
+<span class="n">resistance</span>  <span class="o">=</span> <span class="n">csc</span><span class="o">.</span><span class="n">electric</span><span class="o">.</span><span class="n">resistance</span>
 <span class="n">capacitance</span> <span class="o">=</span> <span class="n">csc</span><span class="o">.</span><span class="n">electric</span><span class="o">.</span><span class="n">capacitance</span>
-<span class="n">EAD</span> <span class="o">=</span> <span class="n">csb</span><span class="o">.</span><span class="n">electrodynamic</span><span class="o">.</span><span class="n">EADFromFile</span>
-<span class="n">cavity</span> <span class="o">=</span> <span class="n">csc</span><span class="o">.</span><span class="n">acoustic</span><span class="o">.</span><span class="n">cavity</span>
-<span class="n">port</span> <span class="o">=</span> <span class="n">csc</span><span class="o">.</span><span class="n">acoustic</span><span class="o">.</span><span class="n">port</span>
-<span class="n">radiator</span> <span class="o">=</span> <span class="n">csc</span><span class="o">.</span><span class="n">acoustic</span><span class="o">.</span><span class="n">radiator</span>
+<span class="n">EAD</span>         <span class="o">=</span> <span class="n">csb</span><span class="o">.</span><span class="n">electrodynamic</span><span class="o">.</span><span class="n">EADFromFile</span>
+<span class="n">cavity</span>      <span class="o">=</span> <span class="n">csc</span><span class="o">.</span><span class="n">acoustic</span><span class="o">.</span><span class="n">cavity</span>
+<span class="n">port</span>        <span class="o">=</span> <span class="n">csc</span><span class="o">.</span><span class="n">acoustic</span><span class="o">.</span><span class="n">port</span>
+<span class="n">radiator</span>    <span class="o">=</span> <span class="n">csc</span><span class="o">.</span><span class="n">acoustic</span><span class="o">.</span><span class="n">radiator</span>
 
 <span class="c1">#%% load radiation data (without post-processing)</span>
 <span class="n">system</span> <span class="o">=</span> <span class="n">ep</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;06_acoustic_radiation_refined&quot;</span><span class="p">)</span>
@@ -875,7 +882,7 @@
 <span class="n">system</span><span class="o">.</span><span class="n">filter_addTransferFunction</span><span class="p">(</span><span class="s2">&quot;HF_xover&quot;</span><span class="p">,</span> <span class="s2">&quot;hhf&quot;</span><span class="p">,</span> <span class="n">H_hf</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>This code gives horizontal and vertical directivity responses as seen in <a class="reference internal" href="#xover-rad-polar-hor"><span class="std std-numref">Fig. 46</span></a> and <a class="reference internal" href="#xover-rad-polar-ver"><span class="std std-numref">Fig. 47</span></a>.</p>
+<p>This code gives horizontal and vertical directivity responses as seen in <a class="reference internal" href="#xover-rad-polar-hor"><span class="std std-numref">Fig. 46</span></a> and <a class="reference internal" href="#xover-rad-polar-ver"><span class="std std-numref">Fig. 47</span></a>. The transfer functions of the crossover network is shown in <a class="reference internal" href="#xover-tf"><span class="std std-numref">Fig. 48</span></a></p>
 <figure class="align-default" id="xover-rad-polar-hor">
 <img alt="_images/monitor_passive_xover_rad_b.svg" src="_images/monitor_passive_xover_rad_b.svg" />
 <figcaption>
@@ -886,6 +893,12 @@
 <img alt="_images/monitor_passive_xover_rad.svg" src="_images/monitor_passive_xover_rad.svg" />
 <figcaption>
 <p><span class="caption-number">Fig. 47 </span><span class="caption-text">Vertical directivity with passive crossovers.</span><a class="headerlink" href="#xover-rad-polar-ver" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="xover-tf">
+<img alt="_images/xover_transfer_functions.svg" src="_images/xover_transfer_functions.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 48 </span><span class="caption-text">Lowpass, bandpass, highpass and total response of the passive filter network.</span><a class="headerlink" href="#xover-tf" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <hr class="footnotes docutils" />
@@ -936,6 +949,15 @@
         <p class="prev-next-subtitle">previous</p>
         <p class="prev-next-title">Back-end</p>
       </div>
+    </a>
+    <a class="right-next"
+       href="08-LEM_backend.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">LEM module</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
                 </footer>

@@ -34,7 +34,7 @@
     <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
     <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
   
@@ -173,7 +173,7 @@
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Loudspeaker System</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="02-loudspeaker_system.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">System overview and meshing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">Geometry import and meshing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="03-lumped_modeler.html">Lumped Element Modeler</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Boundary Element Modeler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05-post_processing.html">Post-processing</a></li>
@@ -182,6 +182,12 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="06-back_end.html">Back-end</a></li>
 <li class="toctree-l1"><a class="reference internal" href="07-circuitSolver.html">circuitSolver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08-LEM_backend.html">LEM module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09-BEM_backend.html">BEM module</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="100-ref.html">References</a></li>
 </ul>
 
     </div>
@@ -383,7 +389,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="boundary-element-modeler">
+  <section class="tex2jax_ignore mathjax_ignore" id="boundary-element-modeler">
 <h1>Boundary Element Modeler<a class="headerlink" href="#boundary-element-modeler" title="Link to this heading">#</a></h1>
 <p>ElectroacPy BEM modeler aims at automating the creation of <a class="reference external" href="https://bempp.com/installation.html">bempp-cl studies</a>: applying velocity to radiating elements, placement of evaluation points in 3D space, definition of the system based on boundary conditions, etc.</p>
 <p>The BEM modeler is mostly focused on exterior acoustic radiation (e.g. a loudspeaker radiating in free-air), hence, a lot of functionality that you would find in commercial software are not available, such as interfaces between domains<a class="footnote-reference brackets" href="#interface-note" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> or structural analysis. However, it is great for:</p>
@@ -392,10 +398,10 @@
 <li><p>signal processing applied to loudspeaker array (beamforming, spherical harmonics, etc.),</p></li>
 <li><p>projection of measured/simulated acceleration data.</p></li>
 </ul>
-<figure class="align-default" id="id2">
+<figure class="align-default" id="id3">
 <img alt="_images/BEM.svg" src="_images/BEM.svg" />
 <figcaption>
-<p><span class="caption-number">Fig. 13 </span><span class="caption-text">Structure of the Boundary-Element Modeler.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 13 </span><span class="caption-text">Structure of the Boundary-Element Modeler.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <section id="acoustic-study">
@@ -411,7 +417,7 @@
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">tol</span></code>, tolerance of the GMRES solver,</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">boundary_conditions</span></code>, a <strong>boundaryCondition</strong> object which defines infinite boundaries and surfaces impedance,</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">direction</span></code>, list of vector that add specific direction coefficients to the radiating surfaces, for example: <code class="docutils literal notranslate"><span class="pre">[[0,</span> <span class="pre">1,</span> <span class="pre">0]]</span></code> for a single driver radiating toward <em>+y</em>, or <code class="docutils literal notranslate"><span class="pre">[[1,</span> <span class="pre">0,</span> <span class="pre">0],</span> <span class="pre">False,</span> <span class="pre">[1,</span> <span class="pre">0,</span> <span class="pre">0]]</span></code> for three drivers, with two radiating toward <em>+x</em> and one with normal radiation direction.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">direction</span></code>, list of vector that add specific direction coefficients to the radiating surfaces, for example: <code class="docutils literal notranslate"><span class="pre">[[0,</span> <span class="pre">1,</span> <span class="pre">0]]</span></code> for a single driver radiating toward <em>+y</em>, or <code class="docutils literal notranslate"><span class="pre">[[1,</span> <span class="pre">0,</span> <span class="pre">0],</span> <span class="pre">False,</span> <span class="pre">[1,</span> <span class="pre">0,</span> <span class="pre">0]]</span></code> for three drivers, with two radiating toward <em>+x</em> and one with normal radiation direction. This last parameter is mostly useful when your radiators have a depth (e.g. a loudspeaker membrane not modeled as a flat surface).</p></li>
 </ul>
 <p>In the following code, we define a free-field and a ground-reflected study.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">electroacPy</span> <span class="k">as</span> <span class="nn">ep</span>
@@ -499,7 +505,7 @@
 <span class="n">ep</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;05_evaluation_setup&quot;</span><span class="p">,</span> <span class="n">system</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>As you can see in this code, we use the <code class="docutils literal notranslate"><span class="pre">.plot_system()</span></code> function^[Similar to Tkinter window, PyVista plotter will <em>also</em> stop execution of code.] — this will display the 3D placement of evaluation points and boundaries as shown by <a class="reference internal" href="#plot-system"><span class="std std-numref">Fig. 15</span></a>. You may also have noticed that the <code class="docutils literal notranslate"><span class="pre">.run()</span></code> command is used again: electroacPy automatically skips any boundary and potential evaluations already computed.</p>
+<p>As you can see in this code, we use the <code class="docutils literal notranslate"><span class="pre">.plot_system()</span></code> function<a class="footnote-reference brackets" href="#pyvistanote" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> — this will display the 3D placement of evaluation points and boundaries as shown by <a class="reference internal" href="#plot-system"><span class="std std-numref">Fig. 15</span></a>. You may also have noticed that the <code class="docutils literal notranslate"><span class="pre">.run()</span></code> command is used again: electroacPy automatically skips any boundary and potential evaluations already computed.</p>
 <figure class="align-default" id="plot-system">
 <img alt="_images/system_floor_with_eval_b.png" src="_images/system_floor_with_eval_b.png" />
 <figcaption>
@@ -536,7 +542,7 @@
 <figure class="align-default" id="plot-dir">
 <img alt="_images/directivity_plotter_b.svg" src="_images/directivity_plotter_b.svg" />
 <figcaption>
-<p><span class="caption-number">Fig. 18 </span><span class="caption-text">Directivity plotter. Vertical radiation in free-field.</span><a class="headerlink" href="#plot-dir" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 18 </span><span class="caption-text">Directivity plotter. Horizontal radiation in free-field.</span><a class="headerlink" href="#plot-dir" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <!-- In that directivity plot, you can clearly see the limits of the simulation mesh. Because the mesh is relatively coarse, the accuracy of the results decreases significantly at high frequencies, to the point where the off-axis (±180°) pressure is no longer correct. Using a finer mesh will give better results, but will be longer to compute.  -->
@@ -591,6 +597,10 @@
 <aside class="footnote brackets" id="interface-note" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p>It should be possible to implement it in bempp-cl.</p>
+</aside>
+<aside class="footnote brackets" id="pyvistanote" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Similar to Tkinter window, PyVista plotter will <em>also</em> stop execution of code.</p>
 </aside>
 </aside>
 </section>

@@ -171,7 +171,7 @@
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Loudspeaker System</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="02-loudspeaker_system.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">System overview and meshing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">Geometry import and meshing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="03-lumped_modeler.html">Lumped Element Modeler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04-BEM_modeler.html">Boundary Element Modeler</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Post-processing</a></li>
@@ -180,6 +180,12 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="06-back_end.html">Back-end</a></li>
 <li class="toctree-l1"><a class="reference internal" href="07-circuitSolver.html">circuitSolver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08-LEM_backend.html">LEM module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09-BEM_backend.html">BEM module</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="100-ref.html">References</a></li>
 </ul>
 
     </div>
@@ -380,9 +386,9 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="post-processing">
+  <section class="tex2jax_ignore mathjax_ignore" id="post-processing">
 <h1>Post-processing<a class="headerlink" href="#post-processing" title="Link to this heading">#</a></h1>
-<p>ElectroacPy provides some tools for crossover-network / filter-design. These are considered “post-processing” as they are applied on computation results. It might not be the best term, but we’ll go with it for now.</p>
+<p>ElectroacPy provides some tools for crossover-network / filter design. These are considered “post-processing” as they are applied on computation results. It might not be the best term, but we’ll go with it for now.</p>
 <section id="crossover">
 <h2><code class="docutils literal notranslate"><span class="pre">.crossover[]</span></code><a class="headerlink" href="#crossover" title="Link to this heading">#</a></h2>
 <p>Crossovers/filters are initialized through the <code class="docutils literal notranslate"><span class="pre">.filter_network()</span></code> method. Input parameters are:</p>
@@ -400,7 +406,7 @@
 <li><p>user-defined transfer functions.</p></li>
 </ul>
 <p>In the code below, we define a crossover network using the available biquads:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">generalToolbox</span> <span class="k">as</span> <span class="nn">gtb</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">gtb</span>
 <span class="kn">import</span> <span class="nn">electroacPy</span> <span class="k">as</span> <span class="nn">ep</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -471,7 +477,7 @@
 <p><span class="caption-number">Fig. 20 </span><span class="caption-text">Filtered loudspeaker response.</span><a class="headerlink" href="#xover-pressure" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
-<p>It is important to note that electroacPy’s crossover tools are considered as digital filters: interaction between speaker and supposed electrical components is not taken into account. In order to have a better understanding of the electrical behavior with passive components, it is either possible to use the <strong>circuitSolver</strong> class, or to export results to an external software for crossover design.</p>
+<p>It is important to note that electroacPy’s crossover tools are considered as digital filters: interactions between speaker and supposed electrical components are not taken into account. In order to have a better understanding of the electrical behavior with passive components, it is either possible to use the <strong>circuitSolver</strong> class, or to export results to an external software for crossover design.</p>
 </section>
 <section id="export-simulation-data">
 <h2>Export simulation data<a class="headerlink" href="#export-simulation-data" title="Link to this heading">#</a></h2>
