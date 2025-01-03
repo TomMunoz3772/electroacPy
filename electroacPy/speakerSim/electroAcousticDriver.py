@@ -553,10 +553,17 @@ class electroAcousticDriver:
         # Run the tkinter loop
         root.mainloop()
     
-    def exportZe(self, filename):
+    def exportZe(self, folder_name, file_name):
+        import os
+        
+        # Create the folder if it doesn't exist
+        if not os.path.exists(folder_name):
+            os.makedirs(folder_name)
+        
         module = np.abs(self.ZeTot)
         phase = np.angle(self.ZeTot, deg=True)
-        np.savetxt(filename, np.array([self.f_array, module, phase]).T,
+        path = os.path.join(folder_name, file_name)
+        np.savetxt(path, np.array([self.f_array, module, phase]).T,
                    fmt="%.3f", 
                    header="Freq[Hz]  Imp[Ohm]  Phase[Deg]",
                    delimiter=',',

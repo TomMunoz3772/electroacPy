@@ -246,7 +246,8 @@ def interpolate_Impedance(impedanceData, freq_in, freq_out):
 
 
 #%% Export tools
-def export_directivity(folder_name, frequency_array, angle_array, pmic_array):
+def export_directivity(folder_name, file_prefix,
+                       frequency_array, angle_array, pmic_array):
     """
     Export a directivity evaluation extracted from a loudspeakerSystem object.
     Can be imported in other software, such as VituixCAD or VACS.
@@ -286,7 +287,7 @@ def export_directivity(folder_name, frequency_array, angle_array, pmic_array):
         data_to_save = np.column_stack((frequency_array, spl_values, phase_values))
         
         # File name format: folder_name_angle.txt
-        file_name = os.path.join(folder_name, f"{folder_name}_{angle}.txt")
+        file_name = os.path.join(folder_name, f"{file_prefix}_{angle}.txt")
         
         # Save the data to the text file using np.savetxt with the correct header
         np.savetxt(file_name, data_to_save, header="frequency  SPL  phase", fmt="%.3e")
