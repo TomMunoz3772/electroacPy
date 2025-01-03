@@ -144,7 +144,7 @@ The following snippet is a summary of what has been discussed above. Four modifi
 
 ```python
 import electroacPy as ep
-import generalToolbox as gtb
+from electroacPy import gtb
 
 #%% frequency axis and system initialization
 frequency = gtb.freqop.freq_log10(1, 10e3, 125)

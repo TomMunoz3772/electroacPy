@@ -1,5 +1,5 @@
 import numpy as np
-from generalToolbox import freqop, geometry, io
+from electroacPy.general import freqop, geometry, io
 import matplotlib.pyplot as plt
 
 

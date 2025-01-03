@@ -118,7 +118,9 @@ system.plot_results()
 ep.save("05_evaluation_setup", system)
 ```
 
-As you can see in this code, we use the `.plot_system()` function^[Similar to Tkinter window, PyVista plotter will *also* stop execution of code.] --- this will display the 3D placement of evaluation points and boundaries as shown by {numref}`plot-system`. You may also have noticed that the `.run()` command is used again: electroacPy automatically skips any boundary and potential evaluations already computed. 
+As you can see in this code, we use the `.plot_system()` function[^pyvistaNote] --- this will display the 3D placement of evaluation points and boundaries as shown by {numref}`plot-system`. You may also have noticed that the `.run()` command is used again: electroacPy automatically skips any boundary and potential evaluations already computed. 
+
+[^pyvistaNote]: Similar to Tkinter window, PyVista plotter will *also* stop execution of code.
 
 ```{figure} ./boundary_images/system_floor_with_eval_b.png
     :name: plot-system

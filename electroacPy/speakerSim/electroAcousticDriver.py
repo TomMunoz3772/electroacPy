@@ -6,10 +6,10 @@ Created on Tue Oct  3 15:50:43 2023
 @author: tom.munoz
 """
 import numpy as np
+import electroacPy.general as gtb
 from electroacPy.global_ import air
+from electroacPy.general import lp_loaders as lpl
 import matplotlib.pyplot as plt
-import generalToolbox as gtb
-import generalToolbox.lp_loaders as lpl
 import tkinter as tk
 from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -190,7 +190,7 @@ class electroAcousticDriver:
             size=None
         
         fig, ax = plt.subplots(3, 1, figsize=size)
-        ax[0].semilogx(self.f_array, np.abs(self.Hx)*1e3, label='Displacement')
+        ax[0].semilogx(self.f_array, np.abs(self.Hx*1e3), label='Displacement')
         ax[1].semilogx(self.f_array, np.abs(self.Hv), label='Velocity')
         ax[2].semilogx(self.f_array, np.abs(self.Ha), label='Acceleration')
         ax[2].set(xlabel="Frequency [Hz]")
@@ -553,17 +553,10 @@ class electroAcousticDriver:
         # Run the tkinter loop
         root.mainloop()
     
-    def exportZe(self, folder_name, file_name):
-        import os
-        
-        # Create the folder if it doesn't exist
-        if not os.path.exists(folder_name):
-            os.makedirs(folder_name)
-        
+    def exportZe(self, filename):
         module = np.abs(self.ZeTot)
         phase = np.angle(self.ZeTot, deg=True)
-        path = os.path.join(folder_name, file_name)
-        np.savetxt(path, np.array([self.f_array, module, phase]).T,
+        np.savetxt(filename, np.array([self.f_array, module, phase]).T,
                    fmt="%.3f", 
                    header="Freq[Hz]  Imp[Ohm]  Phase[Deg]",
                    delimiter=',',

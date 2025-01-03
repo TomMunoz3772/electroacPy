@@ -6,10 +6,8 @@ Created on Tue Sep  3 10:40:49 2024
 @author: tom
 """
 
-from numpy import array, zeros, ones, repeat
-from numpy import max as npmax
-from generalToolbox.freqop import laplace
-from generalToolbox import parallel
+from numpy import array, zeros, ones
+from electroacPy.general.freqop import laplace
 
 class voltageSource:  
     def __init__(self, np, nm, value):

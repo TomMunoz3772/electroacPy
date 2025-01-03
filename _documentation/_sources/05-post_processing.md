@@ -19,7 +19,7 @@ Available filters are:
 
 In the code below, we define a crossover network using the available biquads:
 ```python
-import generalToolbox as gtb
+from electroacPy import gtb
 import electroacPy as ep
 import numpy as np
 

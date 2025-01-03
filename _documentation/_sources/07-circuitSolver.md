@@ -133,7 +133,7 @@ The following code demonstrates how to simulate the sound transmission within a 
 
 ```python
 from electroacPy import csc, circuit
-import generalToolbox as gtb
+from electroacPy import gtb
 from numpy import arange, pi
 
 #%% Define study parameters
@@ -198,7 +198,7 @@ Current controlled voltage source. **CCVS(np, nm, np1, nm1, value=R)**. Where `R
 As an example, we simulate a loudspeaker radiating in free-air (see {numref}`coupler-spk`). The resulting impedance and membrane velocity are shown in {numref}`lspk-modulus`-{numref}`lspk-phase` and {numref}`lspk-velocity`.
 
 ```python
-import generalToolbox as gtb
+from electroacPy import gtb
 import numpy as np
 from electroacPy import circuit
 from electroacPy import csc
@@ -265,7 +265,7 @@ At this stage of development, electric blocks are:
 Both are built using the definitions of Butterworth high- and low-pass filters from {cite:ps}`beranek2019acoustics`.
 
 ```python
-import generalToolbox as gtb
+from electroacPy import gtb
 from numpy import arange
 from electroacPy import csc, csb, circuit
 
@@ -314,7 +314,7 @@ Electro-dynamic blocks connect electrical to mechanical and/or acoustical domain
 In the next code, we compare different wiring combination of drive units (single speaker, 2-parallel, 2-series). Here, we consider equivalent input power across all three configuration.
 
 ```python
-import generalToolbox as gtb
+from electroacPy import gtb
 from electroacPy import csc, csb, circuit
 from numpy import arange, sqrt
 
@@ -404,8 +404,8 @@ Here we take the studio monitor from the **{ref}`Loudspeaker System <loudspeaker
 
 ```python
 import numpy as np
-import generalToolbox as gtb
 import electroacPy as ep
+from electroacPy import gtb
 from electroacPy import csc, csb
 from electroacPy import circuit
 

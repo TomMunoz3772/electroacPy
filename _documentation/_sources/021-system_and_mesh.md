@@ -27,7 +27,7 @@ A mesh of the system is required for simulation with bempp. As noted in its docu
 Once your geometry is exported as a `.step` file, you can create a `CAD` object with `generalToolbox`:
 
 ```python
-import generalToolbox as gtb
+from electroacPy import gtb
 
 cad = gtb.meshCAD("../geo/step_export/simulation_cad.step")
 ```

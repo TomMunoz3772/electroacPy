@@ -180,7 +180,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="06-back_end.html">Back-end</a></li>
 <li class="toctree-l1"><a class="reference internal" href="07-circuitSolver.html">circuitSolver</a></li>
-<li class="toctree-l1"><a class="reference internal" href="08-LEM_backend.html">LEM modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08-LEM_backend.html">LEM module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="09-BEM_backend.html">BEM module</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">References</span></p>
@@ -404,7 +404,7 @@
 <h2>Mesh<a class="headerlink" href="#mesh" title="Link to this heading">#</a></h2>
 <p>A mesh of the system is required for simulation with bempp. As noted in its documentation, mesh imports are handled with <a class="reference external" href="https://github.com/nschloe/meshio">meshio</a>. Compatible mesh formats are listed on its GitHub page<a class="footnote-reference brackets" href="#troublesahead" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. To simplify the process of meshing geometries, ElectroacPy provides a small wrapper for the <a class="reference external" href="https://gmsh.info/">Gmsh</a> API. This is what we’ll use for our study.</p>
 <p>Once your geometry is exported as a <code class="docutils literal notranslate"><span class="pre">.step</span></code> file, you can create a <code class="docutils literal notranslate"><span class="pre">CAD</span></code> object with <code class="docutils literal notranslate"><span class="pre">generalToolbox</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">generalToolbox</span> <span class="k">as</span> <span class="nn">gtb</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">gtb</span>
 
 <span class="n">cad</span> <span class="o">=</span> <span class="n">gtb</span><span class="o">.</span><span class="n">meshCAD</span><span class="p">(</span><span class="s2">&quot;../geo/step_export/simulation_cad.step&quot;</span><span class="p">)</span>
 </pre></div>

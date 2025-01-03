@@ -65,7 +65,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = '07-circuitSolver';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="LEM modules" href="08-LEM_backend.html" />
+    <link rel="next" title="LEM module" href="08-LEM_backend.html" />
     <link rel="prev" title="Back-end" href="06-back_end.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -182,7 +182,7 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="06-back_end.html">Back-end</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">circuitSolver</a></li>
-<li class="toctree-l1"><a class="reference internal" href="08-LEM_backend.html">LEM modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08-LEM_backend.html">LEM module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="09-BEM_backend.html">BEM module</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">References</span></p>
@@ -523,7 +523,7 @@
 </figure>
 <p>The following code demonstrates how to simulate the sound transmission within a duct split by a membrane. <a class="reference internal" href="#membrane-system"><span class="std std-numref">Fig. 34</span></a> represents the simulated system while the resulting transfer function and membrane volume velocity are shown in <a class="reference internal" href="#membrane-h"><span class="std std-numref">Fig. 35</span></a> and <a class="reference internal" href="#membrane-q"><span class="std std-numref">Fig. 36</span></a>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">csc</span><span class="p">,</span> <span class="n">circuit</span>
-<span class="kn">import</span> <span class="nn">generalToolbox</span> <span class="k">as</span> <span class="nn">gtb</span>
+<span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">gtb</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">arange</span><span class="p">,</span> <span class="n">pi</span>
 
 <span class="c1">#%% Define study parameters</span>
@@ -586,7 +586,7 @@
 </figcaption>
 </figure>
 <p>As an example, we simulate a loudspeaker radiating in free-air (see <a class="reference internal" href="#coupler-spk"><span class="std std-numref">Fig. 38</span></a>). The resulting impedance and membrane velocity are shown in <a class="reference internal" href="#lspk-modulus"><span class="std std-numref">Fig. 39</span></a>-<a class="reference internal" href="#lspk-phase"><span class="std std-numref">Fig. 40</span></a> and <a class="reference internal" href="#lspk-velocity"><span class="std std-numref">Fig. 41</span></a>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">generalToolbox</span> <span class="k">as</span> <span class="nn">gtb</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">gtb</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">circuit</span>
 <span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">csc</span>
@@ -653,7 +653,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">.highpass_butter(A,</span> <span class="pre">B,</span> <span class="pre">order,</span> <span class="pre">fc,</span> <span class="pre">Re)</span></code>.</p></li>
 </ul>
 <p>Both are built using the definitions of Butterworth high- and low-pass filters from <span id="id3">[<a class="reference internal" href="100-ref.html#id3" title="L. Beranek and T. Mellow. Acoustics: Sound Fields, Transducers and Vibration. Elsevier Science, 2019. ISBN 9780128152270. URL: https://books.google.co.uk/books?id=rcopvQEACAAJ.">BM19</a>]</span>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">generalToolbox</span> <span class="k">as</span> <span class="nn">gtb</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">gtb</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">arange</span>
 <span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">csc</span><span class="p">,</span> <span class="n">csb</span><span class="p">,</span> <span class="n">circuit</span>
 
@@ -700,7 +700,7 @@
 </figcaption>
 </figure>
 <p>In the next code, we compare different wiring combination of drive units (single speaker, 2-parallel, 2-series). Here, we consider equivalent input power across all three configuration.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">generalToolbox</span> <span class="k">as</span> <span class="nn">gtb</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">gtb</span>
 <span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">csc</span><span class="p">,</span> <span class="n">csb</span><span class="p">,</span> <span class="n">circuit</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">arange</span><span class="p">,</span> <span class="n">sqrt</span>
 
@@ -790,8 +790,8 @@
 <span id="chapter-monitorcrossover"></span><h2>Application example<a class="headerlink" href="#application-example" title="Link to this heading">#</a></h2>
 <p>Here we take the studio monitor from the <strong><a class="reference internal" href="02-loudspeaker_system.html#loudspeakersystem"><span class="std std-ref">Loudspeaker System</span></a></strong> part, and re-create the passive crossover done in VituixCAD. Both electric and acoustic domain are modeled, the coupling handled with <code class="docutils literal notranslate"><span class="pre">EAD</span></code> blocks, as explained above.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">generalToolbox</span> <span class="k">as</span> <span class="nn">gtb</span>
 <span class="kn">import</span> <span class="nn">electroacPy</span> <span class="k">as</span> <span class="nn">ep</span>
+<span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">gtb</span>
 <span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">csc</span><span class="p">,</span> <span class="n">csb</span>
 <span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">circuit</span>
 
@@ -955,7 +955,7 @@
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">LEM modules</p>
+        <p class="prev-next-title">LEM module</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

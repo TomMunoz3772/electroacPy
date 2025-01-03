@@ -5,7 +5,6 @@ import numpy as _np
 from bempp.helpers import timeit as _timeit
 # from scipy.sparse.linalg.interface import LinearOperator as _LinearOperator
 from scipy.sparse.linalg import LinearOperator as _LinearOperator
-
 # Disable warnings for differing overridden parameters
 # pylint: disable=W0221
 
@@ -75,7 +74,10 @@ class _ScaledDiscreteOperator(_DiscreteOperatorBase):
     """Return a scaled operator."""
 
     def __init__(self, op, alpha):
-        dtype = _np.result_type(op.dtype, type(alpha))
+        # dtype = _np.find_common_type([op.dtype], [type(alpha)])
+        dtype = _np.result_type(op, alpha)
+
+        
         self._op = op
         self._alpha = alpha
         super().__init__(dtype, op.shape)
@@ -106,7 +108,8 @@ class _SumDiscreteOperator(_DiscreteOperatorBase):
         self._op1 = op1
         self._op2 = op2
 
-        dtype = _np.result_type(op1.dtype, op2.dtype)
+        # dtype = _np.find_common_type([op1.dtype, op2.dtype], [])
+        dtype = _np.result_type(op1, op2)
 
         super().__init__(dtype, op1.shape)
 
@@ -136,7 +139,8 @@ class _ProductDiscreteOperator(_DiscreteOperatorBase):
         self._op1 = op1
         self._op2 = op2
 
-        dtype = _np.result_type(op1.dtype, op2.dtype)
+        # dtype = _np.find_common_type([op1.dtype, op2.dtype], [])
+        dtype = _np.result_type(op1, op2)
 
         super().__init__(dtype, (op1.shape[0], op2.shape[1]))
 
@@ -631,7 +635,7 @@ class _Solver(object):  # pylint: disable=too-few-public-methods
             solver_interface = PardisoInterface
             actual_mat = mat.tocsr()
             use_mkl_pardiso = True
-        except:  # noqa: E722
+        except:
             solver_interface = splu
             actual_mat = mat
 

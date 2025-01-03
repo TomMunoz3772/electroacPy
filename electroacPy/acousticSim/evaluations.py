@@ -10,7 +10,7 @@ import numpy as np
 import pyvista
 import os
 import electroacPy
-import generalToolbox.plot as gplot
+from ..general import plot as gplot
 directory_path = os.path.abspath(electroacPy.__file__)
 
 pi = np.pi
@@ -182,7 +182,7 @@ class evaluations:
     def plot_system(self):
         mesh = pyvista.read(self.bemObject.meshPath)
         radSurf = self.bemObject.radiatingElement
-
+        
         # prepare mesh color, camera and bounds
         colors = []
         for scalar in mesh.active_scalars:
@@ -231,12 +231,13 @@ class evaluations:
         x_width = bounds[1] - bounds[0]  # Width along the x-axis
         y_width = bounds[3] - bounds[2]  # Width along the y-axis
         z_width = bounds[5] - bounds[4]  # Width along the z-axis
+        
         if bool(self.setup) is False:   
             p_coeff = 2  # make infinite boundary a bit bigger if no eval is set 
         else:
             p_coeff = 1
-        plane_size = (x_width*p_coeff, y_width*p_coeff, z_width*p_coeff)
         
+        plane_size = (x_width*p_coeff, y_width*p_coeff, z_width*p_coeff)
         # add floor if infinite boundary conditions are present in bemObject
         bemObject = self.bemObject
         if bemObject.boundary_conditions is not None:

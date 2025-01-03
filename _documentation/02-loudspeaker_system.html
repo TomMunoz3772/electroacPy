@@ -34,7 +34,7 @@
     <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
     <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
   
@@ -63,7 +63,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = '02-loudspeaker_system';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="System overview and meshing" href="021-system_and_mesh.html" />
+    <link rel="next" title="Geometry import and meshing" href="021-system_and_mesh.html" />
     <link rel="prev" title="Introduction" href="01-introduction.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -171,7 +171,7 @@
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Loudspeaker System</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">System overview and meshing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="021-system_and_mesh.html">Geometry import and meshing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="03-lumped_modeler.html">Lumped Element Modeler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04-BEM_modeler.html">Boundary Element Modeler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05-post_processing.html">Post-processing</a></li>
@@ -180,8 +180,12 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="06-back_end.html">Back-end</a></li>
 <li class="toctree-l1"><a class="reference internal" href="07-circuitSolver.html">circuitSolver</a></li>
-<li class="toctree-l1"><a class="reference internal" href="08-LEM_backend.html">LEM modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08-LEM_backend.html">LEM module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="09-BEM_backend.html">BEM module</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="100-ref.html">References</a></li>
 </ul>
 
     </div>
@@ -403,7 +407,7 @@ through the corresponding dictionary:</p>
 </div>
 <p>The default frequency axis is defined from 20 Hz to 2500 Hz with 50 points. Alternatively, you can specify custom frequency axis, which must be a <code class="docutils literal notranslate"><span class="pre">numpy</span></code> array.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">electroacPy</span> <span class="k">as</span> <span class="nn">ep</span>
-<span class="kn">import</span> <span class="nn">generalToolbox</span> <span class="k">as</span> <span class="nn">gtb</span>
+<span class="kn">from</span> <span class="nn">electroacPy</span> <span class="kn">import</span> <span class="n">gtb</span>
 
 <span class="c1">#%% Create a system object with a custom frequency axis</span>
 <span class="n">frequency</span> <span class="o">=</span> <span class="n">gtb</span><span class="o">.</span><span class="n">freqop</span><span class="o">.</span><span class="n">freq_log10</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">75</span><span class="p">)</span>
@@ -462,7 +466,7 @@ through the corresponding dictionary:</p>
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">System overview and meshing</p>
+        <p class="prev-next-title">Geometry import and meshing</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
