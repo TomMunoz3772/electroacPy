@@ -12,10 +12,10 @@ build:
 python:
   install:
     - method: pip
+    - requirements: requirements.txt
       path: .
       extra_requirements:
       - sphinx
-      - jupyter-book
 
 sphinx:
   builder: html
