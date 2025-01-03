@@ -1,3 +1,8 @@
+"""
+Copyright (C) 2025 electroacPy team.
+Licensed under the GPLv3. See LICENSE for details.
+"""
+
 import numpy as np
 import generalToolbox.acoustics
 import generalToolbox.gain
