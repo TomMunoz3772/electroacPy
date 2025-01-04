@@ -1,14 +1,16 @@
 # Introduction
-The main idea behind this project is to provide an easy-to-use toolbox to solve simple acoustic studies using Python --- with focus on loudspeaker radiation. It uses a mix of lumped-element-modeling (LEM) for drivers and boundary-element method (BEM) for interior and exterior acoustical radiation. This handbook provides multiple examples on how to simulate loudspeaker systems, which should go through most aspects of the toolbox. The first part shows how the front-end works: defining a lumped-element network, simulate LEM drivers and enclosures interaction, setting-up exterior and interior radiation studies; the second part dives into the back-end of the toolbox and how studies can be made bypassing the toolbox’s front-end. The BEM wrapper is implemented using [bempp-cl](https://bempp.com/) which is installed alongside ElectroacPy. BEM simulations wouldn’t have been possible without the contributors of the bempp-cl project.
+The main idea behind this project is to provide an easy-to-use toolbox to solve simple acoustic studies using Python --- with focus on loudspeaker radiation. It uses a mix of lumped-element-modeling (LEM) for drivers and boundary-element method (BEM) for interior and exterior acoustical radiation. This handbook provides examples on how to simulate loudspeaker systems, which should go through most aspects of the toolbox. The first part shows how the front-end works: defining a lumped-element network, simulate the interaction between loudspeaker drivers and enclosures, setting-up exterior and interior radiation studies; the second part dives into the back-end of the toolbox and how studies can be made bypassing the main **loudspeakerSystem** class. The BEM wrapper is implemented using [bempp-cl](https://bempp.com/) which is installed alongside ElectroacPy. BEM simulations wouldn’t have been possible without the contributors of the bempp-cl project.
+
+You'll find the GitHub repo [here](https://github.com/TchoumTchoum/electroacPy).
 
 ## Installation
-#### Before Starting
+### Before Starting
 
 - The following steps have been verified on **Windows** and **Linux** for Python versions 3.9 to 3.11. For **macOS**, only version 3.9 has been tested. However, in theory, any version of Python should work as long as all dependencies are available.
 - You may want to try out different Python versions by creating multiple Conda environments (see **Step 1**).
 
 
-#### Setting Up Python with Conda
+### Setting Up Python with Conda
 
 The recommended installation method uses the **Conda** package manager for Python. You can install Conda through one of the following options:
 
@@ -22,7 +24,7 @@ The recommended installation method uses the **Conda** package manager for Pytho
     - **Windows**: Use the Miniforge Prompt for installation.
     - **macOS/Linux**: Use your terminal (bash/zsh).
 
-#### Installation Steps
+### Installation Steps
 
 1. **Create a new Conda environment** (recommended but optional):
 ```shell
@@ -38,36 +40,42 @@ conda activate acoustic_sim
 conda install python=3.11 pip
 ```
 4. **Install electroacPy**:
-- For standard installation:
-`
+
+For standard installation:
+
+```shell
 pip install /path/to/electroacPy
-`
-- For development (editable) installation:
-`
+```
+
+For development installation:
+```shell
 pip install -e /path/to/electroacPy
-`
+```
 
-#### Notes
-- **Using a separate environment**:  Installing ElectroacPy in its own Conda environment is recommended. This helps prevent conflicts during updates and allows easier management of dependencies.
-- **Selecting environments**: In Python IDEs like Spyder or PyCharm, you can choose the specific Conda environment where ElectroacPy is installed.
+### Notes
+**Using a separate environment**:  Installing ElectroacPy in its own Conda / Python environment is recommended. This helps prevent conflicts during updates and allows easier management of dependencies.
 
-#### Additional Steps for Spyder Users
+**Selecting environments**: In Python IDEs like Spyder or PyCharm, you can choose the specific Conda environment where ElectroacPy is installed.
+
+### Additional Steps for Spyder Users
 If you plan to use **Spyder**:
-- You'll need to install `spyder-kernels` in the newly created environment:
+
+You'll need to install `spyder-kernels` in the newly created environment:
 ```shell
 pip install spyder-kernels
 ```
-- Alternatively, you can install **Spyder** directly in the environment to avoid needing `spyder-kernels`:
+
+Alternatively, you can install **Spyder** directly in the environment to avoid needing `spyder-kernels`:
 ```shell
 conda install spyder
 ```
 
-#### Post install
+## OpenCL
 In Windows and Linux, you can actually use the OpenCL backend to reduce computing time. In the corresponding Conda environment:
 ```shell
 pip install pyopencl intel-opencl-rt
 ```
-You'll also need to install OpenCL drivers, which you'll find [here](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-cpu-runtime-for-opencl-applications-with-sycl-support.html) for intel users. For more informations, you can follow the **OpenCL** section from [bempp-cl installation guide](https://bempp.com/installation.html).
+You'll also need to install OpenCL drivers, which you'll find [here](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-cpu-runtime-for-opencl-applications-with-sycl-support.html) for intel users. For more information, you can follow the **OpenCL** section from [bempp-cl installation guide](https://bempp.com/installation.html).
 
 
 ## Notation
