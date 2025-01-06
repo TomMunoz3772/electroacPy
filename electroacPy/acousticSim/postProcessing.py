@@ -6,15 +6,19 @@ Created on Tue Sep 17 08:29:39 2024
 @author: tom
 """
 
-import numpy as np
-from electroacPy.acousticSim.evaluations import evaluations
-from electroacPy.acousticSim.bem import bem
-from copy import copy, deepcopy
-import bempp.api
-
-
 class postProcess:
     def __init__(self):
+        """
+        Store transfer function of corresponding radiating elements.
+        Should be set in a evaluation.plot() method call.
+        
+        ex:
+        EV = evaluationObject
+        EV.plot(evaluations=[], radiatingElement=[1, 2, 3], 
+                processing=postProcessObj)
+        
+        -> will plot all evaluations with summed elements' TF for 1, 2 and 3.
+        """
         self.TF = {}        # transfer-functions
 
     def addTransferFunction(self,  name, H, radiatingElement):

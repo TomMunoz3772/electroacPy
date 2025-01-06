@@ -438,7 +438,7 @@ class PolarRadiation:
         self.radius = radius
         self.offset = offset
         
-        from generalToolbox.geometry import create_circular_array
+        from electroacPy.general.geometry import create_circular_array
         self.theta = np.arange(minAngle, maxAngle+step, step)
         self.xMic = create_circular_array(self.theta, 
                                           on_axis, direction, radius, offset)
@@ -478,7 +478,7 @@ class PressureField:
         self.plane = plane
         self.offset = offset
         
-        from generalToolbox.geometry import create_planar_array
+        from electroacPy.general.geometry import create_planar_array
         self.xMic, self.L, self.W = create_planar_array(Length, Width, 
                                                         step, plane, offset)        
         
@@ -517,7 +517,7 @@ class BoundingBox:
         self.step = step
         self.offset = offset
         
-        from generalToolbox.geometry import create_bounding_box
+        from electroacPy.general.geometry import create_bounding_box
         self.xMic, dim = create_bounding_box(Lx, Ly, Lz, step, offset)
         self.nMic = len(self.xMic)
         self.nx = dim[0]
@@ -536,7 +536,7 @@ class SphericalRadiation:
         self.radius = radius
         self.offset = offset
         
-        from generalToolbox.geometry import create_spherical_array
+        from electroacPy.general.geometry import create_spherical_array
         self.xMic = create_spherical_array(nMic, radius, offset)
         self.nMic = len(self.xMic)
 

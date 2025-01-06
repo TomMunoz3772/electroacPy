@@ -521,12 +521,12 @@ class loudspeakerSystem:
         if isinstance(radiatingElement, int) is True: # avoid possible error if only one rad surf is selected
             radiatingElement = [radiatingElement]
                 
-        if bool(study) is False:
+        if bool(study) is False: # if not specific study given, plot all
             for s in self.acoustic_study:
                 _ = updateResults(self, s, bypass_xover)
                 _ = self.evaluation[s].plot(evaluation, radiatingElement, 
                                              processing=self.results[s])
-        else:
+        else: # plot specific study
             _ = updateResults(self, study, bypass_xover)
             _ = self.evaluation[study].plot(evaluation, radiatingElement,
                                                  processing=self.results[study])
@@ -763,6 +763,10 @@ def exportToVituixCAD(name, out, angle, frequency):
 
 
 def groupSurfaces2Export(loudspeakerSystem):
+    """
+    Not used anywhere, this is a remnant from some part I don't remember.
+    Maybe it was about exporting field studies.
+    """
     radiatorName = []
     radiatingSurface = []
     for radname in loudspeakerSystem.radiator_id:
@@ -877,8 +881,7 @@ def apply_Velocity_From_SPKBOX(loudspeakerSystem, study, radiatorName):
         
         elif ls.enclosure[radiatorName].config == "bandpass_pr_2":
             ls.results[study].addTransferFunction("prf_"+radiatorName, vpr, [ref2bem[0]])
-            ls.results[study].addTransferFunction("prb_"+radiatorName, vpr2, [ref2bem[1]])
-            
+            ls.results[study].addTransferFunction("prb_"+radiatorName, vpr2, [ref2bem[1]])        
     return None
 
 def apply_Velocity_From_EAD(loudspeakerSystem, study, radiatorName):

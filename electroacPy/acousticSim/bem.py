@@ -58,7 +58,6 @@ class bem:
 
         """
         # get main parameters
-        self.meshPath = meshPath
         self.radiatingElement = radiatingElement
         self.velocity = velocity
         self.frequency = frequency
@@ -68,7 +67,7 @@ class bem:
         self.kwargs = kwargs
         
         # check if mesh is v2
-        check_mesh(self.meshPath)
+        self.meshPath = check_mesh(meshPath)
         
         # initialize possible boundary conditions
         self.impedanceSurfaceIndex = []
@@ -93,8 +92,8 @@ class bem:
         self.p_total_mesh = np.empty([len(frequency)], dtype=object)   # summed sources
         
         # load simulation grid and mirror mesh if needed
-        self.grid_sim = bempp.api.import_grid(meshPath)
-        self.grid_init = bempp.api.import_grid(meshPath)
+        self.grid_sim = bempp.api.import_grid(self.meshPath)
+        self.grid_init = bempp.api.import_grid(self.meshPath)
         self.grid_sim, self.sizeFactor = mirror_mesh(self.grid_init, self.boundary_conditions)
         self.vertices = np.shape(self.grid_sim.vertices)[1]
 
@@ -336,14 +335,39 @@ class bem:
 
 
 # %%useful functions
-def check_mesh(mesh_path):
-    meshFile = open(mesh_path)
-    lines = meshFile.readlines()
-    if lines[1][0] != '2':
-        raise TypeError(
-            "Mesh file is not in version 2. Errors will appear when mirroring mesh along boundaries.")
-    meshFile.close()
-
+# def check_mesh(mesh_path):
+#     meshFile = open(mesh_path)
+#     lines = meshFile.readlines()
+#     if lines[1][0] != '2':
+#         raise TypeError(
+#             "Mesh file is not in version 2. Errors will appear when mirroring mesh along boundaries.")
+#     meshFile.close()
+def check_mesh(mesh_path):   
+    if mesh_path[-4:] == ".msh":
+        meshFile = open(mesh_path)
+        lines = meshFile.readlines()
+        if lines[1][0] != '2':
+            raise TypeError(
+                "Mesh file is not in version 2. Errors will appear when mirroring mesh along boundaries.")
+        meshFile.close()
+        mesh_path_update = mesh_path
+        
+    elif mesh_path[-4:] == ".med": # conversion from med to msh to keep groups
+        import gmsh
+        print("\n")
+        print("Conversion from *.med to *.msh... \n")
+        gmsh.initialize()
+        gmsh.option.setNumber("Mesh.MshFileVersion", 2.2)
+        gmsh.open(mesh_path)
+        gmsh.write(mesh_path[:-4] + ".msh")
+        gmsh.finalize()
+        mesh_path_update = mesh_path[:-4] + ".msh"
+        
+    else: # conversion from med to msh to keep groups
+        mesh_path_update = mesh_path
+        raise Exception(
+            "Not compatible file format. Try *.med or *.msh.")
+    return mesh_path_update
 
 def checkVelocityInput(velocity):
     """
@@ -526,16 +550,98 @@ class boundaryConditions:
         else:
             None
         
-    def addSurfaceImpedance(self, name, index, **kwargs):
+    # def addSurfaceImpedance(self, name, index, **kwargs):
+    #     self.parameters[name] = {}
+    #     self.parameters[name]["index"] = index
+    #     self.parameters[name]["type"] = "surface_impedance"
+    #     if "absorption" in kwargs:
+    #         self.parameters[name]["absorption"] = kwargs["absorption"]
+    #         self.parameters[name]["impedance"] = self.Zc * (2-kwargs["absorption"])/kwargs["absorption"]
+    #     elif "impedance" in kwargs:
+    #         self.parameters[name]["impedance"] = kwargs["impedance"]    
+    #     if "frequency" in kwargs:
+    #         self.parameters[name]["frequency"] = kwargs["frequency"]
+    #     else:
+    #         None
+            
+    def addSurfaceImpedance(self, name, index, data_type, value,
+                            frequency=None, targetFrequency=None,
+                            interpolation="linear"):
+        """
+        Add an impedance to a surface.
+
+        Parameters
+        ----------
+        name : str,
+            name of surface.
+        index : int
+            reference to BEM mesh.
+        data_type : float or array of float
+            DESCRIPTION.
+        value : TYPE
+            DESCRIPTION.
+        frequency : TYPE, optional
+            DESCRIPTION. The default is None.
+        targetFrequency : TYPE, optional
+            DESCRIPTION. The default is None.
+        interpolation : TYPE, optional
+            DESCRIPTION. The default is "linear".
+
+        Raises
+        ------
+        ValueError
+            DESCRIPTION.
+        Exception
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
+        
         self.parameters[name] = {}
         self.parameters[name]["index"] = index
-        self.parameters[name]["type"] = "surface_impedance"
-        if "absorption" in kwargs:
-            self.parameters[name]["absorption"] = kwargs["absorption"]
-            self.parameters[name]["impedance"] = self.Zc * (2-kwargs["absorption"])/kwargs["absorption"]
-        elif "impedance" in kwargs:
-            self.parameters[name]["impedance"] = kwargs["impedance"]    
-        if "frequency" in kwargs:
-            self.parameters[name]["frequency"] = kwargs["frequency"]
+        self.parameters[name]["data_type"] = data_type
+        self.parameters[name]["type"] = "absorption_surface"
+        self.parameters[name]["frequency"] = frequency
+        
+        if data_type == "impedance":
+            self.parameters[name]["impedance"] = value
+            self.parameters[name]["admittance"] = 1/self.parameters[name]["impedance"]
+        elif data_type == "reflection":
+            self.parameters[name]["reflection"] = value
+            self.parameters[name]["impedance"] = (-1-value) / (1-value)
+            self.parameters[name]["admittance"] = 1/self.parameters[name]["impedance"]
+        elif data_type == "absorption":
+            self.parameters[name]["absorption"] = value
+            self.parameters[name]["impedance"] = (-1-np.sqrt(1-value))/  \
+                                                 (1-np.sqrt(1-value))
+            self.parameters[name]["admittance"] = 1/self.parameters[name]["impedance"]
         else:
-            None
+            raise ValueError("'data_type' not understood. Try 'impedance', " +
+                             "'admittance', 'reflection' or 'absorption'")
+        
+        if isinstance(frequency, np.ndarray) is True and isinstance(value, np.ndarray) is True:
+            if len(frequency) != len(value):
+                raise Exception("'value' and 'frequency' should have the same size.")
+            
+            if targetFrequency is None:
+                self.parameters[name]["frequency"] = frequency
+            else:
+                if interpolation in ["linear", None]:
+                    self.parameters[name]["impedance"] = np.interp(targetFrequency, 
+                                                                   frequency, 
+                                                                   self.parameters[name]["impedance"])
+                    self.parameters[name]["admittance"] = np.interp(targetFrequency, 
+                                                                    frequency, 
+                                                                    self.parameters[name]["admittance"])
+                    self.parameters[name]["frequency"] = targetFrequency
+                elif interpolation == "cubic":
+                    from scipy.interpolate import CubicSpline
+                    csImp = CubicSpline(frequency, self.parameters[name]["impedance"])
+                    csAdm = CubicSpline(frequency, self.parameters[name]["admittance"])
+                    self.parameters[name]["impedance"] = csImp(targetFrequency)
+                    self.parameters[name]["admittance"] = csAdm(targetFrequency)
+                    self.parameters[name]["frequency"] = targetFrequency
+                

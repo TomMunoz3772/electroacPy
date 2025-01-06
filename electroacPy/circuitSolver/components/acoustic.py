@@ -473,7 +473,7 @@ class membrane:
             self.stamp_G[nm - 1, np - 1] = -1   
             
 class closed_line:
-    def __init__(self, np, nm, Lp, Sp, rho=1.22, c=343):
+    def __init__(self, np, nm, Lp, Sp, eta=1e-3, rho=1.22, c=343):
         """
         Add a closed cavity (nm linked to ground)
 
@@ -509,6 +509,7 @@ class closed_line:
         self.c = c
         self.G = 1
         self.Gs = None
+        self.eta = eta
         self.stamp_G = None
         self.contribute = ["G"]        
         
@@ -531,7 +532,7 @@ class closed_line:
        om = 2 * pi * frequency
        k = om / self.c
        Zc = self.rho * self.c / self.Sp
-       kl = kloss(self.Sp, self.Pp, k, self.rho, self.c)
+       kl = k-1j*self.eta # kloss(self.Sp, self.Pp, k, self.rho, self.c)
        Za = Zc / 1j / tan(kl*self.Lp)
        self.Gs = 1 / Za
        
@@ -576,7 +577,7 @@ class closed_line:
 
 
 class open_line_T:
-    def __init__(self, np0, np1, np2, nm, Lp, Sp, rho=1.22, c=343):
+    def __init__(self, np0, np1, np2, nm, Lp, Sp, eta=1e-3, rho=1.22, c=343):
         self.np = str(np0) # careful with numbering and references
         self.nm = str(np1)
         self.np1 = str(np2)
@@ -587,7 +588,7 @@ class open_line_T:
         self.Pp = 2 * pi * self.rp  # equivalent perimeter (to estimate thermo-viscous losses)
         self.rho = rho
         self.c = c   
-        
+        self.eta = eta
         
         self.G = 1
         self.Gs = None
@@ -618,7 +619,7 @@ class open_line_T:
        om = 2 * pi * frequency
        k = om / self.c
        Zc = self.rho * self.c / self.Sp
-       kl = kloss(self.Sp, self.Pp, k, self.rho, self.c) # k - 1j*self.eta #
+       kl = k - 1j*self.eta #kloss(self.Sp, self.Pp, k, self.rho, self.c) # k - 1j*self.eta #
        Zt =  1j * Zc * tan(kl*LL/2)
        Yt = 1j * sin(kl*LL) / Zc
        self.Gs = 1 / Zt
