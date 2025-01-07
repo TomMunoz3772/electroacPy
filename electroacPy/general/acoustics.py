@@ -1,11 +1,6 @@
-import generalToolbox as gtb
-import matplotlib.pyplot as plt
 import numpy as np
-from numpy import cos, sin, tan, exp
 import scipy as sp
-from scipy.fft import fft
 from scipy.interpolate import interp1d
-from scipy.optimize import curve_fit
 
 c = 343
 rho = 1.22
@@ -29,6 +24,8 @@ def getThieleSmallParam(impedance_file, Bl, peak_max_bound=3000, skiprows=1, del
     Me just following matlab code; though the translation Matlab -> Python didn't work
     so I used curve_fit instead of fmin (I let Scipy do the error reduction because me dum dum)
     """
+    from electroacPy.general import findInArray, parallel
+    
     # 1. Load impedance data
     data = np.loadtxt(impedance_file, skiprows=skiprows, delimiter=delimiter, usecols=usecols)
 
@@ -39,16 +36,14 @@ def getThieleSmallParam(impedance_file, Bl, peak_max_bound=3000, skiprows=1, del
         Ze_meas = data[:, HCol]
 
     # 2. Get some visible values
-    ind_bound, _ = gtb.findInArray(freq, peak_max_bound)
+    ind_bound, _ = findInArray(freq, peak_max_bound)
     Zmax = np.max(np.abs(Ze_meas[:ind_bound]))
-    ind_fc, _ = gtb.findInArray(np.abs(Ze_meas), Zmax)
+    ind_fc, _ = findInArray(np.abs(Ze_meas), Zmax)
     fc = freq[ind_fc]
 
     # 3. Reduce the size of frequency range if it goes above 20 kHz
-    ind_fmax, fmax = gtb.findInArray(freq, 20e3)
+    ind_fmax, fmax = findInArray(freq, 20e3)
     freq = freq[:ind_fmax + 1]
-    om = 2 * np.pi * freq
-    s = 1j * om
 
     # 4. Start Values
     Re = np.min(np.abs(Ze_meas))
@@ -76,7 +71,7 @@ def getThieleSmallParam(impedance_file, Bl, peak_max_bound=3000, skiprows=1, del
     Cmc = 1 / Wc**2 / Mmc
 
     # impedance at resonance
-    Zfc = np.abs(Re + sc*Le + gtb.parallel(sc*L2, R2) + gtb.parallel(sc*L3, R3))
+    Zfc = np.abs(Re + sc*Le + parallel(sc*L2, R2) + parallel(sc*L3, R3))
 
     # Q factors
     Qec = np.sqrt(Mmc/Cmc) * (Zfc / Bl**2)
@@ -109,17 +104,19 @@ def getQMC(freq, Z, stepf=1e-3):
     :param stepf:
     :return:
     """
+    from electroacPy.general import findInArray
+
     # increase a bit the resolution (doesn't change curve's shape)
     finterp = np.arange(freq[0], freq[-1] + stepf, stepf)
     Zinterp = np.interp(finterp, freq, np.abs(Z))
 
     # get index of Zmax (index of f0) and Zmax
-    ind_f0, Zmax = gtb.findInArray(np.abs(Zinterp), np.max(np.abs(Zinterp)))
+    ind_f0, Zmax = findInArray(np.abs(Zinterp), np.max(np.abs(Zinterp)))
     Ef0 = finterp[ind_f0]
 
-    ind_fmin, Zfmin = gtb.findInArray(np.abs(Zinterp[:ind_f0]),
+    ind_fmin, Zfmin = findInArray(np.abs(Zinterp[:ind_f0]),
                                       np.max(np.abs(Zinterp)) * 0.707)  # get -3 dB value before resonance
-    ind_fmax, Zfmax = gtb.findInArray(np.abs(Zinterp[ind_f0:]), np.max(np.abs(Zinterp)) * 0.707)
+    ind_fmax, Zfmax = findInArray(np.abs(Zinterp[ind_f0:]), np.max(np.abs(Zinterp)) * 0.707)
     range = [finterp[ind_fmin], finterp[ind_f0 + ind_fmax]]
     Qs = finterp[ind_f0] / (range[1] - range[0])
     return Qs
@@ -140,13 +137,15 @@ def sealed_impedance_calc(freq, Re, Le, Res, R2, L2, R3, L3, Wc, Qmc):
     :param Qmc:
     :return:
     """
+    from electroacPy.general import parallel
+
     s = 1j * 2 * np.pi * freq
 
     # mechanical impedance
     fncZm = Res / (1 + Qmc * (s / Wc + Wc / s))
 
     # electrical impedance
-    fncZe = Re + s * Le + gtb.parallel(s * L2, R2) + gtb.parallel(s * L3, R3)
+    fncZe = Re + s * Le + parallel(s * L2, R2) + parallel(s * L3, R3)
 
     # total impedance
     fncZ = fncZe + fncZm
@@ -269,6 +268,8 @@ def export_directivity(folder_name, frequency_array, angle_array, pmic_array):
 
     """
     import os
+    from electroacPy.general.gain import SPL
+
     
     # Create the folder if it doesn't exist
     if not os.path.exists(folder_name):
@@ -277,7 +278,7 @@ def export_directivity(folder_name, frequency_array, angle_array, pmic_array):
    # Loop through each microphone (angle)
     for i, angle in enumerate(angle_array):
         # Compute SPL values for the current microphone
-        spl_values = gtb.gain.SPL(pmic_array[:, i])
+        spl_values = SPL(pmic_array[:, i])
         
         # Compute phase (in degrees) using np.angle and np.rad2deg
         phase_values = np.rad2deg(np.angle(pmic_array[:, i]))
@@ -292,6 +293,3 @@ def export_directivity(folder_name, frequency_array, angle_array, pmic_array):
         np.savetxt(file_name, data_to_save, header="frequency  SPL  phase", fmt="%.3e")
         
         # print(f"Saved data to {file_name}")
-
-
-

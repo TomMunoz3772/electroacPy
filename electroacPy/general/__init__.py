@@ -1,11 +1,10 @@
-# import acoustics
-# import gain
-# import freqop
-# import geometry
-# import io
-# import signals
-# import plot
-# from mesh import CAD as meshCAD
+from . import gain
+from . import acoustics
+from . import freqop
+from . import geometry
+from . import io
+from . import signals
+from . import plot
 import numpy as np
 from re import findall
 
