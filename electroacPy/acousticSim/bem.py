@@ -125,7 +125,7 @@ class bem:
         self.coeff_radSurf = np.zeros([len(frequency), self.Ns, maxDOF], dtype=complex)
         for rs, isVib in enumerate(self.is2dData):
             if isVib is False: # assign velocity
-                for f in range(len(self.frequency)):
+                for f in range(len(self.frequency)): # TODO: maybe try to remove that loop
                     self.coeff_radSurf[f, rs, :int(dof[rs])] = velocity[rs][f]
             if isVib is True:  # assign velocity from vibration 
                 self.coeff_radSurf[:, rs, :int(dof[rs])] = getRadiationCoefficients(self.spaceU_freq[rs].support_elements,
@@ -146,6 +146,9 @@ class bem:
     def parse_input(self):
         if "boundary_conditions" in self.kwargs:
             self.boundary_conditions = self.kwargs["boundary_conditions"].parameters
+            self.initialize_conditions()
+        elif "boundary_condition" in self.kwargs: # just in case user forget "s"
+            self.boundary_conditions = self.kwargs["boundary_condition"].parameters
             self.initialize_conditions()
         if "direction" in self.kwargs:
             self.direction = self.kwargs["direction"]
@@ -497,15 +500,15 @@ def getSurfaceAdmittance(absorbingSurface, surfaceImpedance, freq, spaceP, c_0, 
     if absSurf_in.shape[0] == 0 :
         admittanceMatrix = None
     else:
-        admittanceMatrix = np.ones([dofCount, Nfft], dtype=complex) * 2.3e-5
+        admittanceMatrix = np.ones([dofCount, Nfft], dtype=complex) * 2.5e-3 # corresponds to 0.5% damping
         for surf in range(Nsurf):
             tmp_surf = absSurf_in[surf]  # current surface on which we apply admittance coefficients
             vertex, _ = get_group_points(grid, tmp_surf)
             for f in range(Nfft):
                 try:
-                    Yn = rho_0 * c_0 / surfImp_in[surf][f]
+                    Yn = rho_0 * c_0 / surfImp_in[surf][f] # rho_0 * c_0
                 except:
-                    Yn = rho_0 * c_0 / surfImp_in[surf]
+                    Yn = rho_0 * c_0 / surfImp_in[surf] # rho_0 * c_0
                 admittanceMatrix[vertex, f] = np.ones(len(vertex)) * Yn
     return admittanceMatrix
 
@@ -611,13 +614,16 @@ class boundaryConditions:
             self.parameters[name]["admittance"] = 1/self.parameters[name]["impedance"]
         elif data_type == "reflection":
             self.parameters[name]["reflection"] = value
-            self.parameters[name]["impedance"] = (-1-value) / (1-value)
+            self.parameters[name]["impedance"] = (1+value) / (1-value) * self.rho * self.c
             self.parameters[name]["admittance"] = 1/self.parameters[name]["impedance"]
         elif data_type == "absorption":
             self.parameters[name]["absorption"] = value
-            self.parameters[name]["impedance"] = (-1-np.sqrt(1-value))/  \
-                                                 (1-np.sqrt(1-value))
+            self.parameters[name]["impedance"] = (2-value) / value *  \
+                                                  self.rho * self.c
             self.parameters[name]["admittance"] = 1/self.parameters[name]["impedance"]
+        elif data_type == "admittance":
+            self.parameters[name]["admittance"] = value
+            self.parameters[name]["impedance"] = 1 / value
         else:
             raise ValueError("'data_type' not understood. Try 'impedance', " +
                              "'admittance', 'reflection' or 'absorption'")

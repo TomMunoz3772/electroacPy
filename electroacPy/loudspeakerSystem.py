@@ -663,7 +663,7 @@ class loudspeakerSystem:
         return out
     
     
-    def export_directivity(self, folder_name, 
+    def export_directivity(self, folder_name, file_name,
                            study, evaluation, radiatingElement=[], 
                            bypass_xover=False):
         """
@@ -687,15 +687,15 @@ class loudspeakerSystem:
         None.
 
         """
-        from generalToolbox.acoustics import export_directivity
+        from electroacPy.general.acoustics import export_directivity
         
         pmic = self.get_pMic(study, evaluation, radiatingElement, bypass_xover)
         theta = self.evaluation[study].setup[evaluation].theta
         frequency = self.frequency
-        export_directivity(folder_name, frequency, theta, pmic)
+        export_directivity(folder_name, file_name, frequency, theta, pmic)
         
         
-    def export_impedance(self, filename, objName):
+    def export_impedance(self, folder_name, file_name, objName):
         """
         Export impedance into .txt file
 
@@ -712,9 +712,9 @@ class loudspeakerSystem:
 
         """
         if objName in self.enclosure:
-            self.enclosure[objName].exportZe(filename + ".txt")
+            self.enclosure[objName].exportZe(folder_name, file_name + ".txt")
         elif objName in self.driver:
-            self.driver[objName].exportZe(filename + ".txt")
+            self.driver[objName].exportZe(folder_name, file_name + ".txt")
 
         
         

@@ -5,6 +5,7 @@ from . import geometry
 from . import io
 from . import signals
 from . import plot
+from .mesh import CAD as meshCAD
 import numpy as np
 from re import findall
 

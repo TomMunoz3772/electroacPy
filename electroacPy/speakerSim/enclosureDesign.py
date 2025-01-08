@@ -543,14 +543,22 @@ class speakerBox:
         
         return plt.show()
     
-    def exportZe(self, filename):
+    def exportZe(self, folder_name, file_name):
+        import os
+        
+        # Create the folder if it doesn't exist
+        if not os.path.exists(folder_name):
+            os.makedirs(folder_name)
+        
         module = np.abs(self.Ze)
         phase = np.angle(self.Ze, deg=True)
-        np.savetxt(filename, np.array([self.frequencyRange, module, phase]).T,
+        path = os.path.join(folder_name, file_name)
+        np.savetxt(path, np.array([self.frequencyRange, module, phase]).T,
                    fmt="%.3f",
                    header="Freq[Hz]  Imp[Ohm]  Phase[Deg]",
                    delimiter=',',
                    comments='')
+        
         
         
         
