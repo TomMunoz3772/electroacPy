@@ -1,7 +1,14 @@
 # Introduction
-The main idea behind this project is to provide an easy-to-use toolbox to solve simple acoustic studies using Python --- with focus on loudspeaker radiation. It uses a mix of lumped-element-modeling (LEM) for drivers and boundary-element method (BEM) for interior and exterior acoustical radiation. This handbook provides examples on how to simulate loudspeaker systems, which should go through most aspects of the toolbox. The first part shows how the front-end works: defining a lumped-element network, simulate the interaction between loudspeaker drivers and enclosures, setting-up exterior and interior radiation studies; the second part dives into the back-end of the toolbox and how studies can be made bypassing the main **loudspeakerSystem** class. The BEM wrapper is implemented using [bempp-cl](https://bempp.com/) which is installed alongside ElectroacPy. BEM simulations wouldn’t have been possible without the contributors of the bempp-cl project.
+The main idea behind this project is to provide an easy-to-use toolbox to solve simple acoustic studies using Python --- with focus on loudspeaker radiation. It uses a mix of lumped-element-modeling (LEM) for drivers and boundary-element method (BEM) for interior and exterior acoustical radiation. This handbook provides examples on how to simulate loudspeaker systems, which should go through most aspects of the toolbox. The first part shows how the front-end works: defining a lumped-element network, simulate the interaction between loudspeaker drivers and enclosures, setting-up exterior and interior radiation studies; the second part dives into the back-end of the toolbox and how studies can be made bypassing the main **loudspeakerSystem** class. The BEM wrapper uses [bempp-cl](https://bempp.com/) which is installed alongside ElectroacPy. BEM simulations wouldn’t have been possible without the contributors of the bempp-cl project.
 
 You'll find the GitHub repo [here](https://github.com/TchoumTchoum/electroacPy).
+
+```{figure} ./boundary_images/intro_field.png
+    :name: intro-image
+    :scale: 50%
+
+Example of sound diffraction around a round speaker head. Based on the Elipson 4260.
+```
 
 ## Installation
 ### Before Starting
