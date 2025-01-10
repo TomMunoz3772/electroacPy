@@ -1,6 +1,6 @@
 # electroacPy
 
-Welcome! This toolbox provides a collection of tools designed to streamline prototyping and analysis tasks in the field of electroacoustics. It consists of multiple modules, addressing specific aspects of loudspeaker system design.
+Welcome! This module provides a collection of tools designed to streamline prototyping and analysis tasks in the field of electroacoustics. It consists of multiple modules, addressing specific aspects of loudspeaker system design.
 
 Examples are available in [another repository](https://github.com/TchoumTchoum/electroacPy_examples).
 Documentation of the main repository is available on [readthedocs](https://electroacpy.readthedocs.io).
