@@ -54,6 +54,8 @@ For development installation:
 pip install -e /path/to/electroacPy
 ```
 
+You'll need to replace `/path/to/electroacPy` to where the toolbox is cloned/extracted on your computer --- pointing to the folder containing the "pyproject.toml" file. For example, if you use Windows, the path can look like this: `C:\Users\yourUsername\Documents\GitHub\electroacPy`.
+
 ### Notes
 **Using a separate environment**:  Installing ElectroacPy in its own Conda / Python environment is recommended. This helps prevent conflicts during updates and allows easier management of dependencies.
 
