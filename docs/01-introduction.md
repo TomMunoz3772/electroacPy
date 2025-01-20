@@ -7,7 +7,7 @@ You'll find the GitHub repo [here](https://github.com/TchoumTchoum/electroacPy).
     :name: intro-image
     :scale: 50%
 
-Example of sound diffraction around a round speaker head. Based on the Elipson 4260.
+Example of sound diffraction around a round speaker head. Inspired from the Elipson 4260.
 ```
 
 ## Installation
