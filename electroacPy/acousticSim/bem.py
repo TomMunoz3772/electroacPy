@@ -67,7 +67,7 @@ class bem:
         self.kwargs = kwargs
         
         # check if mesh is v2
-        self.meshPath = check_mesh(meshPath)
+        self.meshPath = gtb.geometry.check_mesh(meshPath)
         
         # initialize possible boundary conditions
         self.impedanceSurfaceIndex = []
@@ -345,32 +345,32 @@ class bem:
 #         raise TypeError(
 #             "Mesh file is not in version 2. Errors will appear when mirroring mesh along boundaries.")
 #     meshFile.close()
-def check_mesh(mesh_path):   
-    if mesh_path[-4:] == ".msh":
-        meshFile = open(mesh_path)
-        lines = meshFile.readlines()
-        if lines[1][0] != '2':
-            raise TypeError(
-                "Mesh file is not in version 2. Errors will appear when mirroring mesh along boundaries.")
-        meshFile.close()
-        mesh_path_update = mesh_path
+# def check_mesh(mesh_path):   
+#     if mesh_path[-4:] == ".msh":
+#         meshFile = open(mesh_path)
+#         lines = meshFile.readlines()
+#         if lines[1][0] != '2':
+#             raise TypeError(
+#                 "Mesh file is not in version 2. Errors will appear when mirroring mesh along boundaries.")
+#         meshFile.close()
+#         mesh_path_update = mesh_path
         
-    elif mesh_path[-4:] == ".med": # conversion from med to msh to keep groups
-        import gmsh
-        print("\n")
-        print("Conversion from *.med to *.msh... \n")
-        gmsh.initialize()
-        gmsh.option.setNumber("Mesh.MshFileVersion", 2.2)
-        gmsh.open(mesh_path)
-        gmsh.write(mesh_path[:-4] + ".msh")
-        gmsh.finalize()
-        mesh_path_update = mesh_path[:-4] + ".msh"
+#     elif mesh_path[-4:] == ".med": # conversion from med to msh to keep groups
+#         import gmsh
+#         print("\n")
+#         print("Conversion from *.med to *.msh... \n")
+#         gmsh.initialize()
+#         gmsh.option.setNumber("Mesh.MshFileVersion", 2.2)
+#         gmsh.open(mesh_path)
+#         gmsh.write(mesh_path[:-4] + ".msh")
+#         gmsh.finalize()
+#         mesh_path_update = mesh_path[:-4] + ".msh"
         
-    else: # conversion from med to msh to keep groups
-        mesh_path_update = mesh_path
-        raise Exception(
-            "Not compatible file format. Try *.med or *.msh.")
-    return mesh_path_update
+#     else: # conversion from med to msh to keep groups
+#         mesh_path_update = mesh_path
+#         raise Exception(
+#             "Not compatible file format. Try *.med or *.msh.")
+#     return mesh_path_update
 
 def checkVelocityInput(velocity):
     """

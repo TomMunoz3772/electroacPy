@@ -141,6 +141,18 @@ class evaluations:
         else:
              print("evaluation {} already exists. You can overwrite it using \
                    the 'overwrite' flag".format(evaluationName))  
+                   
+    def plottingGrid(self, evaluationName, path_to_grid, **kwargs):
+        if evaluationName not in self.setup:
+            self.setup[evaluationName] = PlottingGrid(path_to_grid)
+
+        elif evaluationName in self.setup and "overwrite" in kwargs:
+            self.setup.pop(evaluationName)
+            self.setup[evaluationName] = PlottingGrid(path_to_grid)
+
+        else:
+             print("evaluation {} already exists. You can overwrite it using \
+                   the 'overwrite' flag".format(evaluationName))  
     
     def solve(self, evaluation_name="all"):
         if evaluation_name == "all":
@@ -265,7 +277,8 @@ class evaluations:
         obj = pl.show()
         return obj
     
-    def plot(self, evaluations=[], radiatingElement=[], processing=None):
+    def plot(self, evaluations=[], radiatingElement=[], processing=None, 
+             **kwargs):
         """
         Plot evaluations for given radiatingElement
 
@@ -277,6 +290,11 @@ class evaluations:
             List of radiating element to plot. The default is "all"
         processing : postProcessing object
             post-processing to apply on given surfaces.
+        **kwargs : key arguments for post-processing options
+            for now there is not much options. Mostly for transformation of 
+            plotting grids.
+                - transformation : str
+                    Either 'real', 'imag', 'spl' or 'SPL', 'phase'
 
         Returns
         -------
@@ -317,6 +335,8 @@ class evaluations:
         point = []
         box = []
         sphere = []
+        grid = []
+        gridName = []
         for key in obs2plot:
             setup = self.setup[key]
             if setup.type == "polar":
@@ -334,6 +354,9 @@ class evaluations:
                 sphere.append(setup)
             elif setup.type == "field_point":
                 point.append(setup)
+            elif setup.type == "grid":
+                grid.append(setup)
+                gridName.append(key)
         
         # plot polar
         for i, obs in enumerate(polar):
@@ -346,7 +369,8 @@ class evaluations:
         if bool(field) is True:
             field2plot = getPressure(pmicField, self.bemObject.radiatingElement, 
                                     element2plot, elementCoeff)
-            gplot.pressureField_3D(self.bemObject, xMic_f, L, W, field2plot, element2plot)
+            gplot.pressureField_3D(self.bemObject, 
+                                   xMic_f, L, W, field2plot, element2plot)
         
         # plot evaluation points
         for i, obs in enumerate(point):
@@ -372,6 +396,26 @@ class evaluations:
                                      element2plot, elementCoeff)
             gplot.boundingBox(self.bemObject, nx, ny, nz, point2plot,
                               xMic, radiatingElement)
+            
+        if bool(grid) is True:
+            point2plot = []
+
+            for i, obs in enumerate(grid):
+                pMic = obs.pMic
+                point2plot.append(getPressure(pMic, self.bemObject.radiatingElement,
+                                              element2plot, elementCoeff))
+            
+            if "transformation" in kwargs:
+                transformation = kwargs["transformation"]
+            else:
+                transformation = "SPL"
+            if "export_grid" in kwargs:
+                export_grid = kwargs["export_grid"]
+            else:
+                export_grid = False
+            gplot.bempp_grid(self.bemObject, grid, point2plot,
+                             elementCoeff, element2plot, gridName, 
+                             transformation, export_grid)
         return None
     
     
@@ -530,7 +574,6 @@ class BoundingBox:
         self.pMic = None
         
         
-        
 class SphericalRadiation:
     def __init__(self, nMic, radius, offset):
         self.radius = radius
@@ -545,6 +588,25 @@ class SphericalRadiation:
         self.isComputed = False
         self.pMic = None
     
+
+class PlottingGrid:
+    def __init__(self, path_to_grid):
+        from bempp.api import import_grid
+        from ..general.geometry import check_mesh
+        
+        self.path_to_grid = check_mesh(path_to_grid)
+        grid = import_grid(self.path_to_grid)
+        self.dof      = grid.vertices.shape[1]
+        self.vertices = grid.vertices
+        self.elements = grid.elements
+        self.xMic     = grid.vertices.T
+        self.nMic     = len(self.xMic)
+        
+        # edit evaluationParameters
+        self.type = "grid"
+        self.isComputed = False
+        self.pMic = None
+        
 #%% Plotting help
 
 def create_boundary_planes(boundary, offset, plane_size=10):

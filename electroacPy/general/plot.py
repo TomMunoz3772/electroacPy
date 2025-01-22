@@ -11,7 +11,7 @@ from matplotlib.backend_bases import MouseButton
 import pyvista
 
 #%% helper
-def sumPressureArray(bemObj, radiatingSurface):
+def sumPressureArray(bemObj, radiatingSurface, radiationCoeff=None):
     p_mesh = bemObj.p_mesh
     radSurf_system = bemObj.radiatingElement
     if isinstance(radiatingSurface, str):
@@ -22,10 +22,14 @@ def sumPressureArray(bemObj, radiatingSurface):
 
     pressureCoeff = np.zeros([len(bemObj.frequency), 
                               bemObj.spaceP.grid_dof_count], dtype='complex')
+    if radiationCoeff is None:
+        radiationCoeff = np.ones([len(bemObj.frequency), 
+                                  len(radiatingSurface)], dtype=complex)
     for f in range(len(bemObj.frequency)):
         for j in range(len(radiatingSurface)):
             ind_surface = np.argwhere(radSurf_system == radiatingSurface[j])[0][0]
-            pressureCoeff[f, :] += p_mesh[f][ind_surface].coefficients
+            pressureCoeff[f, :] += (p_mesh[f][ind_surface].coefficients * 
+                                    radiationCoeff[f, j])
     return pressureCoeff
 
 
@@ -374,6 +378,132 @@ def directivityViewer(theta, freq, pMic, xscale='log', fmin=20, fmax=20e3,
  
     
 #%% 3D plots
+def bempp_grid(bemOBJ, eval_grid, pmic, radiationCoeff, radiatingElement,
+               eval_name, transformation="SPL", export_grid=False):
+    """
+    Plot grid functions from bempp. "grids" argument takes a list of one or
+    multiple grids (evaluation grids), and concatenates everything based on 
+    which radiating elements are selected.
+
+    Parameters
+    ----------
+    bemOBJ : bem object
+        bempp simulation,
+    eval_grid : list
+        eval_grid to plot.
+    p_mic : ndarray
+        pressure received at microphones (one per eval_grid[i])
+    radiationCoeff : ndarray
+        coefficients to apply on surfaces
+    radiatingElement : list
+        radiating elements to sum on system mesh surface.
+    eval_name: list of str
+        names of eval_grid components
+    transformation : str
+        scale plot to "SPL" (or "spl"), "real", "imag" or "phase".
+
+    Returns
+    -------
+    GMSH or Paraview plot.
+
+    """
+    import gmsh
+    import bempp.api
+    import tempfile
+    import subprocess
+
+    # get transform
+    if transformation in ["SPL", "spl"]:
+        T = gtb.gain.SPL
+    elif transformation == "real":
+        T = np.real
+    elif transformation == "imag":
+        T = np.imag
+    elif transformation == "phase":
+        T = np.angle
+    
+    # get some data from system mesh
+    grid         = bemOBJ.grid_init
+    Nvert_grid   = grid.vertices.shape[1]
+    size_factor = bemOBJ.sizeFactor
+    frequency    = bemOBJ.frequency
+    Nfft         = len(frequency)
+    
+    # get pressure_grid
+    pressure_grid = sumPressureArray(bemOBJ, radiatingElement, radiationCoeff)
+    pressure_grid = pressure_grid[:Nvert_grid, :]
+          
+    # set all pressure in a common list
+    pressure = {"grid": pressure_grid, "grid_plot": pmic} #[pressure_grid, pmic]
+
+    pressure = {"system": pressure_grid}
+    for i in range(len(eval_name)):
+        pressure[eval_name[i]] = pmic[i]
+        
+    # set all grid and plotting grid to a single dictionnary
+    grids = {}
+    grids["system"] = grid
+    for i, g in enumerate(eval_grid):
+        vertices = g.vertices
+        elements = g.elements
+        grids[eval_name[i]] = bempp.api.Grid(vertices, elements)
+        
+    
+    # Create temporary files for each grid
+    tmp_files = {}
+    for grid_name, grid_data in grids.items():
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".msh") as tmp_file:
+            tmp_files[grid_name] = tmp_file.name
+            bempp.api.export(tmp_file.name, grid_data)
+    
+    
+    # Initialize GMSH
+    gmsh.initialize()
+    gmsh.option.setNumber("PostProcessing.Format", 2)
+    gmsh.option.setNumber("PostProcessing.Link", 1)
+
+    # Load each grid as a separate view
+    views = {}
+    for grid_name, grid_path in tmp_files.items():
+        gmsh.open(grid_path)  # Load the grid
+        if not gmsh.model.getEntities():
+            gmsh.model.add(grid_name)  # Create a new model for each grid
+        
+        # Create a view for each grid
+        view_tag = gmsh.view.add(grid_name)
+        views[grid_name] = view_tag
+
+        # Example: Associate dummy data (e.g., zeros) for visualization
+        node_tags = np.arange(1, gmsh.model.mesh.getNodes()[0].size + 1, 
+                              dtype=int)
+        for i, f in enumerate(frequency):
+            data = T(pressure[grid_name][i, :])
+            gmsh.view.addModelData(
+                view_tag,
+                i,  # Step index
+                gmsh.model.getCurrent(),
+                "NodeData",
+                node_tags,
+                data[:, None],
+                time=f
+            )
+
+    # Finalize and save all views into a single file
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pos") as combined_file:
+        for i, tag in enumerate(views):
+            gmsh.view.write(views[tag], combined_file.name, append=True)
+            combined_path = combined_file.name
+
+            # export grid in same folder as source file
+            if export_grid is True: 
+                gmsh.view.write(views[tag], "export_grid.pos", append=True)
+    
+    gmsh.finalize()
+
+    # Open the combined file in GMSH viewer
+    subprocess.Popen(["gmsh", combined_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return None
+
 def pressureField_3D(bemOBJ, xMic, L, W, pMicData, radiatingElement):
     """
     Plot pressure field using PyVista backend.
