@@ -379,7 +379,7 @@ def directivityViewer(theta, freq, pMic, xscale='log', fmin=20, fmax=20e3,
     
 #%% 3D plots
 def bempp_grid(bemOBJ, eval_grid, pmic, radiationCoeff, radiatingElement,
-               eval_name, transformation="SPL"):
+               eval_name, transformation="SPL", export_grid=False):
     """
     Plot grid functions from bempp. "grids" argument takes a list of one or
     multiple grids (evaluation grids), and concatenates everything based on 
@@ -490,10 +490,14 @@ def bempp_grid(bemOBJ, eval_grid, pmic, radiationCoeff, radiatingElement,
 
     # Finalize and save all views into a single file
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pos") as combined_file:
-        for i, _ in enumerate(views):
-            gmsh.view.write(i, combined_file.name, append=True)
+        for i, tag in enumerate(views):
+            gmsh.view.write(views[tag], combined_file.name, append=True)
             combined_path = combined_file.name
 
+            # export grid in same folder as source file
+            if export_grid is True: 
+                gmsh.view.write(views[tag], "export_grid.pos", append=True)
+    
     gmsh.finalize()
 
     # Open the combined file in GMSH viewer

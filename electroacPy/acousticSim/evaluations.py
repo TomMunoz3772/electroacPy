@@ -409,9 +409,13 @@ class evaluations:
                 transformation = kwargs["transformation"]
             else:
                 transformation = "SPL"
+            if "export_grid" in kwargs:
+                export_grid = kwargs["export_grid"]
+            else:
+                export_grid = False
             gplot.bempp_grid(self.bemObject, grid, point2plot,
                              elementCoeff, element2plot, gridName, 
-                             transformation)
+                             transformation, export_grid)
         return None
     
     

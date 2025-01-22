@@ -71,13 +71,14 @@ Estimated pressure on boundary.
 ## `.evaluation[]`
 While computing the boundary pressure is the most computationally expensive step, it doesn't provide a complete picture of the system. Information about the system's radiated pressure (e.g. directivity, baffle diffraction, etc.) is obtained through the **evaluation** class, which efficiently automates the placement of observation points and visualization of results.
 
-When an acoustic study is created, an **evaluation** object is automatically created. Hence, in regards to evaluations, the "only" functionality of **loudspeakerSystem** is to populate `.evaluation["reference_study"]` with observation setups. For now, there are five different observation types:
+When an acoustic study is created, an **evaluation** object is automatically created. Hence, in regards to evaluations, the "only" functionality of **loudspeakerSystem** is to populate `.evaluation["reference_study"]` with observation setups. Six different observation types are available:
 
 - `.evaluation_polarRadiation()`, get directivity information,
 - `.evaluation_pressureField()`, pressure across rectangular screens,
 - `.evaluation_fieldPoint()`, pressure at one (or more) user defined point,
 - `.evaluation_sphericalRadiation()`, acoustic radiation within a sphere of radius $r$,
-- `.boundingBox()`, pressure within a parallelepiped.
+- `.evaluation_boundingBox()`, pressure within a parallelepiped,
+- `.evaluation_plottingGrid()`, import an external grid (must be a triangular mesh).
 
 For our system, we define two polar radiations and two pressure-fields.
 ```python
@@ -165,7 +166,36 @@ Directivity plotter. Horizontal radiation in free-field.
 ```
 
 <!-- In that directivity plot, you can clearly see the limits of the simulation mesh. Because the mesh is relatively coarse, the accuracy of the results decreases significantly at high frequencies, to the point where the off-axis (±180°) pressure is no longer correct. Using a finer mesh will give better results, but will be longer to compute.  -->
+## Note on imported grids
+ElectroacPy can use external meshes as evaluation grids. The resulting plots are displayed through Gmsh by calling its api. This means that Gmsh should be installed on your system and accessible through your computer's path. Depending on your OS, you'll probably need to setup this yourself. 
 
+```{figure} ./boundary_images/grid_import_discs.png
+    :name: imported-grid
+    :scale: 50%
+
+Creating evaluation grids in Salome.
+```
+
+Adding a plotting grid to the evaluations can be done by simply pointing to the mesh path:
+```python
+system.evaluation_plottingGrid("free-field", "hor_disc", 
+                               "./geo/mesh/hor_disc_grid.msh")
+```
+
+Gmsh should open when calling the `.plot_results()` method. Two additional arguments can be passed: 
+
+- `transformation`, will plot the data with in different scales: `spl`, `real`, `imag` or `phase`. It is set to `'spl'` by default,
+- `export_grid`, if set to `True`, will save the visualization in the current folder. This is particularly helpful when Gmsh cannot be called through the Python console. 
+
+
+```{figure} ./boundary_images/grid_gmsh_plotter.png
+    :name: grid-SPL-plot
+    :scale: 50%
+
+Custom grid through Gmsh viewer.
+```
+
+We won't discuss the Gmsh viewer here as it is out of the scope of this documentation. However, you can access viewing options through the `Tools/Options` menu. From there you can change the color map and intervals, view names, visibility, and so on.
 
 ## Code Summary
 ```python
@@ -211,6 +241,8 @@ system.plot_results()
 #%% save state
 ep.save("06_acoustic_radiation", system)
 ```
+
+
 
 
 

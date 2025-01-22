@@ -530,7 +530,7 @@ class loudspeakerSystem:
     ## PLOT
     def plot_results(self, study=[], 
                      evaluation=[], radiatingElement=[], bypass_xover=False,
-                     transformation="SPL"):
+                     transformation="SPL", export_grid=False):
         
         # update solutions
         if isinstance(radiatingElement, int) is True: # avoid possible error if only one rad surf is selected
@@ -541,12 +541,14 @@ class loudspeakerSystem:
                 _ = updateResults(self, s, bypass_xover)
                 _ = self.evaluation[s].plot(evaluation, radiatingElement, 
                                              processing=self.results[s],
-                                             transformation=transformation)
+                                             transformation=transformation,
+                                             export_grid=export_grid)
         else: # plot specific study
             _ = updateResults(self, study, bypass_xover)
             _ = self.evaluation[study].plot(evaluation, radiatingElement,
                                                  processing=self.results[study],
-                                                 transformation=transformation)
+                                                 transformation=transformation,
+                                                 export_grid=export_grid)
         return None
 
     def plot_system(self, study):
