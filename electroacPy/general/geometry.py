@@ -7,6 +7,37 @@ from scipy.spatial.transform import Rotation
 from scipy.spatial import Delaunay
 
 
+def check_mesh(mesh_path):  
+    """
+    Check input format of a given mesh. Only .msh (v2 ASCII) and .med files 
+    are currently supported.
+    
+    """
+    if mesh_path[-4:] == ".msh":
+        meshFile = open(mesh_path)
+        lines = meshFile.readlines()
+        if lines[1][0] != '2':
+            raise TypeError(
+                "Mesh file is not in version 2. Errors will appear when mirroring mesh along boundaries.")
+        meshFile.close()
+        mesh_path_update = mesh_path
+        
+    elif mesh_path[-4:] == ".med": # conversion from med to msh to keep groups
+        import gmsh
+        print("\n")
+        print("Conversion from *.med to *.msh... \n")
+        gmsh.initialize()
+        gmsh.option.setNumber("Mesh.MshFileVersion", 2.2)
+        gmsh.open(mesh_path)
+        gmsh.write(mesh_path[:-4] + ".msh")
+        gmsh.finalize()
+        mesh_path_update = mesh_path[:-4] + ".msh"
+        
+    else: # conversion from med to msh to keep groups
+        mesh_path_update = mesh_path
+        raise Exception(
+            "Not compatible file format. Try *.med or *.msh.")
+    return mesh_path_update
 
 def extract_bem_surface(grid):
     """
