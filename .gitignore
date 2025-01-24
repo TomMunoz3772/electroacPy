@@ -9,3 +9,4 @@ app_ui
 /bempp/api/space/__pycache__
 *.pyc
 *.pyc
+*.pyc
