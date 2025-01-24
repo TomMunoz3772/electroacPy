@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "electroacPy"
-version = "2025.01.03"
+version = "2025.01.24"
 authors = [
   { name="Tom Munoz", email="munozt@outlook.fr" },
 ]
