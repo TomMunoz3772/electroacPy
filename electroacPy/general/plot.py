@@ -10,6 +10,7 @@ from matplotlib.widgets import Cursor
 from matplotlib.backend_bases import MouseButton
 import pyvista
 
+
 #%% helper
 def sumPressureArray(bemObj, radiatingSurface, radiationCoeff=None):
     p_mesh = bemObj.p_mesh
@@ -425,83 +426,88 @@ def bempp_grid(bemOBJ, eval_grid, pmic, radiationCoeff, radiatingElement,
     # get some data from system mesh
     grid         = bemOBJ.grid_init
     Nvert_grid   = grid.vertices.shape[1]
-    size_factor = bemOBJ.sizeFactor
+    # size_factor  = bemOBJ.sizeFactor
     frequency    = bemOBJ.frequency
-    Nfft         = len(frequency)
+    # Nfft         = len(frequency)
     
     # get pressure_grid
     pressure_grid = sumPressureArray(bemOBJ, radiatingElement, radiationCoeff)
     pressure_grid = pressure_grid[:Nvert_grid, :]
           
-    # set all pressure in a common list
-    pressure = {"grid": pressure_grid, "grid_plot": pmic} #[pressure_grid, pmic]
-
     pressure = {"system": pressure_grid}
+    pressure_id = {"system": 0}
     for i in range(len(eval_name)):
         pressure[eval_name[i]] = pmic[i]
+        pressure_id[eval_name[i]] = i+1
+
         
-    # set all grid and plotting grid to a single dictionnary
-    grids = {}
-    grids["system"] = grid
-    for i, g in enumerate(eval_grid):
-        vertices = g.vertices
-        elements = g.elements
-        grids[eval_name[i]] = bempp.api.Grid(vertices, elements)
-        
+    # set all grid and plotting grid to a single list (for union!)
+    grids = []
+    grids.append(bempp.api.Grid(grid.vertices, grid.elements))
+    coeff_limits = np.zeros(len(eval_grid)+2, dtype=int)
+    coeff_limits[0] = 1
+    coeff_limits[1] = Nvert_grid+1
+    for i in range(len(eval_name)):
+        grid_tmp = bempp.api.Grid(eval_grid[i].vertices, eval_grid[i].elements)
+        grids.append(grid_tmp)
+        coeff_limits[i+2] = coeff_limits[i+1]+eval_grid[i].vertices.shape[1]
     
-    # Create temporary files for each grid
-    tmp_files = {}
-    for grid_name, grid_data in grids.items():
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".msh") as tmp_file:
-            tmp_files[grid_name] = tmp_file.name
-            bempp.api.export(tmp_file.name, grid_data)
     
+    # create domain indices - not sure it is really usefull to make diff domain
+    # Nvert_tot = coeff_limits[-1]
+    # domain_indices = np.ones(Nvert_tot)
+    # for i in range(len(coeff_limits)-1):
+    #     domain_indices[coeff_limits[i]-1:coeff_limits[i+1]] *= (i+1)
+    
+    grid_union = bempp.api.grid.union(grids)
+    
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".msh") as tmp_file:
+        bempp.api.export(tmp_file.name, grid_union, write_binary=False)
+
     
     # Initialize GMSH
     gmsh.initialize()
-    gmsh.option.setNumber("PostProcessing.Format", 2)
+    gmsh.option.setNumber("PostProcessing.Format", 5)
     gmsh.option.setNumber("PostProcessing.Link", 1)
-
-    # Load each grid as a separate view
-    views = {}
-    for grid_name, grid_path in tmp_files.items():
-        gmsh.open(grid_path)  # Load the grid
-        if not gmsh.model.getEntities():
-            gmsh.model.add(grid_name)  # Create a new model for each grid
+    
+    # Load total grid and assign view, step, value, etc.
+    gmsh.open(tmp_file.name)
+    view_tag = gmsh.view.add("evaluation")
+    model = gmsh.model.getCurrent()
+    for i, surface in enumerate(gmsh.model.getEntities(2)):  # 2 = surfaces
+        gmsh.model.addPhysicalGroup(2, [surface[1]], tag=i)
+    
+    for ps in pressure: 
+        ps_id = pressure_id[ps]
+        N1 = coeff_limits[ps_id] 
+        N2 = coeff_limits[ps_id+1] 
+        for j, f in enumerate(frequency):
+            data = T(pressure[ps][j, :])
+            node_tags = np.arange(N1, N2)
+            gmsh.view.addModelData(view_tag, 
+                                   j, 
+                                   model,
+                                   "NodeData", 
+                                   node_tags,
+                                   data[:, None], 
+                                   time=f)
+    
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".msh") as tmp_export:
+        gmsh.write(tmp_export.name)
+        gmsh.view.write(view_tag, tmp_export.name)
         
-        # Create a view for each grid
-        view_tag = gmsh.view.add(grid_name)
-        views[grid_name] = view_tag
-
-        # Example: Associate dummy data (e.g., zeros) for visualization
-        node_tags = np.arange(1, gmsh.model.mesh.getNodes()[0].size + 1, 
-                              dtype=int)
-        for i, f in enumerate(frequency):
-            data = T(pressure[grid_name][i, :])
-            gmsh.view.addModelData(
-                view_tag,
-                i,  # Step index
-                gmsh.model.getCurrent(),
-                "NodeData",
-                node_tags,
-                data[:, None],
-                time=f
-            )
-
-    # Finalize and save all views into a single file
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pos") as combined_file:
-        for i, tag in enumerate(views):
-            gmsh.view.write(views[tag], combined_file.name, append=True)
-            combined_path = combined_file.name
-
-            # export grid in same folder as source file
-            if export_grid is True: 
-                gmsh.view.write(views[tag], "export_grid.pos", append=True)
+    if export_grid is not False:
+        gmsh.write(export_grid)
+        gmsh.view.write(view_tag, export_grid)
     
     gmsh.finalize()
-
+    
     # Open the combined file in GMSH viewer
-    subprocess.Popen(["gmsh", combined_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.Popen(["gmsh", 
+                      "-setnumber", "Mesh.SurfaceEdges", "0", 
+                      tmp_export.name], 
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    
     return None
 
 def pressureField_3D(bemOBJ, xMic, L, W, pMicData, radiatingElement):

@@ -185,7 +185,7 @@ system.evaluation_plottingGrid("free-field", "hor_disc",
 Gmsh should open when calling the `.plot_results()` method. Two additional arguments can be passed: 
 
 - `transformation`, will plot the data with in different scales: `spl`, `real`, `imag` or `phase`. It is set to `'spl'` by default,
-- `export_grid`, if set to `True`, will save the visualization in the current folder. This is particularly helpful when Gmsh cannot be called through the Python console. 
+- `export_grid`, if set to a path or file (e.g. `"data_export.msh"`), will save the visualization where told. This is particularly helpful when Gmsh cannot be called through the Python console. 
 
 
 ```{figure} ./boundary_images/grid_gmsh_plotter.png
