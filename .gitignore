@@ -1,8 +1,5 @@
 # python generated files #
 ######################
-__pycache__
+__pycache__/
 *.nbi
 *.pyc
-/bempp/api/space/__pycache__
-/electroacPy/circuitSolver/components/__pycache__
-/bempp/api/space/__pycache__
