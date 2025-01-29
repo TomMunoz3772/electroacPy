@@ -310,7 +310,6 @@ class speakerBox:
         Rabf = 1 / wcf / Cabf / self.Qab    # internal losses (front)
         Ralf = self.Qal / wcf / Cabf        # leakage (front)
 
-        
         # define component
         enclosure = circuit(self.frequencyRange)
         U     = compe.voltageSource(1, 0, driver.U)
@@ -361,12 +360,7 @@ class speakerBox:
         DRV   = EAD(1, 0, 2, 5, driver.Le, driver.Re, 
                     driver.Cms, driver.Mms, driver.Rms, 
                     driver.Bl, driver.Sd, v_probe="v") 
-        # BOXF  = compa.cavity(2, 0, self.Vf, self.eta, self.rho, self.c)
-        # PORTF = compa.port(2, 3, self.Lp, self.rp, self.rho, self.c)
-        # RADPF = compa.radiator(3, 0, self.Sp, self.rho, self.c)
-        # BOXB  = compa.cavity(4, 0, self.Vb, self.eta, self.rho, self.c)
-        # PORTB = compa.port(4, 5, self.Lp2, self.rp2, self.rho, self.c)
-        # RADPB = compa.radiator(5, 0, self.Sp2, self.rho, self.c)
+
         RALF  = compe.resistance(2, 0, Ralf)
         RABF  = compe.resistance(2, 3, Rabf)
         CABF  = compe.capacitance(3, 0, Cabf)
@@ -382,7 +376,6 @@ class speakerBox:
         RADPB = compa.radiator(7, 0, self.Sp2, self.rho, self.c)
         
         # setup and run
-        # enclosure.addComponent(U, BOXF, PORTF, RADPF, BOXB, PORTB, RADPB)
         enclosure.addComponent(U, RALF, RABF, CABF,
                        RAL, RAB, CAB, PORTF, RADPF, 
                        PORTB, RADPB)
