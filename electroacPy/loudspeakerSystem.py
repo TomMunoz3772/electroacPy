@@ -38,8 +38,24 @@ import matplotlib.pyplot as plt
 ## CLASS
 class loudspeakerSystem:
     """
-    Automate the use of acousticSim + speakerSim modules specifically for loudspeaker design
-    """
+    Automate the use of acousticSim + speakerSim modules specifically for loudspeaker
+    design.
+    
+    Parameters
+    ----------
+    frequencyRange: numpy array, optional
+        Delimitation of the study. Default is freq_log10(20, 2500, 50).
+    
+    c: float, optional
+        Speed of sound in the propagation medium. Default is 343 m/s.
+    
+    rho: float, optional
+        Medium density. Default if 1.22 kg/m^3
+        
+    Returns
+    -------
+    None
+    """ 
     def __init__(self, frequencyRange=freq_log10(20, 2500, 50),
                  c=air.c, rho=air.rho, **kwargs):
         # global variables
@@ -135,18 +151,41 @@ class loudspeakerSystem:
                         ref2bem=None, useAverage=False, inputVoltage=1):
         """
         Add acceleration data to the study. Meant to be used as a radiator - ref2bem strongly recommended.
-        :param name:
-        :param file_path:
-        :param ref2bem:
-        :param radiation_axis:
-        :param spatial_rotation:
-        :return:
+
+        Parameters
+        ----------
+        name : str
+            Reference.
+        file_path : str
+            Path to *.uff vibrometry data.
+        rotation : list of float, optional
+            Rotate measured data to match mesh direction. The default is [0, 0, 0].
+        ref2bem : int, optional
+            Reference to mesh physical group. The default is None.
+        useAverage : Bool, optional
+            Uses the average instead of individual element acceleration. 
+            The default is False.
+        inputVoltage : float, optional
+            Optional scaling. By default, electroacPy uses the transfer function of the 
+            acceleration, hence, the input voltage of the laser vibrometer is not taken 
+            into account. The default is 1.
+
+        Returns
+        -------
+        None.
+
         """
         physics = laser_v(file_path, rotation, self.frequency, useAverage, inputVoltage=inputVoltage)
         physics.ref2bem = ref2bem
         self.vibrometry[name] = physics
         self.radiator_id[name] = 'PLV'
         return None
+    
+    # def point_source(self, name, xpos, 
+    #                 v=np.ones(len(self.frequencyRange)), ref2bem=None):
+    #     self.name = name.
+        
+    #     return None
 
     ## ========================
     # %% FILTERING / CROSSOVERS

@@ -35,22 +35,34 @@ class bem:
 
         Parameters
         ----------
-        meshPath : TYPE
-            DESCRIPTION.
-        radiatingElement : TYPE
-            DESCRIPTION.
-        velocity : TYPE
-            DESCRIPTION.
-        frequency : TYPE
-            DESCRIPTION.
-        domain : TYPE
-            DESCRIPTION.
-        c_0 : TYPE
-            DESCRIPTION.
-        rho_0 : TYPE
-            DESCRIPTION.
-        **kwargs : TYPE
-            DESCRIPTION.
+        meshPath : str
+            Path to simulation mesh.
+        radiatingElement : list of int
+            Reference to BEM physical group(s) - should be surfaces.
+        velocity : list of numpy array
+            Velocity of radiating surfaces.
+        frequency : numpy array
+            Range of simulation.
+        domain : str, optional
+            Domain of simulation: "interior" or "exterior". 
+            Will change the BEM equation. Default is "exterior".
+        c_0 : float, optional
+            Speed of sound in the propagation medium. Default is c=343 m/s (air).
+        rho_0 : float, optional
+            Medium density. Default is rho=1.22 kg/m^3 (air).
+        
+        **kwargs
+        --------
+        boundary_condition(s) : boundaryCondition object,
+            Define boundary conditions on BEM mesh (infinite 
+            reflection plane, absorption surface, etc.)
+        direction : list directional vectors, 
+            Use this kwarg to set non-normal velocity on mesh. ex: [[1, 0, 0], [1, 0, 0]]
+            for two radiating surfaces with velocity toward +x.
+        vibrometry_points : ndarray,
+            Position of measured vibrometry points. Should be of size (Npoints, 3).                
+        tol : float
+            Tolerance of the GMRES solver. By default is 1E-5.
 
         Returns
         -------
@@ -94,7 +106,8 @@ class bem:
         # load simulation grid and mirror mesh if needed
         self.grid_sim = bempp.api.import_grid(self.meshPath)
         self.grid_init = bempp.api.import_grid(self.meshPath)
-        self.grid_sim, self.sizeFactor = mirror_mesh(self.grid_init, self.boundary_conditions)
+        self.grid_sim, self.sizeFactor = mirror_mesh(self.grid_init, 
+                                                     self.boundary_conditions)
         self.vertices = np.shape(self.grid_sim.vertices)[1]
 
         # define space functions
@@ -144,6 +157,14 @@ class bem:
         return None
         
     def parse_input(self):
+        """
+        Detects and assign kwargs to BEMOBJ variables.
+
+        Returns
+        -------
+        None.
+
+        """
         if "boundary_conditions" in self.kwargs:
             self.boundary_conditions = self.kwargs["boundary_conditions"].parameters
             self.initialize_conditions()
@@ -160,6 +181,16 @@ class bem:
             self.tol = 1e-5
             
     def initialize_conditions(self):
+        """
+        Assign boundary conditions to the impedanceSurfaceIndex and surfaceImpedance 
+        variables.
+
+        Returns
+        -------
+        None.
+
+        """
+        
         for bc in self.boundary_conditions:
             if bc not in ["x", "X", "y", "Y", "z", "Z"]:
                 self.impedanceSurfaceIndex.append(self.boundary_conditions[bc]["index"])
@@ -338,40 +369,6 @@ class bem:
 
 
 # %%useful functions
-# def check_mesh(mesh_path):
-#     meshFile = open(mesh_path)
-#     lines = meshFile.readlines()
-#     if lines[1][0] != '2':
-#         raise TypeError(
-#             "Mesh file is not in version 2. Errors will appear when mirroring mesh along boundaries.")
-#     meshFile.close()
-# def check_mesh(mesh_path):   
-#     if mesh_path[-4:] == ".msh":
-#         meshFile = open(mesh_path)
-#         lines = meshFile.readlines()
-#         if lines[1][0] != '2':
-#             raise TypeError(
-#                 "Mesh file is not in version 2. Errors will appear when mirroring mesh along boundaries.")
-#         meshFile.close()
-#         mesh_path_update = mesh_path
-        
-#     elif mesh_path[-4:] == ".med": # conversion from med to msh to keep groups
-#         import gmsh
-#         print("\n")
-#         print("Conversion from *.med to *.msh... \n")
-#         gmsh.initialize()
-#         gmsh.option.setNumber("Mesh.MshFileVersion", 2.2)
-#         gmsh.open(mesh_path)
-#         gmsh.write(mesh_path[:-4] + ".msh")
-#         gmsh.finalize()
-#         mesh_path_update = mesh_path[:-4] + ".msh"
-        
-#     else: # conversion from med to msh to keep groups
-#         mesh_path_update = mesh_path
-#         raise Exception(
-#             "Not compatible file format. Try *.med or *.msh.")
-#     return mesh_path_update
-
 def checkVelocityInput(velocity):
     """
     Check the velocity input parameter for vibrometric data: if velocity[i] is 1 dimensional: velocity,
@@ -552,20 +549,6 @@ class boundaryConditions:
             self.parameters[normal]["frequency"] = kwargs["frequency"]
         else:
             None
-        
-    # def addSurfaceImpedance(self, name, index, **kwargs):
-    #     self.parameters[name] = {}
-    #     self.parameters[name]["index"] = index
-    #     self.parameters[name]["type"] = "surface_impedance"
-    #     if "absorption" in kwargs:
-    #         self.parameters[name]["absorption"] = kwargs["absorption"]
-    #         self.parameters[name]["impedance"] = self.Zc * (2-kwargs["absorption"])/kwargs["absorption"]
-    #     elif "impedance" in kwargs:
-    #         self.parameters[name]["impedance"] = kwargs["impedance"]    
-    #     if "frequency" in kwargs:
-    #         self.parameters[name]["frequency"] = kwargs["frequency"]
-    #     else:
-    #         None
             
     def addSurfaceImpedance(self, name, index, data_type, value,
                             frequency=None, targetFrequency=None,
@@ -580,26 +563,27 @@ class boundaryConditions:
         index : int
             reference to BEM mesh.
         data_type : float or array of float
-            DESCRIPTION.
-        value : TYPE
-            DESCRIPTION.
-        frequency : TYPE, optional
-            DESCRIPTION. The default is None.
-        targetFrequency : TYPE, optional
-            DESCRIPTION. The default is None.
-        interpolation : TYPE, optional
-            DESCRIPTION. The default is "linear".
-
-        Raises
-        ------
-        ValueError
-            DESCRIPTION.
-        Exception
-            DESCRIPTION.
-
+            Type of data: "impedance", "absorption", "reflection", "admittance".
+        value : numpy array
+            Data to apply on surface.
+        frequency : numpy array, optional
+            Range of impedance data (if using frequency-dependant impedance).
+            The default is None.
+        targetFrequency : numpy array, optional
+            BEM frequency range - use it if impedance data as a different frequency-axis
+            than the BEM study. The default is None.
+        interpolation : str, optional
+            How to interpolate impedance data on frequency range. Either "linear" or "cubic".
+            The default is "linear".
+            
         Returns
         -------
         None.
+        
+        Notes
+        -----
+        If data_type is "impedance", the corresponding value should be given without 
+        normalization to characteristic impedance of air.
 
         """
         

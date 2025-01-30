@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 
 
 class laserVibrometry:
-    def __init__(self, file_path, spatial_rotation, freq_array, useAverage=False, inputVoltage=1):
+    def __init__(self, file_path, spatial_rotation, freq_array, 
+                 useAverage=False, inputVoltage=1):
         
         self.file_path = file_path
         self.spatial_rotation = spatial_rotation
