@@ -413,7 +413,7 @@ from electroacPy import circuit
 inductance  = csc.electric.inductance
 resistance  = csc.electric.resistance
 capacitance = csc.electric.capacitance
-EAD         = csb.electrodynamic.EADFromFile
+EAD         = csb.electrodynamic.EADImport
 cavity      = csc.acoustic.cavity
 port        = csc.acoustic.port
 radiator    = csc.acoustic.radiator
