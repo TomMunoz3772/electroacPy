@@ -598,12 +598,12 @@ class boundaryConditions:
             self.parameters[name]["admittance"] = 1/self.parameters[name]["impedance"]
         elif data_type == "reflection":
             self.parameters[name]["reflection"] = value
-            self.parameters[name]["impedance"] = (1+value) / (1-value) * self.rho * self.c
+            self.parameters[name]["impedance"] = (1+value) / (1-value) * self.Zc
             self.parameters[name]["admittance"] = 1/self.parameters[name]["impedance"]
         elif data_type == "absorption":
             self.parameters[name]["absorption"] = value
             self.parameters[name]["impedance"] = (2-value) / value *  \
-                                                  self.rho * self.c
+                                                  self.Zc
             self.parameters[name]["admittance"] = 1/self.parameters[name]["impedance"]
         elif data_type == "admittance":
             self.parameters[name]["admittance"] = value

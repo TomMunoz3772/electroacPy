@@ -11,11 +11,14 @@ Created on Tue Oct  3 16:03:02 2023
 #    Loudspeaker system simulation class
 #
 #==================================================
-# Exterior acoustic sim
+# BEM acoustic sim
 from electroacPy.acousticSim.bem import bem
 from electroacPy.acousticSim.evaluations import evaluations as evs_bem
 from electroacPy.acousticSim.evaluations import getPressure
 from electroacPy.acousticSim.postProcessing import postProcess as pp
+
+# PS acoustic sim
+from electroacPy.acousticSim.pointSource import pointSource, pointSourceBEM
 
 # Lumped element
 from electroacPy.speakerSim.electroAcousticDriver import electroAcousticDriver, loadLPM
@@ -127,6 +130,7 @@ class loudspeakerSystem:
                                         self.frequency, self.c, self.rho) # "false" loudspeaker
         physics.ref2bem = ref2bem
         physics.v = np.ones(len(self.frequency), dtype=complex) * v
+        physics.Q = np.ones(len(self.frequency), dtype=complex) * v
         self.driver[name] = physics
         self.radiator_id[name] = 'EAD'
         return None
@@ -181,12 +185,6 @@ class loudspeakerSystem:
         self.radiator_id[name] = 'PLV'
         return None
     
-    # def point_source(self, name, xpos, 
-    #                 v=np.ones(len(self.frequencyRange)), ref2bem=None):
-    #     self.name = name.
-        
-    #     return None
-
     ## ========================
     # %% FILTERING / CROSSOVERS
     def filter_network(self, name, ref2bem=None, ref2study=None):
@@ -393,6 +391,57 @@ class loudspeakerSystem:
         self.evaluation[name].referenceStudy = name
         return None
 
+    
+    def study_acousticPointSource(self, name, xSource, acoustic_radiator, 
+                                  meshPath=None, domain="exterior", **kwargs):
+        
+        if isinstance(acoustic_radiator, str):
+            acoustic_radiator = [acoustic_radiator]
+        
+        rad_point = []
+        for cname in acoustic_radiator:
+            if self.radiator_id[cname] == 'SPKBOX':
+                try:
+                    nRef = len(self.enclosure[cname].ref2bem)
+                    for i in range(nRef):
+                        rad_point.append(self.enclosure[cname].ref2bem[i])
+                except:
+                    rad_point.append(self.enclosure[cname].ref2bem)
+
+            # ========
+            # driver
+            elif self.radiator_id[cname] == 'EAD':
+                try:
+                    nRef = len(self.driver[cname].ref2bem)
+                    for i in range(nRef):
+                        rad_point.append(self.driver[cname].ref2bem[i])
+                except:
+                    rad_point.append(self.driver[cname].ref2bem)
+            
+            
+        if meshPath is not None:
+            physics = pointSourceBEM(meshPath, xSource, 
+                                     np.ones([len(xSource), 
+                                              len(self.frequency)]), 
+                                     self.frequency, domain=domain, 
+                                     c_0=self.c, rho_0=self.rho, 
+                                     radiatingElement=rad_point, 
+                                     **kwargs)
+            physics.radiator = acoustic_radiator
+            self.acoustic_study[name] = physics
+            self.evaluation[name] = evs_bem(physics)
+            self.evaluation[name].referenceStudy = name
+        else:
+            physics = pointSource(xSource, np.ones([len(xSource), 
+                                                    len(self.frequency)]), 
+                                  self.frequency, radiatingElement=rad_point,
+                                  c=self.c, rho=self.rho, **kwargs)
+            physics.radiator = acoustic_radiator
+            self.acoustic_study[name] = physics
+            self.evaluation[name] = evs_bem(physics)
+            self.evaluation[name].referenceStudy = name
+        return None
+
 
     ## =======================
     # %% ACOUSTIC obs
@@ -558,7 +607,10 @@ class loudspeakerSystem:
 
         for study in self.acoustic_study:
             if self.acoustic_study[study].isComputed is False:
-                self.acoustic_study[study].solve()
+                if hasattr(self.acoustic_study[study], "xSource") and self.acoustic_study[study].meshPath is None:
+                    pass # check if it is a point source study without BEM boundaries. No "solve" if True
+                else:
+                    self.acoustic_study[study].solve()
             else:
                 None
             
@@ -581,7 +633,7 @@ class loudspeakerSystem:
         if bool(study) is False: # if not specific study given, plot all
             for s in self.acoustic_study:
                 _ = updateResults(self, s, bypass_xover)
-                _ = self.evaluation[s].plot(evaluation, radiatingElement, 
+                _ = self.evaluation[s].plot(evaluation, radiatingElement,  
                                              processing=self.results[s],
                                              transformation=transformation,
                                              export_grid=export_grid)
@@ -593,8 +645,8 @@ class loudspeakerSystem:
                                                  export_grid=export_grid)
         return None
 
-    def plot_system(self, study):
-        self.evaluation[study].plot_system()
+    def plot_system(self, study, backend="pyvista"):
+        self.evaluation[study].plot_system(backend=backend)
         return None
 
     def plot_xovers(self, networks, split=True, amplitude=64):
@@ -902,13 +954,20 @@ def apply_Velocity_From_SPKBOX(loudspeakerSystem, study, radiatorName):
     :return:
     """
     ls = loudspeakerSystem
-    v = ls.enclosure[radiatorName].v      # driver velocity
-    vp = ls.enclosure[radiatorName].vp    # port's velocity
-    vp2 = ls.enclosure[radiatorName].vp2  # port 2 velocity (in case of bp2 enclosure config)
-    vpr = ls.enclosure[radiatorName].vpr  # passive radiator velocity (in case of pr enclosure config)
-    vpr2 = ls.enclosure[radiatorName].vpr2
+    if "xSource" not in ls.acoustic_study[study].__dict__: # check if point_source
+        v = ls.enclosure[radiatorName].v      # driver velocity
+        vp = ls.enclosure[radiatorName].vp    # port's velocity
+        vp2 = ls.enclosure[radiatorName].vp2  # port 2 velocity (in case of bp2 enclosure config)
+        vpr = ls.enclosure[radiatorName].vpr  # passive radiator velocity (in case of pr enclosure config)
+        vpr2 = ls.enclosure[radiatorName].vpr2
+    else:
+        v = ls.enclosure[radiatorName].Q     # driver velocity
+        vp = ls.enclosure[radiatorName].Qp    # port's velocity
+        vp2 = ls.enclosure[radiatorName].Qp2  # port 2 velocity (in case of bp2 enclosure config)
+        vpr = ls.enclosure[radiatorName].Qpr  # passive radiator velocity (in case of pr enclosure config)
+        vpr2 = ls.enclosure[radiatorName].Qpr2
     ref2bem = ls.enclosure[radiatorName].ref2bem
-
+        
     if isinstance(ref2bem, int) is True:
         if ls.enclosure[radiatorName].config == "sealed":  # check if 1 radiator because sealed or bp config
             ls.results[study].addTransferFunction("driver_"+radiatorName,
@@ -954,7 +1013,11 @@ def apply_Velocity_From_EAD(loudspeakerSystem, study, radiatorName):
     :return:
     """
     ls = loudspeakerSystem
-    v = ls.driver[radiatorName].v
+    
+    if "xSource" not in ls.acoustic_study[study].__dict__:
+        v = ls.driver[radiatorName].v
+    else:
+        v = ls.driver[radiatorName].Q
     ref2bem = ls.driver[radiatorName].ref2bem
     if isinstance(ref2bem, int) is True:
         ls.results[study].addTransferFunction("driver_"+radiatorName, v, [ref2bem])

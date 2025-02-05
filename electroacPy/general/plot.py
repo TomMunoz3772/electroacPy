@@ -22,7 +22,9 @@ def sumPressureArray(bemObj, radiatingSurface, radiationCoeff=None):
         radiatingSurface = np.array(radiatingSurface)
 
     pressureCoeff = np.zeros([len(bemObj.frequency), 
-                              bemObj.spaceP.grid_dof_count], dtype='complex')
+                              len(bemObj.p_mesh[0, 0].coefficients)],
+                             dtype='complex')
+    
     if radiationCoeff is None:
         radiationCoeff = np.ones([len(bemObj.frequency), 
                                   len(radiatingSurface)], dtype=complex)
@@ -432,7 +434,7 @@ def bempp_grid(bemOBJ, eval_grid, pmic, radiationCoeff, radiatingElement,
     
     # get pressure_grid
     pressure_grid = sumPressureArray(bemOBJ, radiatingElement, radiationCoeff)
-    pressure_grid = pressure_grid[:Nvert_grid, :]
+    pressure_grid = pressure_grid[:, :Nvert_grid]
           
     pressure = {"system": pressure_grid}
     pressure_id = {"system": 0}
@@ -451,14 +453,13 @@ def bempp_grid(bemOBJ, eval_grid, pmic, radiationCoeff, radiatingElement,
         grid_tmp = bempp.api.Grid(eval_grid[i].vertices, eval_grid[i].elements)
         grids.append(grid_tmp)
         coeff_limits[i+2] = coeff_limits[i+1]+eval_grid[i].vertices.shape[1]
-    
-    
-    # create domain indices - not sure it is really usefull to make diff domain
-    # Nvert_tot = coeff_limits[-1]
-    # domain_indices = np.ones(Nvert_tot)
-    # for i in range(len(coeff_limits)-1):
-    #     domain_indices[coeff_limits[i]-1:coeff_limits[i+1]] *= (i+1)
-    
+        # print(f"grid {eval_name[i]} - vertices: ", eval_grid[i].vertices.shape)
+        # print(f"grid {eval_name[i]} - elements: ", eval_grid[i].elements.shape)
+        # print(f"grid {eval_name[i]} - pmic: ", pressure[eval_name[i]].shape)
+        # print(f"grid {eval_name[i]} - previous coeff: ", coeff_limits[i+1])
+        # print(f"grid {eval_name[i]} - current coeff: ", coeff_limits[i+2])
+        # print("--------- ")
+        
     grid_union = bempp.api.grid.union(grids)
     
     with tempfile.NamedTemporaryFile(delete=False, suffix=".msh") as tmp_file:
@@ -509,6 +510,130 @@ def bempp_grid(bemOBJ, eval_grid, pmic, radiationCoeff, radiatingElement,
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     
     return None
+
+# def bempp_grid(bemOBJ, eval_grid, pmic, radiationCoeff, radiatingElement,
+#               eval_name, transformation="SPL", export_grid=False):
+#     """
+#     Plot grid functions from bempp. "grids" argument takes a list of one or
+#     multiple grids (evaluation grids), and concatenates everything based on 
+#     which radiating elements are selected.
+
+#     Parameters
+#     ----------
+#     bemOBJ : bem object
+#         bempp simulation,
+#     eval_grid : list
+#         eval_grid to plot.
+#     p_mic : ndarray
+#         pressure received at microphones (one per eval_grid[i])
+#     radiationCoeff : ndarray
+#         coefficients to apply on surfaces
+#     radiatingElement : list
+#         radiating elements to sum on system mesh surface.
+#     eval_name: list of str
+#         names of eval_grid components
+#     transformation : str
+#         scale plot to "SPL" (or "spl"), "real", "imag" or "phase".
+
+#     Returns
+#     -------
+#     GMSH or Paraview plot.
+
+#     """
+#     import gmsh
+#     import bempp.api
+#     import tempfile
+#     import subprocess
+
+#     # get transform
+#     if transformation in ["SPL", "spl"]:
+#         T = gtb.gain.SPL
+#     elif transformation == "real":
+#         T = np.real
+#     elif transformation == "imag":
+#         T = np.imag
+#     elif transformation == "phase":
+#         T = np.angle
+    
+#     # get some data from system mesh
+#     grid         = bemOBJ.grid_init
+#     Nvert_grid   = grid.vertices.shape[1]
+#     frequency    = bemOBJ.frequency
+    
+#     # get pressure_grid
+#     pressure_grid = sumPressureArray(bemOBJ, radiatingElement, radiationCoeff)
+#     pressure_grid = pressure_grid[:Nvert_grid, :]
+
+        
+#     pressure = {"system": pressure_grid}
+#     pressure_id = {"system": 0}
+#     for i in range(len(eval_name)):
+#         pressure[eval_name[i]] = pmic[i]
+#         pressure_id[eval_name[i]] = i+1
+    
+#     # put all grids together
+#     grids = []
+#     grids.append(bempp.api.Grid(grid.vertices, grid.elements))
+#     coeff_limits = np.zeros(len(eval_grid)+2, dtype=int)
+#     coeff_limits[0] = 1
+#     coeff_limits[1] = Nvert_grid+1
+#     for i in range(len(eval_name)):
+#         grid_tmp = bempp.api.Grid(eval_grid[i].vertices, eval_grid[i].elements)
+#         grids.append(grid_tmp)
+#         coeff_limits[i+2] = coeff_limits[i+1]+eval_grid[i].vertices.shape[1]
+    
+#     grid_union = bempp.api.grid.union(grids)
+    
+#     with tempfile.NamedTemporaryFile(delete=False, suffix=".msh") as tmp_file:
+#         bempp.api.export(tmp_file.name, grid_union, write_binary=False)
+
+    
+#     # Initialize GMSH
+#     gmsh.initialize()
+#     # gmsh.option.setNumber("PostProcessing.Format", 5)
+#     # gmsh.option.setNumber("PostProcessing.Link", 1)
+    
+#     # Load total grid and assign view, step, value, etc.
+#     gmsh.open(tmp_file.name)
+#     view_tag = gmsh.view.add("evaluation")
+#     model = gmsh.model.getCurrent()
+#     for i, surface in enumerate(gmsh.model.getEntities(2)):  # 2 = surfaces
+#         gmsh.model.addPhysicalGroup(2, [surface[1]], tag=i)
+    
+    
+#     for ps in pressure: 
+#         ps_id = pressure_id[ps]
+#         N1 = coeff_limits[ps_id] 
+#         N2 = coeff_limits[ps_id+1] 
+#         for j, f in enumerate(frequency):
+#             data = T(pressure[ps][j, :])
+#             node_tags = np.arange(N1, N2)
+#             gmsh.view.addModelData(view_tag, 
+#                                    j, 
+#                                    model,
+#                                    "NodeData", 
+#                                    node_tags,
+#                                    data[:, None], 
+#                                    time=f)
+#         # gmsh.fltk.run()
+            
+#     with tempfile.NamedTemporaryFile(delete=False, suffix=".msh") as tmp_export:
+#         gmsh.write(tmp_export.name)
+#         gmsh.view.write(view_tag, tmp_export.name)
+        
+#     if export_grid is not False:
+#         gmsh.write(export_grid)
+#         gmsh.view.write(view_tag, export_grid)
+    
+#     gmsh.finalize()
+    
+#     # Open the combined file in GMSH viewer
+#     subprocess.Popen(["gmsh", 
+#                       "-setnumber", "Mesh.SurfaceEdges", "0", 
+#                       tmp_export.name], 
+#                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    
+#     return None
 
 def pressureField_3D(bemOBJ, xMic, L, W, pMicData, radiatingElement):
     """

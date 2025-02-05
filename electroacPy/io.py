@@ -30,14 +30,14 @@ def save(projectPath, loudspeakerSystem):
 
     # Save lumped element / analytic simulations
     np.savez(join(projectPath, 'LEM'),
-             frequency=frequency,
-             driver=sim.driver,
-             laser=sim.vibrometry,
-             crossover=sim.crossover,
-             enclosure=sim.enclosure,
-             radiator_id=sim.radiator_id,
-             c=sim.c,
-             rho=sim.rho)
+             frequency   = frequency,
+             driver      = sim.driver,
+             laser       = sim.vibrometry,
+             crossover   = sim.crossover,
+             enclosure   = sim.enclosure,
+             radiator_id = sim.radiator_id,
+             c           = sim.c,
+             rho         = sim.rho)
 
     # Save evaluations / bem
     for study in sim.acoustic_study:
@@ -57,22 +57,42 @@ def save(projectPath, loudspeakerSystem):
         copy2(studyTmp.meshPath, projectPath)
         mesh_filename = os.path.basename(studyTmp.meshPath)
         # EXTERIOR
-        np.savez(join(projectPath, 'acs_{}'.format(study)),
-                 meshPath             = studyTmp.meshPath,
-                 mesh_filename        = mesh_filename,
-                 radiatingElement     = studyTmp.radiatingElement,
-                 velocity             = array(studyTmp.velocity, dtype=object),
-                 isComputed           = studyTmp.isComputed,
-                 coeff_radSurf        = studyTmp.coeff_radSurf,
-                 vertices             = studyTmp.vertices,
-                 domain               = studyTmp.domain,
-                 kwargs               = studyTmp.kwargs,
-                 pressureArrayAcs     = pressureArrayAcs,
-                 LEM_enclosures       = studyTmp.LEM_enclosures,
-                 radiator             = studyTmp.radiator,
-                 c_0                  = studyTmp.c_0,
-                 rho_0                = studyTmp.rho_0
-                 )
+        if hasattr(studyTmp, "xSource"):
+            np.savez(join(projectPath, 'acs_{}'.format(study)),
+                     meshPath             = studyTmp.meshPath,
+                     mesh_filename        = mesh_filename,
+                     radiatingElement     = studyTmp.radiatingElement,
+                     QSource              = array(studyTmp.QSource, dtype=object),
+                     xSource              = studyTmp.xSource,
+                     xSystem              = studyTmp.xSystem,
+                     isComputed           = studyTmp.isComputed,
+                     coeff_radSurf        = studyTmp.coeff_radSurf,
+                     vertices             = studyTmp.vertices,
+                     domain               = studyTmp.domain,
+                     kwargs               = studyTmp.kwargs,
+                     pressureArrayAcs     = pressureArrayAcs,
+                     LEM_enclosures       = studyTmp.LEM_enclosures,
+                     radiator             = studyTmp.radiator,
+                     c_0                  = studyTmp.c_0,
+                     rho_0                = studyTmp.rho_0
+                     )
+        else:
+            np.savez(join(projectPath, 'acs_{}'.format(study)),
+                     meshPath             = studyTmp.meshPath,
+                     mesh_filename        = mesh_filename,
+                     radiatingElement     = studyTmp.radiatingElement,
+                     velocity             = array(studyTmp.velocity, dtype=object),
+                     isComputed           = studyTmp.isComputed,
+                     coeff_radSurf        = studyTmp.coeff_radSurf,
+                     vertices             = studyTmp.vertices,
+                     domain               = studyTmp.domain,
+                     kwargs               = studyTmp.kwargs,
+                     pressureArrayAcs     = pressureArrayAcs,
+                     LEM_enclosures       = studyTmp.LEM_enclosures,
+                     radiator             = studyTmp.radiator,
+                     c_0                  = studyTmp.c_0,
+                     rho_0                = studyTmp.rho_0
+                     )
     return None
 
 def load(pathToProject):
@@ -114,9 +134,9 @@ def load(pathToProject):
 
     for study in study_name:
         # load acoustic_study
-        data_acs   = np.load(join(pathToProject, 'acs_{}.npz'.format(study)),
-                             allow_pickle=True)
-        meshName   = data_acs['mesh_filename'].item()
+        data_acs     = np.load(join(pathToProject, 'acs_{}.npz'.format(study)),
+                               allow_pickle=True)
+        meshName     = data_acs['mesh_filename'].item()
         radSurf      = data_acs['radiatingElement']
         surfVelocity = data_acs['velocity']
         isComputed   = data_acs['isComputed'].item()
