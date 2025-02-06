@@ -244,6 +244,7 @@ class bem:
                 # creation of the double layer
                 double_layer = helmholtz.double_layer(self.spaceP, self.spaceP,
                                                       self.spaceP, k[i])
+                lhs = double_layer + 0.5 * self.identity * domain_operator
                 for rs in range(self.Ns):                
                     coeff_radSurf = self.coeff_radSurf[i, rs, :int(self.dof[rs])]
                     spaceU = bempp.api.function_space(self.grid_sim, "DP", 0,
@@ -258,7 +259,6 @@ class bem:
                                                           k[i])
     
                     # pressure over the whole surface of the loudspeaker (p_total)
-                    lhs = double_layer + 0.5 * self.identity * domain_operator
                     rhs = 1j * omega[i] * self.rho_0 * single_layer * u_total
                     p_total, _ = gmres(lhs, rhs, tol=self.tol, 
                                        return_residuals=False)
@@ -275,6 +275,15 @@ class bem:
                 # admittance single layer
                 single_layer_Y = helmholtz.single_layer(self.spaceP, self.spaceP,
                                                         self.spaceP, k[i])
+                # ABSORBING SURFACES
+                Yn = self.admittanceCoeff[:, i]  # all admittance coeff at current frequency
+                yn_fun = bempp.api.GridFunction(self.spaceP, coefficients=Yn)  # ? doubts on its usefulness
+                yn = DiagonalOperator(yn_fun.coefficients)
+
+                # building left-hand-side term
+                lhs = ((double_layer + 0.5*self.identity * domain_operator).weak_form()
+                       - (1j*k[i]*single_layer_Y.weak_form()*yn))    
+                
                 for rs in range(self.Ns):
                     # RADIATING SURFACES
                     coeff_radSurf = self.coeff_radSurf[i, rs, :int(self.dof[rs])]
@@ -291,14 +300,7 @@ class bem:
                                                           self.spaceP, self.spaceP,
                                                           k[i])
 
-                    # ABSORBING SURFACES
-                    Yn = self.admittanceCoeff[:, i]  # all admittance coeff at current frequency
-                    yn_fun = bempp.api.GridFunction(self.spaceP, coefficients=Yn)  # ? doubts on its usefulness
-                    yn = DiagonalOperator(yn_fun.coefficients)
 
-                    # building equations
-                    lhs = ((double_layer + 0.5*self.identity * domain_operator).weak_form()
-                           - (1j*k[i]*single_layer_Y.weak_form()*yn))
                     rhs = 1j * omega[i] * self.rho_0 * single_layer * u_total
                     rhs = rhs.projections(self.spaceP)
 
@@ -603,7 +605,7 @@ class boundaryConditions:
         elif data_type == "absorption":
             self.parameters[name]["absorption"] = value
             self.parameters[name]["impedance"] = (2-value) / value *  \
-                                                  self.Zc
+                                                self.Zc
             self.parameters[name]["admittance"] = 1/self.parameters[name]["impedance"]
         elif data_type == "admittance":
             self.parameters[name]["admittance"] = value

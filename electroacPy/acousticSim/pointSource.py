@@ -282,7 +282,7 @@ class pointSourceBEM:
     
     def mirror_system(self):
         self.xSystem = np.copy(self.xSource)
-        for param in self.boundary_conditions.parameters:
+        for param in self.boundary_conditions:
             if param in ["x", "X"]:
                 xmirror = np.copy(self.xSystem)
                 xmirror[:, 0] = 2*self.boundary_conditions.parameters[param]["offset"] - xmirror[:, 0]
@@ -334,18 +334,51 @@ class pointSourceBEM:
                                                       self.spaceP, k[i])
                 single_layer = helmholtz.single_layer(self.spaceP, self.spaceP,
                                                       self.spaceP, k[i])
+                lhs = double_layer + domain_operator*(0.5 * self.identity)
+                
                 for rs in range(self.Ns):
                     xsource = self.xSystem[rs::self.Ns, :]
                     G  = greenMonopole(xsource, self.grid_sim, k[i])
                     n0 = incidenceCoeff(xsource, self.grid_sim, self.domain)
                     self.propag_function[i, rs] = buildGridFunction(self.spaceP, 
                                                         -1j*k[i]*n0*G)
-                    self.u_mesh[i, rs], _ = gmres(double_layer + 
-                                                  domain_operator*(0.5 * self.identity), 
-                                    single_layer * self.propag_function[i, rs],
-                                    tol=self.tol)
+                    rhs = single_layer * self.propag_function[i, rs]
+                    self.u_mesh[i, rs], _ = gmres(lhs, rhs, tol=self.tol)
             self.isComputed = True
-        
+            
+        elif self.admittanceCoeff is not None:
+            for i in tqdm(range(len(k))):
+                double_layer = helmholtz.double_layer(self.spaceP, self.spaceP,
+                                                      self.spaceP, k[i])
+                single_layer = helmholtz.single_layer(self.spaceP, self.spaceP,
+                                                      self.spaceP, k[i])
+                single_layer_Y = helmholtz.single_layer(self.spaceP, self.spaceP,
+                                                        self.spaceP, k[i])
+                # ABSORBING SURFACES
+                Yn = self.admittanceCoeff[:, i]  # all admittance coeff at current frequency
+                yn_fun = bempp.api.GridFunction(self.spaceP, coefficients=Yn)  # ? doubts on its usefulness
+                yn = DiagonalOperator(yn_fun.coefficients)
+                
+                lhs = ((double_layer + 
+                       domain_operator*(0.5 * self.identity)).weak_form() - 
+                       (1j*k[i]*single_layer_Y.weak_form() * yn))
+                
+                for rs in range(self.Ns):
+                    # PROPAGATION FROM SOURCE TO BOUNDARIES
+                    xsource = self.xSystem[rs::self.Ns, :]
+                    G  = greenMonopole(xsource, self.grid_sim, k[i])
+                    n0 = incidenceCoeff(xsource, self.grid_sim, self.domain)
+                    self.propag_function[i, rs] = buildGridFunction(self.spaceP, 
+                                                        -1j*k[i]*n0*G)
+                    
+                    rhs = single_layer * self.propag_function[i, rs]
+                    rhs = rhs.coefficients
+                    
+                    u_total_coeff, _ = scipy_gmres(lhs, rhs, rtol=self.tol)
+                    self.u_mesh[i, rs] = bempp.api.GridFunction(self.spaceP, 
+                                                                coefficients=u_total_coeff)
+
+            self.isComputed = True
         self.p_mesh = element2vertice_pressure(self.grid_sim, self.u_mesh)
 
 

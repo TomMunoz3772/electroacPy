@@ -154,6 +154,11 @@ def element2vertice_pressure(grid, p_mesh):
             coeff[f, nonzero_mask] /= vertex_count[nonzero_mask] 
             vertice_pressure[f, rs] = bempp.api.GridFunction(space_vert, 
                                                              coefficients=coeff[f, :])
+    
+    # for f in range(p_mesh.shape[0]):
+    #     for rs in range(p_mesh.shape[1]):
+    #         projection_coeff = p_mesh[f, rs].projections(space_vert)
+    #         vertice_pressure[f, rs] = bempp.api.GridFunction(space_vert, coefficients=projection_coeff)
     return vertice_pressure
 
  
