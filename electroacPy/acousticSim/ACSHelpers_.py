@@ -223,7 +223,7 @@ def getSurfaceAdmittance(absorbingSurface, surfaceImpedance, freq, spaceP, c_0, 
     if absSurf_in.shape[0] == 0 :
         admittanceMatrix = None
     else:
-        admittanceMatrix = np.ones([dofCount, Nfft], dtype=complex) * 2.5e-3 # corresponds to 0.5% damping
+        admittanceMatrix = np.ones([dofCount, Nfft], dtype=complex) * 2.5e-4 # corresponds to 0.5% damping
         for surf in range(Nsurf):
             tmp_surf = absSurf_in[surf]  # current surface on which we apply admittance coefficients
             vertex, _ = get_group_points(grid, tmp_surf)

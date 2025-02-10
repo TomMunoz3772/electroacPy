@@ -207,6 +207,7 @@ class pointSourceBEM:
         
         # initialize pressures and velocities arrays
         self.u_mesh = np.empty([len(frequency), self.Ns], dtype=object)  # separate sources
+        self.u_mesh_Y = np.empty([len(frequency), self.Ns], dtype=object)
         self.p_mesh = np.empty([len(frequency), self.Ns], dtype=object)  # separate drivers
         self.u_total_mesh = np.empty([len(frequency)], dtype=object)   # summed sources
         self.p_total_mesh = np.empty([len(frequency)], dtype=object)   # summed sources
@@ -352,8 +353,7 @@ class pointSourceBEM:
                                                       self.spaceP, k[i])
                 single_layer = helmholtz.single_layer(self.spaceP, self.spaceP,
                                                       self.spaceP, k[i])
-                single_layer_Y = helmholtz.single_layer(self.spaceP, self.spaceP,
-                                                        self.spaceP, k[i])
+
                 # ABSORBING SURFACES
                 Yn = self.admittanceCoeff[:, i]  # all admittance coeff at current frequency
                 yn_fun = bempp.api.GridFunction(self.spaceP, coefficients=Yn)  # ? doubts on its usefulness
@@ -361,7 +361,7 @@ class pointSourceBEM:
                 
                 lhs = ((double_layer + 
                        domain_operator*(0.5 * self.identity)).weak_form() - 
-                       (1j*k[i]*single_layer_Y.weak_form() * yn))
+                       (1j*k[i]*single_layer.weak_form() * yn))
                 
                 for rs in range(self.Ns):
                     # PROPAGATION FROM SOURCE TO BOUNDARIES
@@ -371,13 +371,18 @@ class pointSourceBEM:
                     self.propag_function[i, rs] = buildGridFunction(self.spaceP, 
                                                         -1j*k[i]*n0*G)
                     
-                    rhs = single_layer * self.propag_function[i, rs]
-                    rhs = rhs.coefficients
+                    
+                    rhs = (single_layer * self.propag_function[i, rs])
+                    rhs = rhs.projections(self.spaceP)
                     
                     u_total_coeff, _ = scipy_gmres(lhs, rhs, rtol=self.tol)
+                    u_total_coeff_Y = 1j*k[i]*u_total_coeff*yn_fun.coefficients
                     self.u_mesh[i, rs] = bempp.api.GridFunction(self.spaceP, 
                                                                 coefficients=u_total_coeff)
+                    self.u_mesh_Y[i, rs] = bempp.api.GridFunction(self.spaceP, 
+                                                                coefficients=u_total_coeff_Y)
 
+                    
             self.isComputed = True
         self.p_mesh = element2vertice_pressure(self.grid_sim, self.u_mesh)
 
@@ -416,26 +421,50 @@ class pointSourceBEM:
         omega = 2 * np.pi * self.frequency
         k = -omega / self.c_0
         
-        for i in tqdm(range(len(k))):
-            for rs in range(self.Ns):
-                xsource = self.xSystem[rs::self.Ns, :]
-                single_pot = helmholtz_potential.single_layer(self.spaceP, 
-                                                              micPosition, k[i])
-                double_pot = helmholtz_potential.double_layer(self.spaceP, 
-                                                              micPosition, k[i])
-                for imag in range(len(xsource)):
-                    dist = ((xsource[imag, 0]-micPosition[0, :])**2 + 
-                            (xsource[imag, 1]-micPosition[1, :])**2 + 
-                            (xsource[imag, 2]-micPosition[2, :])**2)**0.5
-                    pressure_mic_array[i, :, rs] += np.reshape(np.exp(1j*k[i]*dist) / (4*np.pi*dist)
-                         + double_pot.evaluate(self.u_mesh[i, rs])
-                         - single_pot.evaluate(self.propag_function[i, rs]), nMic)
-                pressure_mic[i, :] += pressure_mic_array[i, :, rs]
         
-        if individualSpeakers is True:
-            out = (pressure_mic, pressure_mic_array)
-        elif individualSpeakers is False:
-            out = pressure_mic
+        if self.admittanceCoeff is None:
+            for i in tqdm(range(len(k))):
+                for rs in range(self.Ns):
+                    xsource = self.xSystem[rs::self.Ns, :]
+                    single_pot = helmholtz_potential.single_layer(self.spaceP, 
+                                                                  micPosition, k[i])
+                    double_pot = helmholtz_potential.double_layer(self.spaceP, 
+                                                                  micPosition, k[i])
+                    for imag in range(len(xsource)):
+                        dist = ((xsource[imag, 0]-micPosition[0, :])**2 + 
+                                (xsource[imag, 1]-micPosition[1, :])**2 + 
+                                (xsource[imag, 2]-micPosition[2, :])**2)**0.5
+                        pressure_mic_array[i, :, rs] += np.reshape(np.exp(1j*k[i]*dist) / (4*np.pi*dist)
+                             + double_pot.evaluate(self.u_mesh[i, rs])
+                             - single_pot.evaluate(self.propag_function[i, rs]), nMic)
+                    pressure_mic[i, :] += pressure_mic_array[i, :, rs]
+            
+            if individualSpeakers is True:
+                out = (pressure_mic, pressure_mic_array)
+            elif individualSpeakers is False:
+                out = pressure_mic
+        elif self.admittanceCoeff is not None:
+            for i in tqdm(range(len(k))):
+                for rs in range(self.Ns):
+                    xsource = self.xSystem[rs::self.Ns, :]
+                    single_pot = helmholtz_potential.single_layer(self.spaceP, 
+                                                                  micPosition, k[i])
+                    double_pot = helmholtz_potential.double_layer(self.spaceP, 
+                                                                  micPosition, k[i])
+                    for imag in range(len(xsource)):
+                        dist = ((xsource[imag, 0]-micPosition[0, :])**2 + 
+                                (xsource[imag, 1]-micPosition[1, :])**2 + 
+                                (xsource[imag, 2]-micPosition[2, :])**2)**0.5
+                        pressure_mic_array[i, :, rs] += np.reshape(np.exp(1j*k[i]*dist) / (4*np.pi*dist)
+                             + double_pot.evaluate(self.u_mesh[i, rs])
+                             - single_pot.evaluate(self.propag_function[i, rs])
+                             + single_pot.evaluate(self.u_mesh_Y[i, rs]), nMic)
+                    pressure_mic[i, :] += pressure_mic_array[i, :, rs]
+            
+            if individualSpeakers is True:
+                out = (pressure_mic, pressure_mic_array)
+            elif individualSpeakers is False:
+                out = pressure_mic
         return out
 
 

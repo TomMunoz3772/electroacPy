@@ -10,15 +10,14 @@ authors = [
 ]
 description = "Package for electro-acoustics with LEM/BEM approach."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
 dependencies = ["numpy", "pandas", "pyarrow", "matplotlib",
             "tqdm", "numba", "meshio", "scipy", "pyvista",
-            "pyuff", "gmsh", "plotly", "siphash24", "pyopencl",
-            "intel-opencl-rt",
+            "pyuff", "gmsh", "plotly", "siphash24",
 ]
 
 
