@@ -931,7 +931,7 @@ def updateResults(loudspeakerSystem, study_to_plot, bypass_xover):
 
     if bypass_xover is False:
         for xover in ls.crossover:
-            if ls.crossover[xover].referenceStudy == study:  # check if some of the crossovers are to be applied in the study
+            if study in ls.crossover[xover].referenceStudy:  # check if some of the crossovers are to be applied in the study
                 h = ls.crossover[xover].h
                 ref2bem = ls.crossover[xover].ref2bem
                 if isinstance(ref2bem, int):

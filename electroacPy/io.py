@@ -184,7 +184,7 @@ def load(pathToProject):
                                data_acs["velocityArrayAcs_Y"])
             LS.acoustic_study[study] = physics_acs
             
-        elif hasattr("xSource", data_acs) and meshName is None: # pointSource
+        elif "xSource" in data_acs and meshName is None: # pointSource
             xSource = data_acs["xSource"]
             QSource = data_acs["QSource"]
             physics_acs = pointSource(xSource, QSource, LS.frequency,
@@ -203,7 +203,7 @@ def load(pathToProject):
                                   surfVelocity,
                                   LS.frequency,
                                   domain=domain,
-                                  c_0=LS.c, rho_0=LS.rho
+                                  c_0=LS.c, rho_0=LS.rho,
                                   **kwargs)
             physics_acs.isComputed     = isComputed
             physics_acs.LEM_enclosures = enclosures
@@ -260,7 +260,7 @@ def storePressureMeshResults(acoustic_study):
     for freq in range(Nfft):
         for rad in range(nRad):
             pressureMesh[freq, rad, :] = study.p_mesh[freq, rad].coefficients
-            velocityMesh[freq, rad, :] = study.u_mesh[freq, rad].coefficients
+            # velocityMesh[freq, rad, :] = study.u_mesh[freq, rad].coefficients
     return pressureMesh, velocityMesh
 
 
