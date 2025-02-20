@@ -123,7 +123,8 @@ def load(pathToProject):
 
     Returns
     -------
-    LS: loudspeakerSystem object
+    LS: loudspeakerSystem object,
+        Study, evaluations and LEM setup.
     """
 
     dataLEM = np.load(join(pathToProject, 'LEM.npz'), allow_pickle=True)
