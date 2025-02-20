@@ -118,14 +118,15 @@ def smooth_directivity(X_FFT, freq_data, nthOctBand):
 
 def decimate_frequency_axis(old_axis, new_axis):
     """
-    Decimate an existing frequency axis into a given new one by finding the closest values.
+    Decimate an existing frequency axis into a new one by finding the closest values.
 
     Parameters:
     old_axis (numpy.ndarray): The existing frequency axis from which values will be selected.
     new_axis (numpy.ndarray): The new frequency axis to decimate onto.
 
     Returns:
-    numpy.ndarray: The decimated frequency axis containing values from the old_axis that are closest to the values in new_axis.
+    numpy.ndarray: The decimated frequency axis containing values 
+    from the old_axis that are closest to the values in new_axis.
 
     Example:
         >>> old_axis = np.linspace(0, 100, 1000)

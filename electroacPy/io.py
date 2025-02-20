@@ -60,7 +60,7 @@ def save(projectPath, loudspeakerSystem):
         studyTmp = sim.acoustic_study[study]
         
         # prepare to store mesh pressure and velocity 
-        if studyTmp.admittanceCoeff is not None:
+        if studyTmp.admittanceCoeff is not None and hasattr(studyTmp, "xSource"):
             pressureArrayAcs, velocityArrayAcs, velocityArrayAcs_Y = storePressureMeshResults_PSINT(studyTmp)
         else:
             pressureArrayAcs, velocityArrayAcs = storePressureMeshResults(studyTmp)

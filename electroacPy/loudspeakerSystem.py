@@ -26,12 +26,14 @@ from electroacPy.speakerSim.enclosureDesign import speakerBox
 from electroacPy.speakerSim.filterDesign import xovers
 
 # Vibrometry
+from electroacPy.measurements.laserVibrometry import laserVibrometry_UFF as laser_v_uff
 from electroacPy.measurements.laserVibrometry import laserVibrometry as laser_v
 
 # general
 from electroacPy.global_ import air
 from electroacPy.general.freqop import freq_log10
 from electroacPy.general.gain import dB
+from electroacPy.general.plot import bempp_grid_mesh
 
 # external libraries
 import numpy as np
@@ -179,12 +181,45 @@ class loudspeakerSystem:
         None.
 
         """
-        physics = laser_v(file_path, rotation, self.frequency, useAverage, inputVoltage=inputVoltage)
+        physics = laser_v_uff(file_path, rotation, self.frequency, useAverage, inputVoltage=inputVoltage)
         physics.ref2bem = ref2bem
         self.vibrometry[name] = physics
         self.radiator_id[name] = 'PLV'
         return None
     
+    def vibrometry_data_user(self, name, Hv, X, ref2bem=None, inputVoltage=1):
+        """
+        Add acceleration data to the study. Meant to be used as a radiator - ref2bem strongly recommended.
+
+        Parameters
+        ----------
+        name : str
+            Reference.
+        file_path : str
+            Path to *.uff vibrometry data.
+        rotation : list of float, optional
+            Rotate measured data to match mesh direction. The default is [0, 0, 0].
+        ref2bem : int, optional
+            Reference to mesh physical group. The default is None.
+        useAverage : Bool, optional
+            Uses the average instead of individual element acceleration. 
+            The default is False.
+        inputVoltage : float, optional
+            Optional scaling. By default, electroacPy uses the transfer function of the 
+            acceleration, hence, the input voltage of the laser vibrometer is not taken 
+            into account. The default is 1.
+
+        Returns
+        -------
+        None.
+
+        """
+        physics = laser_v(Hv, X, inputVoltage)
+        physics.ref2bem = ref2bem
+        self.vibrometry[name] = physics
+        self.radiator_id[name] = 'PLV'
+        return None
+
     ## ========================
     # %% FILTERING / CROSSOVERS
     def filter_network(self, name, ref2bem=None, ref2study=None):
@@ -663,6 +698,34 @@ class loudspeakerSystem:
                 names.append(networks[i])
             plot_network(self, h, h_p, names, split, amplitude)
         return
+    
+    def plot_pressureMesh(self, study, radiatingElement=[],
+                          bypass_xover=False, transformation="SPL", 
+                          export_grid=False, backend="gmsh"):
+        
+        # update solutions
+        if isinstance(radiatingElement, int) is True: # avoid possible error if only one rad surf is selected
+            radiatingElement = [radiatingElement]
+            
+        if bool(radiatingElement) is False:
+            # plot all elements
+            element2plot = self.acoustic_study[study].radiatingElement
+        else:
+            element2plot = radiatingElement
+                
+        _ = updateResults(self, study, bypass_xover)        
+        if backend == "gmsh":
+            elementCoeff = np.ones([len(self.frequency), len(element2plot)], 
+                                   dtype=complex)
+            pp = self.results[study]
+            for name in pp.TF:
+                for idx, element in enumerate(element2plot):
+                    if element in pp.TF[name]["radiatingElement"]:
+                        elementCoeff[:, idx] *= pp.TF[name]["H"]
+            
+            bempp_grid_mesh(self.acoustic_study[study], elementCoeff, 
+                            element2plot, transformation, export_grid)          
+        return None
 
 
     ## Get Values

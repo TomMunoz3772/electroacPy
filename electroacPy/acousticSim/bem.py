@@ -17,6 +17,7 @@ from tqdm import tqdm
 import warnings
 from pyopencl import CompilerWarning
 import electroacPy.general as gtb
+from .ACSHelpers_ import getSurfaceAdmittance
 
 warnings.filterwarnings("ignore", message="splu requires CSC matrix format")
 warnings.filterwarnings("ignore", message="splu converted its input to CSC format")
@@ -251,8 +252,9 @@ class bem:
                                                       segments=[self.radiatingElement[rs]])
     
                     # get velocity on current radiator
-                    u_total = bempp.api.GridFunction(spaceU, coefficients=-coeff_radSurf *
-                                                                          self.correctionCoefficients[rs])
+                    u_total = bempp.api.GridFunction(spaceU, 
+                                                     coefficients=-coeff_radSurf *
+                                                     self.correctionCoefficients[rs])
                     # single layer
                     single_layer = helmholtz.single_layer(spaceU,
                                                           self.spaceP, self.spaceP,
@@ -292,8 +294,9 @@ class bem:
                                                       segments=[self.radiatingElement[rs]])
 
                     # get velocity on current radiator
-                    u_total = bempp.api.GridFunction(spaceU, coefficients=-coeff_radSurf *
-                                                                          self.correctionCoefficients[rs])
+                    u_total = bempp.api.GridFunction(spaceU, 
+                                                     coefficients=-coeff_radSurf *
+                                                     self.correctionCoefficients[rs])
 
                     # single layer - radiating surface
                     single_layer = helmholtz.single_layer(spaceU,
@@ -453,9 +456,9 @@ def getRadiationCoefficients(support_elements, centroids, vibrometric_data,
                                                         vibrometry_points,
                                                         5e-3, vibrometric_data, Nfft)
 
+    print("COEFFICIENTS: ", coefficients.shape)
     if sizeFactor > 1:
         coefficients = np.tile(coefficients, (1, sizeFactor))
-        # print(coefficients.shape)
     return coefficients
 
 def getCorrectionCoefficients(support_elements, normals, direction):
@@ -480,38 +483,6 @@ def getCorrectionCoefficients(support_elements, normals, direction):
 
 
 #%% Impedance functions
-def getSurfaceAdmittance(absorbingSurface, surfaceImpedance, freq, spaceP, c_0, rho_0):
-    """
-    Compute the total single layer coefficients linked to surfaces impedance.
-    :param absorbingSurface:
-    :param surfaceImpedance:
-    :param freq:
-    :param spaceP:
-    :return:
-    """
-    Nfft       = len(freq)
-    absSurf_in = np.array(absorbingSurface)
-    surfImp_in = surfaceImpedance
-    Nsurf      = len(absSurf_in)             # number of absorbing surfaces
-    grid       = spaceP.grid
-    dofCount   = spaceP.grid_dof_count
-
-    if absSurf_in.shape[0] == 0 :
-        admittanceMatrix = None
-    else:
-        admittanceMatrix = np.ones([dofCount, Nfft], dtype=complex) * 2.5e-3 # corresponds to 0.5% damping
-        for surf in range(Nsurf):
-            tmp_surf = absSurf_in[surf]  # current surface on which we apply admittance coefficients
-            vertex, _ = get_group_points(grid, tmp_surf)
-            for f in range(Nfft):
-                try:
-                    Yn = rho_0 * c_0 / surfImp_in[surf][f] # rho_0 * c_0
-                except:
-                    Yn = rho_0 * c_0 / surfImp_in[surf] # rho_0 * c_0
-                admittanceMatrix[vertex, f] = np.ones(len(vertex)) * Yn
-    return admittanceMatrix
-
-
 def get_group_points(grid, group_number):
     domain_indices = grid.domain_indices
     elements       = grid.elements
@@ -526,8 +497,6 @@ def get_group_points(grid, group_number):
     unique_points   = np.unique(group_points)
 
     return unique_points, group_indices
-
-
 
 #%% boundary conditions
 class boundaryConditions:
