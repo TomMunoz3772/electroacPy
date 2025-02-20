@@ -17,6 +17,7 @@ from tqdm import tqdm
 import warnings
 from pyopencl import CompilerWarning
 import electroacPy.general as gtb
+from .ACSHelpers_ import getSurfaceAdmittance
 
 warnings.filterwarnings("ignore", message="splu requires CSC matrix format")
 warnings.filterwarnings("ignore", message="splu converted its input to CSC format")
@@ -35,22 +36,34 @@ class bem:
 
         Parameters
         ----------
-        meshPath : TYPE
-            DESCRIPTION.
-        radiatingElement : TYPE
-            DESCRIPTION.
-        velocity : TYPE
-            DESCRIPTION.
-        frequency : TYPE
-            DESCRIPTION.
-        domain : TYPE
-            DESCRIPTION.
-        c_0 : TYPE
-            DESCRIPTION.
-        rho_0 : TYPE
-            DESCRIPTION.
-        **kwargs : TYPE
-            DESCRIPTION.
+        meshPath : str
+            Path to simulation mesh.
+        radiatingElement : list of int
+            Reference to BEM physical group(s) - should be surfaces.
+        velocity : list of numpy array
+            Velocity of radiating surfaces.
+        frequency : numpy array
+            Range of simulation.
+        domain : str, optional
+            Domain of simulation: "interior" or "exterior". 
+            Will change the BEM equation. Default is "exterior".
+        c_0 : float, optional
+            Speed of sound in the propagation medium. Default is c=343 m/s (air).
+        rho_0 : float, optional
+            Medium density. Default is rho=1.22 kg/m^3 (air).
+        
+        **kwargs
+        --------
+        boundary_condition(s) : boundaryCondition object,
+            Define boundary conditions on BEM mesh (infinite 
+            reflection plane, absorption surface, etc.)
+        direction : list directional vectors, 
+            Use this kwarg to set non-normal velocity on mesh. ex: [[1, 0, 0], [1, 0, 0]]
+            for two radiating surfaces with velocity toward +x.
+        vibrometry_points : ndarray,
+            Position of measured vibrometry points. Should be of size (Npoints, 3).                
+        tol : float
+            Tolerance of the GMRES solver. By default is 1E-5.
 
         Returns
         -------
@@ -94,7 +107,8 @@ class bem:
         # load simulation grid and mirror mesh if needed
         self.grid_sim = bempp.api.import_grid(self.meshPath)
         self.grid_init = bempp.api.import_grid(self.meshPath)
-        self.grid_sim, self.sizeFactor = mirror_mesh(self.grid_init, self.boundary_conditions)
+        self.grid_sim, self.sizeFactor = mirror_mesh(self.grid_init, 
+                                                     self.boundary_conditions)
         self.vertices = np.shape(self.grid_sim.vertices)[1]
 
         # define space functions
@@ -144,6 +158,14 @@ class bem:
         return None
         
     def parse_input(self):
+        """
+        Detects and assign kwargs to BEMOBJ variables.
+
+        Returns
+        -------
+        None.
+
+        """
         if "boundary_conditions" in self.kwargs:
             self.boundary_conditions = self.kwargs["boundary_conditions"].parameters
             self.initialize_conditions()
@@ -160,6 +182,16 @@ class bem:
             self.tol = 1e-5
             
     def initialize_conditions(self):
+        """
+        Assign boundary conditions to the impedanceSurfaceIndex and surfaceImpedance 
+        variables.
+
+        Returns
+        -------
+        None.
+
+        """
+        
         for bc in self.boundary_conditions:
             if bc not in ["x", "X", "y", "Y", "z", "Z"]:
                 self.impedanceSurfaceIndex.append(self.boundary_conditions[bc]["index"])
@@ -213,21 +245,22 @@ class bem:
                 # creation of the double layer
                 double_layer = helmholtz.double_layer(self.spaceP, self.spaceP,
                                                       self.spaceP, k[i])
+                lhs = double_layer + 0.5 * self.identity * domain_operator
                 for rs in range(self.Ns):                
                     coeff_radSurf = self.coeff_radSurf[i, rs, :int(self.dof[rs])]
                     spaceU = bempp.api.function_space(self.grid_sim, "DP", 0,
                                                       segments=[self.radiatingElement[rs]])
     
                     # get velocity on current radiator
-                    u_total = bempp.api.GridFunction(spaceU, coefficients=-coeff_radSurf *
-                                                                          self.correctionCoefficients[rs])
+                    u_total = bempp.api.GridFunction(spaceU, 
+                                                     coefficients=-coeff_radSurf *
+                                                     self.correctionCoefficients[rs])
                     # single layer
                     single_layer = helmholtz.single_layer(spaceU,
                                                           self.spaceP, self.spaceP,
                                                           k[i])
     
                     # pressure over the whole surface of the loudspeaker (p_total)
-                    lhs = double_layer + 0.5 * self.identity * domain_operator
                     rhs = 1j * omega[i] * self.rho_0 * single_layer * u_total
                     p_total, _ = gmres(lhs, rhs, tol=self.tol, 
                                        return_residuals=False)
@@ -244,6 +277,15 @@ class bem:
                 # admittance single layer
                 single_layer_Y = helmholtz.single_layer(self.spaceP, self.spaceP,
                                                         self.spaceP, k[i])
+                # ABSORBING SURFACES
+                Yn = self.admittanceCoeff[:, i]  # all admittance coeff at current frequency
+                yn_fun = bempp.api.GridFunction(self.spaceP, coefficients=Yn)  # ? doubts on its usefulness
+                yn = DiagonalOperator(yn_fun.coefficients)
+
+                # building left-hand-side term
+                lhs = ((double_layer + 0.5*self.identity * domain_operator).weak_form()
+                       - (1j*k[i]*single_layer_Y.weak_form()*yn))    
+                
                 for rs in range(self.Ns):
                     # RADIATING SURFACES
                     coeff_radSurf = self.coeff_radSurf[i, rs, :int(self.dof[rs])]
@@ -252,22 +294,16 @@ class bem:
                                                       segments=[self.radiatingElement[rs]])
 
                     # get velocity on current radiator
-                    u_total = bempp.api.GridFunction(spaceU, coefficients=-coeff_radSurf *
-                                                                          self.correctionCoefficients[rs])
+                    u_total = bempp.api.GridFunction(spaceU, 
+                                                     coefficients=-coeff_radSurf *
+                                                     self.correctionCoefficients[rs])
 
                     # single layer - radiating surface
                     single_layer = helmholtz.single_layer(spaceU,
                                                           self.spaceP, self.spaceP,
                                                           k[i])
 
-                    # ABSORBING SURFACES
-                    Yn = self.admittanceCoeff[:, i]  # all admittance coeff at current frequency
-                    yn_fun = bempp.api.GridFunction(self.spaceP, coefficients=Yn)  # ? doubts on its usefulness
-                    yn = DiagonalOperator(yn_fun.coefficients)
 
-                    # building equations
-                    lhs = ((double_layer + 0.5*self.identity * domain_operator).weak_form()
-                           - (1j*k[i]*single_layer_Y.weak_form()*yn))
                     rhs = 1j * omega[i] * self.rho_0 * single_layer * u_total
                     rhs = rhs.projections(self.spaceP)
 
@@ -338,40 +374,6 @@ class bem:
 
 
 # %%useful functions
-# def check_mesh(mesh_path):
-#     meshFile = open(mesh_path)
-#     lines = meshFile.readlines()
-#     if lines[1][0] != '2':
-#         raise TypeError(
-#             "Mesh file is not in version 2. Errors will appear when mirroring mesh along boundaries.")
-#     meshFile.close()
-# def check_mesh(mesh_path):   
-#     if mesh_path[-4:] == ".msh":
-#         meshFile = open(mesh_path)
-#         lines = meshFile.readlines()
-#         if lines[1][0] != '2':
-#             raise TypeError(
-#                 "Mesh file is not in version 2. Errors will appear when mirroring mesh along boundaries.")
-#         meshFile.close()
-#         mesh_path_update = mesh_path
-        
-#     elif mesh_path[-4:] == ".med": # conversion from med to msh to keep groups
-#         import gmsh
-#         print("\n")
-#         print("Conversion from *.med to *.msh... \n")
-#         gmsh.initialize()
-#         gmsh.option.setNumber("Mesh.MshFileVersion", 2.2)
-#         gmsh.open(mesh_path)
-#         gmsh.write(mesh_path[:-4] + ".msh")
-#         gmsh.finalize()
-#         mesh_path_update = mesh_path[:-4] + ".msh"
-        
-#     else: # conversion from med to msh to keep groups
-#         mesh_path_update = mesh_path
-#         raise Exception(
-#             "Not compatible file format. Try *.med or *.msh.")
-#     return mesh_path_update
-
 def checkVelocityInput(velocity):
     """
     Check the velocity input parameter for vibrometric data: if velocity[i] is 1 dimensional: velocity,
@@ -454,9 +456,9 @@ def getRadiationCoefficients(support_elements, centroids, vibrometric_data,
                                                         vibrometry_points,
                                                         5e-3, vibrometric_data, Nfft)
 
+    print("COEFFICIENTS: ", coefficients.shape)
     if sizeFactor > 1:
         coefficients = np.tile(coefficients, (1, sizeFactor))
-        # print(coefficients.shape)
     return coefficients
 
 def getCorrectionCoefficients(support_elements, normals, direction):
@@ -481,38 +483,6 @@ def getCorrectionCoefficients(support_elements, normals, direction):
 
 
 #%% Impedance functions
-def getSurfaceAdmittance(absorbingSurface, surfaceImpedance, freq, spaceP, c_0, rho_0):
-    """
-    Compute the total single layer coefficients linked to surfaces impedance.
-    :param absorbingSurface:
-    :param surfaceImpedance:
-    :param freq:
-    :param spaceP:
-    :return:
-    """
-    Nfft       = len(freq)
-    absSurf_in = np.array(absorbingSurface)
-    surfImp_in = surfaceImpedance
-    Nsurf      = len(absSurf_in)             # number of absorbing surfaces
-    grid       = spaceP.grid
-    dofCount   = spaceP.grid_dof_count
-
-    if absSurf_in.shape[0] == 0 :
-        admittanceMatrix = None
-    else:
-        admittanceMatrix = np.ones([dofCount, Nfft], dtype=complex) * 2.5e-3 # corresponds to 0.5% damping
-        for surf in range(Nsurf):
-            tmp_surf = absSurf_in[surf]  # current surface on which we apply admittance coefficients
-            vertex, _ = get_group_points(grid, tmp_surf)
-            for f in range(Nfft):
-                try:
-                    Yn = rho_0 * c_0 / surfImp_in[surf][f] # rho_0 * c_0
-                except:
-                    Yn = rho_0 * c_0 / surfImp_in[surf] # rho_0 * c_0
-                admittanceMatrix[vertex, f] = np.ones(len(vertex)) * Yn
-    return admittanceMatrix
-
-
 def get_group_points(grid, group_number):
     domain_indices = grid.domain_indices
     elements       = grid.elements
@@ -527,8 +497,6 @@ def get_group_points(grid, group_number):
     unique_points   = np.unique(group_points)
 
     return unique_points, group_indices
-
-
 
 #%% boundary conditions
 class boundaryConditions:
@@ -552,20 +520,6 @@ class boundaryConditions:
             self.parameters[normal]["frequency"] = kwargs["frequency"]
         else:
             None
-        
-    # def addSurfaceImpedance(self, name, index, **kwargs):
-    #     self.parameters[name] = {}
-    #     self.parameters[name]["index"] = index
-    #     self.parameters[name]["type"] = "surface_impedance"
-    #     if "absorption" in kwargs:
-    #         self.parameters[name]["absorption"] = kwargs["absorption"]
-    #         self.parameters[name]["impedance"] = self.Zc * (2-kwargs["absorption"])/kwargs["absorption"]
-    #     elif "impedance" in kwargs:
-    #         self.parameters[name]["impedance"] = kwargs["impedance"]    
-    #     if "frequency" in kwargs:
-    #         self.parameters[name]["frequency"] = kwargs["frequency"]
-    #     else:
-    #         None
             
     def addSurfaceImpedance(self, name, index, data_type, value,
                             frequency=None, targetFrequency=None,
@@ -580,26 +534,27 @@ class boundaryConditions:
         index : int
             reference to BEM mesh.
         data_type : float or array of float
-            DESCRIPTION.
-        value : TYPE
-            DESCRIPTION.
-        frequency : TYPE, optional
-            DESCRIPTION. The default is None.
-        targetFrequency : TYPE, optional
-            DESCRIPTION. The default is None.
-        interpolation : TYPE, optional
-            DESCRIPTION. The default is "linear".
-
-        Raises
-        ------
-        ValueError
-            DESCRIPTION.
-        Exception
-            DESCRIPTION.
-
+            Type of data: "impedance", "absorption", "reflection", "admittance".
+        value : numpy array
+            Data to apply on surface.
+        frequency : numpy array, optional
+            Range of impedance data (if using frequency-dependant impedance).
+            The default is None.
+        targetFrequency : numpy array, optional
+            BEM frequency range - use it if impedance data as a different frequency-axis
+            than the BEM study. The default is None.
+        interpolation : str, optional
+            How to interpolate impedance data on frequency range. Either "linear" or "cubic".
+            The default is "linear".
+            
         Returns
         -------
         None.
+        
+        Notes
+        -----
+        If data_type is "impedance", the corresponding value should be given without 
+        normalization to characteristic impedance of air.
 
         """
         
@@ -614,12 +569,12 @@ class boundaryConditions:
             self.parameters[name]["admittance"] = 1/self.parameters[name]["impedance"]
         elif data_type == "reflection":
             self.parameters[name]["reflection"] = value
-            self.parameters[name]["impedance"] = (1+value) / (1-value) * self.rho * self.c
+            self.parameters[name]["impedance"] = (1+value) / (1-value) * self.Zc
             self.parameters[name]["admittance"] = 1/self.parameters[name]["impedance"]
         elif data_type == "absorption":
             self.parameters[name]["absorption"] = value
             self.parameters[name]["impedance"] = (2-value) / value *  \
-                                                  self.rho * self.c
+                                                self.Zc
             self.parameters[name]["admittance"] = 1/self.parameters[name]["impedance"]
         elif data_type == "admittance":
             self.parameters[name]["admittance"] = value

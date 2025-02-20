@@ -25,39 +25,8 @@ class evaluations:
     - Polar evaluations: Defined along a circular path in a specified plane.
     - Spherical evaluations: Defined on a spherical surface.
     - Pressure response evaluations: Recorded pressure responses at specified microphone positions.
-
-    Parameters:
-        bemObject (BEM object): A Boundary Element Method (BEM) object after computing pressure on the mesh.
-
-    Attributes:
-        identifier (str): Class identifier.
-        bemObject: The BEM object used for calculations.
-        evaluationName (list): Names of added evaluations.
-        evaluationType (list): Types of added evaluations.
-        computedevaluations (list): Names of computed evaluations.
-        xMic (list): Microphone positions for each evaluation.
-        labels (list): Labels associated with evaluations.
-        L (list): Planar evaluation lengths.
-        W (list): Planar evaluation widths.
-        planarPlane (list): Planes on which planar evaluations are defined.
-        theta (list): Angles for polar evaluations.
-        polarPlane (list): Planes on which polar evaluations are defined.
-        DI (list): Directivity indices of polar evaluations.
-        pMic (list): Pressure data for each computed evaluation.
-        pMicArray (list): Pressure data for each computed evaluation with separate speakers.
-
-    Methods:
-        addPlanarevaluation: Add a planar evaluation setup.
-        addPolarevaluation: Add a polar evaluation setup.
-        addPressureResponse: Add a pressure response evaluation setup.
-        addSphericalevaluation: Add a spherical evaluation setup.
-        computeevaluations: Compute added evaluations.
-        plot: Plot the computed evaluations.
-        plot_system: Plot the BEM mesh and evaluation points in 3D space.
-        get_pMic: Retrieve the pressure data of a specific evaluation.
-        get_directivityIndex: Compute and plot the directivity index of a polar evaluation.
-        deleteevaluation: Delete a specified evaluation.
-        save: Save computed evaluations and related data to an .npz file.
+    - Custom plotting grids through import
+    
     """
     def __init__(self, bemObject):
         self.bemObject = bemObject
@@ -191,90 +160,26 @@ class evaluations:
             setup.isComputed = True
             current_index += nMic
 
-    def plot_system(self):
-        mesh = pyvista.read(self.bemObject.meshPath)
-        radSurf = self.bemObject.radiatingElement
-        
-        # prepare mesh color, camera and bounds
-        colors = []
-        for scalar in mesh.active_scalars:
-            if scalar in radSurf:
-                colors.append([255, 0, 0])  # Red color for radiators
-            else:
-                colors.append([128, 128, 128])  # gray color for non-radiating
-        mesh.cell_data['colors'] = colors
-        # center = mesh.center
+    def plot_system(self, backend="pyvista"):
+        """
+        Plot set of evaluations.
 
-        # create plotter
-        pl = pyvista.Plotter()
-        if self.bemObject.domain == "exterior":
-            pl.add_mesh(mesh, show_edges=True, cmap='summer',  scalars='colors',
-                        show_scalar_bar=False, rgb=True)
-        elif self.bemObject.domain == "interior":
-            pl.add_mesh_clip_box(mesh, show_edges=True, cmap='summer',  
-                                 scalars='colors', show_scalar_bar=False, 
-                                 rgb=True, rotation_enabled=False)
-        light = pyvista.Light(light_type='headlight')
-        pl.add_light(light)
+        Parameters
+        ----------
+        backend : str, optional
+            Which software is used for display. Can be either "pyvista" or "gmsh".
+            The default is "pyvista".
 
-        
-        # add evaluation points
-        colour = ['blue', 'red', 'green', 'orange', 
-                  'purple', 'brown', 'yellow', 'cyan'] * 4
-        for i, key in enumerate(self.setup):
-            setup = self.setup[key]
-            xMic = setup.xMic
-            point_cloud_tmp = pyvista.PolyData(xMic.astype(float))
-            if setup.type == "box":
-                pl.add_mesh(point_cloud_tmp.outline(), color=colour[i],
-                            render_points_as_spheres=True, label=key, point_size=6)
-            elif setup.type == "pressure_field":
-                grid = pyvista.StructuredGrid()
-                grid.points = xMic
-                grid.dimensions = [setup.nx, setup.ny, setup.nz]
-                pl.add_mesh(grid, show_edges=True, 
-                            style='wireframe', color=colour[i], label=key)
-            else:
-                pl.add_mesh(point_cloud_tmp, color=colour[i],
-                            render_points_as_spheres=True, label=key, point_size=6)
+        Returns
+        -------
+        obj : None
+            Plot.
 
-        # get bounds to add planes
-        bounds = pl.bounds
-        x_width = bounds[1] - bounds[0]  # Width along the x-axis
-        y_width = bounds[3] - bounds[2]  # Width along the y-axis
-        z_width = bounds[5] - bounds[4]  # Width along the z-axis
-        
-        if bool(self.setup) is False:   
-            p_coeff = 2  # make infinite boundary a bit bigger if no eval is set 
-        else:
-            p_coeff = 1
-        
-        plane_size = (x_width*p_coeff, y_width*p_coeff, z_width*p_coeff)
-        # add floor if infinite boundary conditions are present in bemObject
-        bemObject = self.bemObject
-        if bemObject.boundary_conditions is not None:
-            inf_bc = []
-            offset = []
-            for key in bemObject.boundary_conditions:
-                if key in ["x", "X", "y", "Y", "z", "Z"]:
-                    inf_bc.append(key)
-                    offset.append(bemObject.boundary_conditions[key]["offset"]) 
-            
-            if bool(inf_bc) is True:
-                boundary_planes = create_boundary_planes(inf_bc, offset, plane_size)
-                # Add boundary planes to plotter
-                pl.add_mesh(boundary_planes, color="gray", opacity=0.5)
-            else:
-                pass
-
-        if bool(self.setup) is True:   
-            pl.add_legend(face='circle', bcolor=None)
-
-        pl.add_axes(color='black')
-        pl.background_color = 'white'
-
-        _ = pl.show_grid(color='k')
-        obj = pl.show()
+        """
+        if backend == "pyvista":
+            obj = plot_system_pv(self)
+        elif backend == "gmsh":
+            obj = plot_system_gmsh(self)
         return obj
     
     def plot(self, evaluations=[], radiatingElement=[], processing=None, 
@@ -734,4 +639,190 @@ def create_boundary_planes(boundary, offset, plane_size=10):
     
     return planes
         
+ 
+#%% PLOT SYSTEM
+def plot_system_pv(eval_obj):
+    """
+    Plot current evaluation points in PyVista.
+    
+    Parameters
+    ----------
+    eval_obj: evaluation object
+        Display set of evaluation.
+    """
+    
+    if hasattr(eval_obj.bemObject, "xSource") and eval_obj.bemObject.meshPath is None:
+        pl = pyvista.Plotter()
+        pl.disable_anti_aliasing()
+        xSource = eval_obj.bemObject.xSource
+        point_cloud_source = pyvista.PolyData(xSource.astype(float))
+        pl.add_mesh(point_cloud_source, color="black",
+                    render_points_as_spheres=True, label="Sources", point_size=6)
+        boundary_parameters = eval_obj.bemObject.boundary_conditions.parameters
+    else:
+        mesh = pyvista.read(eval_obj.bemObject.meshPath)
+        radSurf = eval_obj.bemObject.radiatingElement
+        boundary_parameters = eval_obj.bemObject.boundary_conditions
         
+        # prepare mesh color, camera and bounds
+        colors = []
+        for scalar in mesh.active_scalars:
+            if scalar in radSurf:
+                colors.append([255, 0, 0])  # Red color for radiators
+            else:
+                colors.append([128, 128, 128])  # gray color for non-radiating
+        mesh.cell_data['colors'] = colors
+    
+        # create plotter
+        pl = pyvista.Plotter()
+        pl.disable_anti_aliasing()
+        if eval_obj.bemObject.domain == "exterior":
+            pl.add_mesh(mesh, show_edges=True, cmap='summer', scalars='colors',
+                        show_scalar_bar=False, rgb=True)
+        elif eval_obj.bemObject.domain == "interior":
+            pl.add_mesh_clip_box(mesh, show_edges=True, cmap='summer',  
+                                 scalars='colors', show_scalar_bar=False, 
+                                 rgb=True, rotation_enabled=False)
+        light = pyvista.Light(light_type='headlight')
+        pl.add_light(light)
+    
+    
+    
+    # add evaluation points
+    colour = ['blue', 'red', 'green', 'orange', 
+              'purple', 'brown', 'yellow', 'cyan'] * 4
+    for i, key in enumerate(eval_obj.setup):
+        setup = eval_obj.setup[key]
+        xMic = setup.xMic
+        point_cloud_tmp = pyvista.PolyData(xMic.astype(float))
+        if setup.type == "box":
+            pl.add_mesh(point_cloud_tmp.outline(), color=colour[i],
+                        render_points_as_spheres=True, label=key, point_size=6)
+        elif setup.type == "pressure_field":
+            grid = pyvista.StructuredGrid()
+            grid.points = xMic
+            grid.dimensions = [setup.nx, setup.ny, setup.nz]
+            pl.add_mesh(grid, show_edges=True, 
+                        style='wireframe', color=colour[i], label=key)
+        else:
+            pl.add_mesh(point_cloud_tmp, color=colour[i],
+                        render_points_as_spheres=True, label=key, point_size=6)
+
+    # get bounds to add planes
+    bounds = pl.bounds
+    x_width = bounds[1] - bounds[0]  # Width along the x-axis
+    y_width = bounds[3] - bounds[2]  # Width along the y-axis
+    z_width = bounds[5] - bounds[4]  # Width along the z-axis
+    
+    if bool(eval_obj.setup) is False:   
+        p_coeff = 2  # make infinite boundary a bit bigger if no eval is set 
+    else:
+        p_coeff = 1
+    
+    plane_size = (x_width*p_coeff, y_width*p_coeff, z_width*p_coeff)
+    # add floor if infinite boundary conditions are present in bemObject
+    bemObject = eval_obj.bemObject
+    if bemObject.boundary_conditions is not None:
+        inf_bc = []
+        offset = []
+        for key in boundary_parameters:
+            if key in ["x", "X", "y", "Y", "z", "Z"]:
+                inf_bc.append(key)
+                offset.append(boundary_parameters[key]["offset"]) 
+        
+        if bool(inf_bc) is True:
+            boundary_planes = create_boundary_planes(inf_bc, offset, plane_size)
+            # Add boundary planes to plotter
+            pl.add_mesh(boundary_planes, color="gray", opacity=0.5)
+        else:
+            pass
+
+    if bool(eval_obj.setup) is True:   
+        pl.add_legend(face='circle', bcolor=None)
+
+    pl.add_axes(color='black')
+    pl.background_color = 'white'
+
+    _ = pl.show_grid(color='k')
+    obj = pl.show()
+    return obj
+
+
+def plot_system_gmsh(eval_obj):
+    """
+    Plot current evaluation points in GMSH.
+    
+    Parameters
+    ----------
+    eval_obj: evaluation object
+        Display set of evaluation.
+    """
+    import gmsh
+    gmsh.initialize()
+    
+    if hasattr(eval_obj.bemObject, "xSource") and eval_obj.bemObject.meshPath is None:
+        source_group = []
+        for i in range(len(eval_obj.bemObject.xSource)):
+            xSource = eval_obj.bemObject.xSource[i, :]
+            point = gmsh.model.geo.add_point(xSource[0], xSource[1], xSource[2])
+            source_group.append(point) 
+            gmsh.model.geo.synchronize()
+            gmsh.model.setColor([(0, point)], 0, 0, 0)
+        physical_group_id = gmsh.model.addPhysicalGroup(0, source_group)  # '0' stands for point entities
+        gmsh.model.setPhysicalName(0, physical_group_id, "sources")  # Optional: name the physical group
+    elif hasattr(eval_obj.bemObject, "xSource") and eval_obj.bemObject.meshPath is not None:
+        gmsh.open(eval_obj.bemObject.meshPath)
+        source_group = []
+        for i in range(len(eval_obj.bemObject.xSource)):
+            xSource = eval_obj.bemObject.xSource[i, :]
+            point = gmsh.model.geo.add_point(xSource[0], xSource[1], xSource[2])
+            source_group.append(point) 
+            gmsh.model.geo.synchronize()
+            gmsh.model.setColor([(0, point)], 0, 0, 0)
+        physical_group_id = gmsh.model.addPhysicalGroup(0, source_group)  # '0' stands for point entities
+        gmsh.model.setPhysicalName(0, physical_group_id, "sources")  # Optional: name the physical group
+    else:
+        gmsh.open(eval_obj.bemObject.meshPath)
+  
+    colors = [
+        [0, 0, 255],    # Blue
+        [255, 165, 0],  # Orange
+        [0, 128, 0],    # Green
+        [255, 0, 0],    # Red
+        [128, 0, 128],  # Purple
+        [165, 42, 42],  # Brown
+        [255, 192, 203],# Pink
+        [128, 128, 128],# Grey
+        [128, 128, 0],  # Olive
+        [0, 255, 255],  # Cyan
+    ]
+
+    # Function to repeat the colors to match the number of observations
+    def get_colors(num_observations):
+        return [colors[i % len(colors)] for i in range(num_observations)]
+
+    nEval = len(eval_obj.setup)
+    colorsEval = get_colors(nEval) 
+
+    for s, setup in enumerate(eval_obj.setup):
+        csetup = eval_obj.setup[setup]
+        obs_group = []
+        mNic = csetup.nMic
+        xMic = csetup.xMic
+        for i in range(mNic):
+            cl = colorsEval[s]
+            point = gmsh.model.geo.add_point(xMic[i, 0], xMic[i, 1], xMic[i, 2])
+            obs_group.append(point) 
+            gmsh.model.geo.synchronize()
+            gmsh.model.setColor([(0, point)], cl[0], cl[1], cl[2])  # Red for point p1
+        physical_group_id = gmsh.model.addPhysicalGroup(0, obs_group)  # '0' stands for point entities
+        gmsh.model.setPhysicalName(0, physical_group_id, setup)  # Optional: name the physical group
+        
+    gmsh.option.setNumber("Geometry.PointSize", 3)
+    gmsh.option.setNumber("Geometry.PointType", 1)
+    gmsh.model.geo.synchronize()
+
+    gmsh.fltk.run()
+
+    gmsh.finalize()
+    return None

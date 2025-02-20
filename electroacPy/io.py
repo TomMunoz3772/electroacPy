@@ -8,6 +8,7 @@ from os.path import join
 from numpy import asanyarray as array
 from electroacPy import loudspeakerSystem
 from electroacPy.acousticSim.bem import bem
+from electroacPy.acousticSim.pointSource import pointSource, pointSourceBEM
 from electroacPy.acousticSim.evaluations import evaluations as evs
 import bempp.api
 
@@ -30,20 +31,19 @@ def save(projectPath, loudspeakerSystem):
 
     # Save lumped element / analytic simulations
     np.savez(join(projectPath, 'LEM'),
-             frequency=frequency,
-             driver=sim.driver,
-             laser=sim.vibrometry,
-             crossover=sim.crossover,
-             enclosure=sim.enclosure,
-             radiator_id=sim.radiator_id,
-             c=sim.c,
-             rho=sim.rho)
+             frequency   = frequency,
+             driver      = sim.driver,
+             laser       = sim.vibrometry,
+             crossover   = sim.crossover,
+             enclosure   = sim.enclosure,
+             radiator_id = sim.radiator_id,
+             c           = sim.c,
+             rho         = sim.rho)
 
     # Save evaluations / bem
     for study in sim.acoustic_study:
         if bool(sim.evaluation) is True:
             obsTmp = sim.evaluation[study]
-            # pressureArrayObs, nMic = storePressureMicResults(obsTmp)
             np.savez(join(projectPath, 'evs_{}'.format(study)),
                      frequency            = obsTmp.frequency,
                      setup                = obsTmp.setup,
@@ -52,27 +52,64 @@ def save(projectPath, loudspeakerSystem):
             pass
 
         # BEM studies
+        # studyTmp = sim.acoustic_study[study]
+        # pressureArrayAcs = storePressureMeshResults(studyTmp)
+        # copy2(studyTmp.meshPath, projectPath)
+        # mesh_filename = os.path.basename(studyTmp.meshPath)
+        
         studyTmp = sim.acoustic_study[study]
-        pressureArrayAcs = storePressureMeshResults(studyTmp)
-        copy2(studyTmp.meshPath, projectPath)
-        mesh_filename = os.path.basename(studyTmp.meshPath)
+        
+        # prepare to store mesh pressure and velocity 
+        if studyTmp.admittanceCoeff is not None and hasattr(studyTmp, "xSource"):
+            pressureArrayAcs, velocityArrayAcs, velocityArrayAcs_Y = storePressureMeshResults_PSINT(studyTmp)
+        else:
+            pressureArrayAcs, velocityArrayAcs = storePressureMeshResults(studyTmp)
+            velocityArrayAcs_Y = None
+            
+        # do a copy of mesh in save folder
+        if studyTmp.meshPath is not None:
+            copy2(studyTmp.meshPath, projectPath)
+            mesh_filename = os.path.basename(studyTmp.meshPath)
+        else:
+            mesh_filename = None
+            
         # EXTERIOR
-        np.savez(join(projectPath, 'acs_{}'.format(study)),
-                 meshPath             = studyTmp.meshPath,
-                 mesh_filename        = mesh_filename,
-                 radiatingElement     = studyTmp.radiatingElement,
-                 velocity             = array(studyTmp.velocity, dtype=object),
-                 isComputed           = studyTmp.isComputed,
-                 coeff_radSurf        = studyTmp.coeff_radSurf,
-                 vertices             = studyTmp.vertices,
-                 domain               = studyTmp.domain,
-                 kwargs               = studyTmp.kwargs,
-                 pressureArrayAcs     = pressureArrayAcs,
-                 LEM_enclosures       = studyTmp.LEM_enclosures,
-                 radiator             = studyTmp.radiator,
-                 c_0                  = studyTmp.c_0,
-                 rho_0                = studyTmp.rho_0
-                 )
+        if hasattr(studyTmp, "xSource"):
+            np.savez(join(projectPath, 'acs_{}'.format(study)),
+                     meshPath           = studyTmp.meshPath,
+                     mesh_filename      = mesh_filename,
+                     radiatingElement   = studyTmp.radiatingElement,
+                     QSource            = studyTmp.QSource,
+                     xSource            = studyTmp.xSource,
+                     isComputed         = studyTmp.isComputed,
+                     vertices           = studyTmp.vertices,
+                     domain             = studyTmp.domain,
+                     kwargs             = studyTmp.kwargs,
+                     pressureArrayAcs   = pressureArrayAcs,
+                     velocityArrayAcs   = velocityArrayAcs,
+                     velocityArrayAcs_Y = velocityArrayAcs_Y,
+                     LEM_enclosures     = studyTmp.LEM_enclosures,
+                     radiator           = studyTmp.radiator,
+                     c_0                = studyTmp.c_0,
+                     rho_0              = studyTmp.rho_0
+                     )
+        else:
+            np.savez(join(projectPath, 'acs_{}'.format(study)),
+                     meshPath             = studyTmp.meshPath,
+                     mesh_filename        = mesh_filename,
+                     radiatingElement     = studyTmp.radiatingElement,
+                     velocity             = array(studyTmp.velocity, dtype=object),
+                     isComputed           = studyTmp.isComputed,
+                     coeff_radSurf        = studyTmp.coeff_radSurf,
+                     vertices             = studyTmp.vertices,
+                     domain               = studyTmp.domain,
+                     kwargs               = studyTmp.kwargs,
+                     pressureArrayAcs     = pressureArrayAcs,
+                     LEM_enclosures       = studyTmp.LEM_enclosures,
+                     radiator             = studyTmp.radiator,
+                     c_0                  = studyTmp.c_0,
+                     rho_0                = studyTmp.rho_0
+                     )
     return None
 
 def load(pathToProject):
@@ -86,7 +123,8 @@ def load(pathToProject):
 
     Returns
     -------
-    LS: loudspeakerSystem object
+    LS: loudspeakerSystem object,
+        Study, evaluations and LEM setup.
     """
 
     dataLEM = np.load(join(pathToProject, 'LEM.npz'), allow_pickle=True)
@@ -98,6 +136,7 @@ def load(pathToProject):
     LS.enclosure   = dataLEM['enclosure'].item()
     LS.crossover   = dataLEM['crossover'].item()
     LS.radiator_id = dataLEM['radiator_id'].item()
+    
     try: # to keep it compatible with previous datasets
         LS.c   = dataLEM['c']
         LS.rho = dataLEM['rho']
@@ -114,14 +153,13 @@ def load(pathToProject):
 
     for study in study_name:
         # load acoustic_study
-        data_acs   = np.load(join(pathToProject, 'acs_{}.npz'.format(study)),
-                             allow_pickle=True)
-        meshName   = data_acs['mesh_filename'].item()
-        radSurf      = data_acs['radiatingElement']
-        surfVelocity = data_acs['velocity']
+        data_acs     = np.load(join(pathToProject, 'acs_{}.npz'.format(study)),
+                               allow_pickle=True)
+        meshName     = data_acs['mesh_filename'].item()
         isComputed   = data_acs['isComputed'].item()
         domain       = data_acs["domain"].item()
         kwargs       = data_acs['kwargs'].item()
+
         try:
             enclosures   = list(data_acs['LEM_enclosures'])
         except:
@@ -130,17 +168,49 @@ def load(pathToProject):
             radiator   = list(data_acs['radiator'])
         except:
             radiator    = {}
-        physics_acs = bem(join(pathToProject, meshName),
-                              radSurf,
-                              surfVelocity,
-                              LS.frequency,
-                              domain=domain,
-                              **kwargs)
-        physics_acs.isComputed     = isComputed
-        physics_acs.LEM_enclosures = enclosures
-        physics_acs.radiator       = radiator
-        loadPressureMeshResults(physics_acs, data_acs['pressureArrayAcs'])
-        LS.acoustic_study[study] = physics_acs
+    
+        if "xSource" in data_acs and meshName is not None: # pointSourceBEM
+            xSource = data_acs["xSource"]
+            QSource = data_acs["QSource"]
+            physics_acs = pointSourceBEM(join(pathToProject, meshName),
+                                         xSource, QSource, 
+                                         LS.frequency, domain=domain, 
+                                         c_0=LS.c, rho_0=LS.rho, 
+                                         **kwargs)
+            physics_acs.isComputed     = isComputed
+            physics_acs.LEM_enclosures = enclosures
+            physics_acs.radiator       = radiator
+            loadPointSourceBEM(physics_acs, data_acs["pressureArrayAcs"],
+                               data_acs["velocityArrayAcs"], 
+                               data_acs["velocityArrayAcs_Y"])
+            LS.acoustic_study[study] = physics_acs
+            
+        elif "xSource" in data_acs and meshName is None: # pointSource
+            xSource = data_acs["xSource"]
+            QSource = data_acs["QSource"]
+            physics_acs = pointSource(xSource, QSource, LS.frequency,
+                                      c=LS.c, rho=LS.rho,
+                                      boundary_conditions=kwargs["boundary_conditions"],
+                                      **kwargs)
+            physics_acs.isComputed = isComputed
+            physics_acs.LEM_enclosures = enclosures
+            physics_acs.radiator       = radiator
+            LS.acoustic_study[study] = physics_acs
+        else: # BEM
+            radSurf      = data_acs['radiatingElement']
+            surfVelocity = data_acs['velocity']  
+            physics_acs = bem(join(pathToProject, meshName),
+                                  radSurf,
+                                  surfVelocity,
+                                  LS.frequency,
+                                  domain=domain,
+                                  c_0=LS.c, rho_0=LS.rho,
+                                  **kwargs)
+            physics_acs.isComputed     = isComputed
+            physics_acs.LEM_enclosures = enclosures
+            physics_acs.radiator       = radiator
+            loadPressureMeshResults(physics_acs, data_acs['pressureArrayAcs'])
+            LS.acoustic_study[study] = physics_acs
 
         # load evaluations
         try:
@@ -159,41 +229,46 @@ def load(pathToProject):
     return LS
 
 
-def storePressureMicResults(evaluation):
-    obs = evaluation
-    nObs = len(obs.setup)
-    Nfft = len(obs.bemObject.frequency)  # number of frequency bins
-    nRad = obs.bemObject.Ns              # number of radiating surfaces
-    nMic = np.zeros(nObs)                # number of microphone for each radSurf
-    for i in range(nObs):
-        nMic[i] = obs.xMic[i].shape[0]
-    maxMic = int(np.max(nMic))
-
-    pressureMicrophone = np.zeros([nObs, Nfft, maxMic, nRad], dtype=complex)
-    for obsTmp in range(nObs):
-        for freq in range(Nfft):
-            for rad in range(nRad):
-                pressureMicrophone[obsTmp, freq, :int(nMic[obsTmp]), rad] = obs.pMicArray[obsTmp][freq, :, rad]
-    return pressureMicrophone, nMic
+#%% HELPERS
+def storePressureMeshResults_PSINT(acoustic_study):
+    study = acoustic_study
+    Nfft = len(study.frequency)
+    nRad = study.Ns
+    nCoeff = len(study.p_mesh[0, 0].coefficients)
+    nCoeffV = len(study.u_mesh[0, 0].coefficients)
+    
+    # store pressure
+    pressureMesh = np.zeros([Nfft, nRad, nCoeff], dtype=complex)
+    velocityMesh = np.zeros([Nfft, nRad, nCoeffV], dtype=complex)
+    velocityMesh_Y = np.zeros([Nfft, nRad, nCoeffV], dtype=complex)
+    for freq in range(Nfft):
+        for rad in range(nRad):
+            pressureMesh[freq, rad, :] = study.p_mesh[freq, rad].coefficients
+            velocityMesh[freq, rad, :] = study.u_mesh[freq, rad].coefficients
+            velocityMesh_Y[freq, rad, :] = study.u_mesh_Y[freq, rad].coefficients
+    return pressureMesh, velocityMesh, velocityMesh_Y
 
 def storePressureMeshResults(acoustic_study):
     study = acoustic_study
     Nfft = len(study.frequency)
     nRad = study.Ns
-    nVert = study.vertices
-    nCoeff = study.spaceP.grid_dof_count
+    nCoeff = len(study.p_mesh[0, 0].coefficients)
+    nCoeffV = len(study.u_mesh[0, 0].coefficients)
     
     # store pressure
     pressureMesh = np.zeros([Nfft, nRad, nCoeff], dtype=complex)
+    velocityMesh = np.zeros([Nfft, nRad, nCoeffV], dtype=complex)
     for freq in range(Nfft):
         for rad in range(nRad):
             pressureMesh[freq, rad, :] = study.p_mesh[freq, rad].coefficients
-    return pressureMesh
+            # velocityMesh[freq, rad, :] = study.u_mesh[freq, rad].coefficients
+    return pressureMesh, velocityMesh
 
+
+# LOAD PRESSURE
 def loadPressureMeshResults(obj, pressureMesh):
     Nfft  = np.shape(pressureMesh)[0]
     nRad  = np.shape(pressureMesh)[1]
-    nVert = np.shape(pressureMesh)[2]
 
     for f in range(Nfft):
         for rs in range(nRad):
@@ -205,23 +280,21 @@ def loadPressureMeshResults(obj, pressureMesh):
             u_total = bempp.api.GridFunction(spaceU, coefficients=-coeff_radSurf)
             obj.u_mesh[f, rs] = u_total
 
-        # print('SHAPE: ', np.sum(pressureMesh[f, :, :], 0).shape)
         obj.p_total_mesh[f] = bempp.api.GridFunction(obj.spaceP,
                                                      coefficients=np.sum(pressureMesh[f, :, :], 0))
-
     return None
 
 
-def loadPressureMicResults(obj, pressureMic, nMic):
-    nObs   = np.shape(pressureMic)[0]
-    Nfft   = np.shape(pressureMic)[1]
-    maxMic = np.shape(pressureMic)[2]
-    nRad   = np.shape(pressureMic)[3]
-    pMic = []
-    pMicArray = []
-    for i in range(nObs):
-        pMicArray.append(pressureMic[i, :, :int(nMic[i]), :])
-        pMic.append(np.sum(pressureMic[i, :, :int(nMic[i]), :], 2))
-    obj.pMic = pMic
-    obj.pMicArray = pMicArray
+def loadPointSourceBEM(obj, pressureMesh, velocityMesh, velocityMesh_Y):
+    Nfft  = np.shape(pressureMesh)[0]
+    nRad  = np.shape(pressureMesh)[1]
+    for f in range(Nfft):
+        for rs in range(nRad):
+            obj.p_mesh[f, rs] = bempp.api.GridFunction(obj.spaceP, 
+                                                       coefficients=pressureMesh[f, rs, :])
+            obj.u_mesh[f, rs] = bempp.api.GridFunction(obj.spaceP, 
+                                                       coefficients=velocityMesh[f, rs, :])        
+            if obj.admittanceCoeff is not None:
+                obj.u_mesh_Y[f, rs] = bempp.api.GridFunction(obj.spaceP, 
+                                                             coefficients=velocityMesh_Y[f, rs, :])
     return None

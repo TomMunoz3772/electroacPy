@@ -11,11 +11,14 @@ Created on Tue Oct  3 16:03:02 2023
 #    Loudspeaker system simulation class
 #
 #==================================================
-# Exterior acoustic sim
+# BEM acoustic sim
 from electroacPy.acousticSim.bem import bem
 from electroacPy.acousticSim.evaluations import evaluations as evs_bem
 from electroacPy.acousticSim.evaluations import getPressure
 from electroacPy.acousticSim.postProcessing import postProcess as pp
+
+# PS acoustic sim
+from electroacPy.acousticSim.pointSource import pointSource, pointSourceBEM
 
 # Lumped element
 from electroacPy.speakerSim.electroAcousticDriver import electroAcousticDriver, loadLPM
@@ -23,12 +26,14 @@ from electroacPy.speakerSim.enclosureDesign import speakerBox
 from electroacPy.speakerSim.filterDesign import xovers
 
 # Vibrometry
+from electroacPy.measurements.laserVibrometry import laserVibrometry_UFF as laser_v_uff
 from electroacPy.measurements.laserVibrometry import laserVibrometry as laser_v
 
 # general
 from electroacPy.global_ import air
 from electroacPy.general.freqop import freq_log10
 from electroacPy.general.gain import dB
+from electroacPy.general.plot import bempp_grid_mesh
 
 # external libraries
 import numpy as np
@@ -38,8 +43,24 @@ import matplotlib.pyplot as plt
 ## CLASS
 class loudspeakerSystem:
     """
-    Automate the use of acousticSim + speakerSim modules specifically for loudspeaker design
-    """
+    Automate the use of acousticSim + speakerSim modules specifically for loudspeaker
+    design.
+    
+    Parameters
+    ----------
+    frequencyRange: numpy array, optional
+        Delimitation of the study. Default is freq_log10(20, 2500, 50).
+    
+    c: float, optional
+        Speed of sound in the propagation medium. Default is 343 m/s.
+    
+    rho: float, optional
+        Medium density. Default if 1.22 kg/m^3
+        
+    Returns
+    -------
+    None
+    """ 
     def __init__(self, frequencyRange=freq_log10(20, 2500, 50),
                  c=air.c, rho=air.rho, **kwargs):
         # global variables
@@ -111,6 +132,7 @@ class loudspeakerSystem:
                                         self.frequency, self.c, self.rho) # "false" loudspeaker
         physics.ref2bem = ref2bem
         physics.v = np.ones(len(self.frequency), dtype=complex) * v
+        physics.Q = np.ones(len(self.frequency), dtype=complex) * v
         self.driver[name] = physics
         self.radiator_id[name] = 'EAD'
         return None
@@ -135,14 +157,64 @@ class loudspeakerSystem:
                         ref2bem=None, useAverage=False, inputVoltage=1):
         """
         Add acceleration data to the study. Meant to be used as a radiator - ref2bem strongly recommended.
-        :param name:
-        :param file_path:
-        :param ref2bem:
-        :param radiation_axis:
-        :param spatial_rotation:
-        :return:
+
+        Parameters
+        ----------
+        name : str
+            Reference.
+        file_path : str
+            Path to *.uff vibrometry data.
+        rotation : list of float, optional
+            Rotate measured data to match mesh direction. The default is [0, 0, 0].
+        ref2bem : int, optional
+            Reference to mesh physical group. The default is None.
+        useAverage : Bool, optional
+            Uses the average instead of individual element acceleration. 
+            The default is False.
+        inputVoltage : float, optional
+            Optional scaling. By default, electroacPy uses the transfer function of the 
+            acceleration, hence, the input voltage of the laser vibrometer is not taken 
+            into account. The default is 1.
+
+        Returns
+        -------
+        None.
+
         """
-        physics = laser_v(file_path, rotation, self.frequency, useAverage, inputVoltage=inputVoltage)
+        physics = laser_v_uff(file_path, rotation, self.frequency, useAverage, inputVoltage=inputVoltage)
+        physics.ref2bem = ref2bem
+        self.vibrometry[name] = physics
+        self.radiator_id[name] = 'PLV'
+        return None
+    
+    def vibrometry_data_user(self, name, Hv, X, ref2bem=None, inputVoltage=1):
+        """
+        Add acceleration data to the study. Meant to be used as a radiator - ref2bem strongly recommended.
+
+        Parameters
+        ----------
+        name : str
+            Reference.
+        file_path : str
+            Path to *.uff vibrometry data.
+        rotation : list of float, optional
+            Rotate measured data to match mesh direction. The default is [0, 0, 0].
+        ref2bem : int, optional
+            Reference to mesh physical group. The default is None.
+        useAverage : Bool, optional
+            Uses the average instead of individual element acceleration. 
+            The default is False.
+        inputVoltage : float, optional
+            Optional scaling. By default, electroacPy uses the transfer function of the 
+            acceleration, hence, the input voltage of the laser vibrometer is not taken 
+            into account. The default is 1.
+
+        Returns
+        -------
+        None.
+
+        """
+        physics = laser_v(Hv, X, inputVoltage)
         physics.ref2bem = ref2bem
         self.vibrometry[name] = physics
         self.radiator_id[name] = 'PLV'
@@ -354,6 +426,57 @@ class loudspeakerSystem:
         self.evaluation[name].referenceStudy = name
         return None
 
+    
+    def study_acousticPointSource(self, name, xSource, acoustic_radiator, 
+                                  meshPath=None, domain="exterior", **kwargs):
+        
+        if isinstance(acoustic_radiator, str):
+            acoustic_radiator = [acoustic_radiator]
+        
+        rad_point = []
+        for cname in acoustic_radiator:
+            if self.radiator_id[cname] == 'SPKBOX':
+                try:
+                    nRef = len(self.enclosure[cname].ref2bem)
+                    for i in range(nRef):
+                        rad_point.append(self.enclosure[cname].ref2bem[i])
+                except:
+                    rad_point.append(self.enclosure[cname].ref2bem)
+
+            # ========
+            # driver
+            elif self.radiator_id[cname] == 'EAD':
+                try:
+                    nRef = len(self.driver[cname].ref2bem)
+                    for i in range(nRef):
+                        rad_point.append(self.driver[cname].ref2bem[i])
+                except:
+                    rad_point.append(self.driver[cname].ref2bem)
+            
+            
+        if meshPath is not None:
+            physics = pointSourceBEM(meshPath, xSource, 
+                                     np.ones([len(xSource), 
+                                              len(self.frequency)]), 
+                                     self.frequency, domain=domain, 
+                                     c_0=self.c, rho_0=self.rho, 
+                                     radiatingElement=rad_point, 
+                                     **kwargs)
+            physics.radiator = acoustic_radiator
+            self.acoustic_study[name] = physics
+            self.evaluation[name] = evs_bem(physics)
+            self.evaluation[name].referenceStudy = name
+        else:
+            physics = pointSource(xSource, np.ones([len(xSource), 
+                                                    len(self.frequency)]), 
+                                  self.frequency, radiatingElement=rad_point,
+                                  c=self.c, rho=self.rho, **kwargs)
+            physics.radiator = acoustic_radiator
+            self.acoustic_study[name] = physics
+            self.evaluation[name] = evs_bem(physics)
+            self.evaluation[name].referenceStudy = name
+        return None
+
 
     ## =======================
     # %% ACOUSTIC obs
@@ -519,7 +642,10 @@ class loudspeakerSystem:
 
         for study in self.acoustic_study:
             if self.acoustic_study[study].isComputed is False:
-                self.acoustic_study[study].solve()
+                if hasattr(self.acoustic_study[study], "xSource") and self.acoustic_study[study].meshPath is None:
+                    pass # check if it is a point source study without BEM boundaries. No "solve" if True
+                else:
+                    self.acoustic_study[study].solve()
             else:
                 None
             
@@ -542,7 +668,7 @@ class loudspeakerSystem:
         if bool(study) is False: # if not specific study given, plot all
             for s in self.acoustic_study:
                 _ = updateResults(self, s, bypass_xover)
-                _ = self.evaluation[s].plot(evaluation, radiatingElement, 
+                _ = self.evaluation[s].plot(evaluation, radiatingElement,  
                                              processing=self.results[s],
                                              transformation=transformation,
                                              export_grid=export_grid)
@@ -554,8 +680,24 @@ class loudspeakerSystem:
                                                  export_grid=export_grid)
         return None
 
-    def plot_system(self, study):
-        self.evaluation[study].plot_system()
+    def plot_system(self, study, backend="pyvista"):
+        """
+        Plot study's mesh and related evaluations. By default it uses PyVista as the 
+        plotting backend, but can use Gmsh if "gmsh" is passed.
+
+        Parameters
+        ----------
+        study : str
+            Study to display.
+        backend : str, optional
+            Which backend should be used. The default is "pyvista".
+
+        Returns
+        -------
+        A plot with system mesh and evaluation points.
+
+        """
+        self.evaluation[study].plot_system(backend=backend)
         return None
 
     def plot_xovers(self, networks, split=True, amplitude=64):
@@ -572,6 +714,34 @@ class loudspeakerSystem:
                 names.append(networks[i])
             plot_network(self, h, h_p, names, split, amplitude)
         return
+    
+    def plot_pressureMesh(self, study, radiatingElement=[],
+                          bypass_xover=False, transformation="SPL", 
+                          export_grid=False, backend="gmsh"):
+        
+        # update solutions
+        if isinstance(radiatingElement, int) is True: # avoid possible error if only one rad surf is selected
+            radiatingElement = [radiatingElement]
+            
+        if bool(radiatingElement) is False:
+            # plot all elements
+            element2plot = self.acoustic_study[study].radiatingElement
+        else:
+            element2plot = radiatingElement
+                
+        _ = updateResults(self, study, bypass_xover)        
+        if backend == "gmsh":
+            elementCoeff = np.ones([len(self.frequency), len(element2plot)], 
+                                   dtype=complex)
+            pp = self.results[study]
+            for name in pp.TF:
+                for idx, element in enumerate(element2plot):
+                    if element in pp.TF[name]["radiatingElement"]:
+                        elementCoeff[:, idx] *= pp.TF[name]["H"]
+            
+            bempp_grid_mesh(self.acoustic_study[study], elementCoeff, 
+                            element2plot, transformation, export_grid)          
+        return None
 
 
     ## Get Values
@@ -741,86 +911,86 @@ class loudspeakerSystem:
         
         
 
-def create_polarRadiation_dataframe(data_array, angle_array, freq_array):
-    import pandas as pd
+# def create_polarRadiation_dataframe(data_array, angle_array, freq_array):
+#     import pandas as pd
 
-    # Ensure the input arrays are numpy arrays
-    data_array = np.array(data_array)
-    angle_array = np.array(angle_array)
-    freq_array = np.array(freq_array)
-    # Create DataFrame using pandas
-    df = pd.DataFrame(data_array, index=freq_array, columns=angle_array)
-    return df
+#     # Ensure the input arrays are numpy arrays
+#     data_array = np.array(data_array)
+#     angle_array = np.array(angle_array)
+#     freq_array = np.array(freq_array)
+#     # Create DataFrame using pandas
+#     df = pd.DataFrame(data_array, index=freq_array, columns=angle_array)
+#     return df
 
-def create_pressureResponse_dataframe(data_array, xmic_array, freq_array):
-    import pandas as pd
+# def create_pressureResponse_dataframe(data_array, xmic_array, freq_array):
+#     import pandas as pd
 
-    # Ensure the input arrays are numpy arrays
-    data_array = np.array(data_array)
-    xmic_array = np.array(xmic_array)
-    freq_array = np.array(freq_array)
-    # Create DataFrame using pandas
-    columns_out = []
-    for i in range(len(xmic_array)):
-        columns_out.append(str(xmic_array[i, 0]) + '_' + str(xmic_array[i, 1]) + '_' + str(xmic_array[i, 2]))
-    df = pd.DataFrame(data_array, index=freq_array, columns=columns_out)
-    return df
-
-
-def exportToVituixCAD(name, out, angle, frequency):
-    """
-    Export a polar dataframe to import in VituixCAD2
-    :param dataframe:
-    :return:
-    """
-    import generalToolbox as gtb
-
-    for i in range(len(angle)):
-        fileName = name + str("_deg")+str(angle[i])+".txt"
-        outSPL = gtb.gain.SPL(out[:, i])
-        outPhase = np.rad2deg(np.angle(out[:, i]))
-        np.savetxt(fileName, np.array([frequency, outSPL, outPhase]).T,  fmt='%.3f',
-                   header="Freq(Hz) SPL(dB) Phase (degrees)")
-    return None
+#     # Ensure the input arrays are numpy arrays
+#     data_array = np.array(data_array)
+#     xmic_array = np.array(xmic_array)
+#     freq_array = np.array(freq_array)
+#     # Create DataFrame using pandas
+#     columns_out = []
+#     for i in range(len(xmic_array)):
+#         columns_out.append(str(xmic_array[i, 0]) + '_' + str(xmic_array[i, 1]) + '_' + str(xmic_array[i, 2]))
+#     df = pd.DataFrame(data_array, index=freq_array, columns=columns_out)
+#     return df
 
 
-def groupSurfaces2Export(loudspeakerSystem):
-    """
-    Not used anywhere, this is a remnant from some part I don't remember.
-    Maybe it was about exporting field studies.
-    """
-    radiatorName = []
-    radiatingSurface = []
-    for radname in loudspeakerSystem.radiator_id:
-        # PLV
-        if loudspeakerSystem.radiator_id[radname] == "PLV":
-            if type(loudspeakerSystem.vibrometry[radname].ref2bem) == list:
-                for i in range(len(loudspeakerSystem.vibrometry[radname].ref2bem)):
-                    radiatorName.append(radname)
-                    radiatingSurface.append(loudspeakerSystem.vibrometry[radname].ref2bem[i])
-            else:
-                radiatorName.append(radname)
-                radiatingSurface.append(loudspeakerSystem.vibrometry[radname].ref2bem)
+# def exportToVituixCAD(name, out, angle, frequency):
+#     """
+#     Export a polar dataframe to import in VituixCAD2
+#     :param dataframe:
+#     :return:
+#     """
+#     import generalToolbox as gtb
 
-        # SPKBOX
-        elif loudspeakerSystem.radiator_id[radname] == "SPKBOX":
-            if type(loudspeakerSystem.enclosure[radname].ref2bem) == list:
-                for i in range(len(loudspeakerSystem.enclosure[radname].ref2bem)):
-                    radiatorName.append(radname)
-                    radiatingSurface.append(loudspeakerSystem.enclosure[radname].ref2bem[i])
-            else:
-                radiatorName.append(radname)
-                radiatingSurface.append(loudspeakerSystem.enclosure[radname].ref2bem)
-        # EAC
-        elif loudspeakerSystem.radiator_id[radname] == "EAC":
-            if type(loudspeakerSystem.driver[radname].ref2bem) == list:
-                for i in range(len(loudspeakerSystem.driver[radname].ref2bem)):
-                    radiatorName.append(radname)
-                    radiatingSurface.append(loudspeakerSystem.driver[radname].ref2bem[i])
-            else:
-                radiatorName.append(radname)
-                radiatingSurface.append(loudspeakerSystem.driver[radname].ref2bem)
-    return radiatorName, radiatingSurface
+#     for i in range(len(angle)):
+#         fileName = name + str("_deg")+str(angle[i])+".txt"
+#         outSPL = gtb.gain.SPL(out[:, i])
+#         outPhase = np.rad2deg(np.angle(out[:, i]))
+#         np.savetxt(fileName, np.array([frequency, outSPL, outPhase]).T,  fmt='%.3f',
+#                    header="Freq(Hz) SPL(dB) Phase (degrees)")
+#     return None
+
+
+# def groupSurfaces2Export(loudspeakerSystem):
+#     """
+#     Not used anywhere, this is a remnant from some part I don't remember.
+#     Maybe it was about exporting field studies.
+#     """
+#     radiatorName = []
+#     radiatingSurface = []
+#     for radname in loudspeakerSystem.radiator_id:
+#         # PLV
+#         if loudspeakerSystem.radiator_id[radname] == "PLV":
+#             if type(loudspeakerSystem.vibrometry[radname].ref2bem) == list:
+#                 for i in range(len(loudspeakerSystem.vibrometry[radname].ref2bem)):
+#                     radiatorName.append(radname)
+#                     radiatingSurface.append(loudspeakerSystem.vibrometry[radname].ref2bem[i])
+#             else:
+#                 radiatorName.append(radname)
+#                 radiatingSurface.append(loudspeakerSystem.vibrometry[radname].ref2bem)
+
+#         # SPKBOX
+#         elif loudspeakerSystem.radiator_id[radname] == "SPKBOX":
+#             if type(loudspeakerSystem.enclosure[radname].ref2bem) == list:
+#                 for i in range(len(loudspeakerSystem.enclosure[radname].ref2bem)):
+#                     radiatorName.append(radname)
+#                     radiatingSurface.append(loudspeakerSystem.enclosure[radname].ref2bem[i])
+#             else:
+#                 radiatorName.append(radname)
+#                 radiatingSurface.append(loudspeakerSystem.enclosure[radname].ref2bem)
+#         # EAC
+#         elif loudspeakerSystem.radiator_id[radname] == "EAC":
+#             if type(loudspeakerSystem.driver[radname].ref2bem) == list:
+#                 for i in range(len(loudspeakerSystem.driver[radname].ref2bem)):
+#                     radiatorName.append(radname)
+#                     radiatingSurface.append(loudspeakerSystem.driver[radname].ref2bem[i])
+#             else:
+#                 radiatorName.append(radname)
+#                 radiatingSurface.append(loudspeakerSystem.driver[radname].ref2bem)
+#     return radiatorName, radiatingSurface
 
 
 ## =======================
@@ -840,7 +1010,7 @@ def updateResults(loudspeakerSystem, study_to_plot, bypass_xover):
 
     if bypass_xover is False:
         for xover in ls.crossover:
-            if ls.crossover[xover].referenceStudy == study:  # check if some of the crossovers are to be applied in the study
+            if study in ls.crossover[xover].referenceStudy:  # check if some of the crossovers are to be applied in the study
                 h = ls.crossover[xover].h
                 ref2bem = ls.crossover[xover].ref2bem
                 if isinstance(ref2bem, int):
@@ -863,13 +1033,20 @@ def apply_Velocity_From_SPKBOX(loudspeakerSystem, study, radiatorName):
     :return:
     """
     ls = loudspeakerSystem
-    v = ls.enclosure[radiatorName].v      # driver velocity
-    vp = ls.enclosure[radiatorName].vp    # port's velocity
-    vp2 = ls.enclosure[radiatorName].vp2  # port 2 velocity (in case of bp2 enclosure config)
-    vpr = ls.enclosure[radiatorName].vpr  # passive radiator velocity (in case of pr enclosure config)
-    vpr2 = ls.enclosure[radiatorName].vpr2
+    if "xSource" not in ls.acoustic_study[study].__dict__: # check if point_source
+        v = ls.enclosure[radiatorName].v      # driver velocity
+        vp = ls.enclosure[radiatorName].vp    # port's velocity
+        vp2 = ls.enclosure[radiatorName].vp2  # port 2 velocity (in case of bp2 enclosure config)
+        vpr = ls.enclosure[radiatorName].vpr  # passive radiator velocity (in case of pr enclosure config)
+        vpr2 = ls.enclosure[radiatorName].vpr2
+    else:
+        v = ls.enclosure[radiatorName].Q     # driver velocity
+        vp = ls.enclosure[radiatorName].Qp    # port's velocity
+        vp2 = ls.enclosure[radiatorName].Qp2  # port 2 velocity (in case of bp2 enclosure config)
+        vpr = ls.enclosure[radiatorName].Qpr  # passive radiator velocity (in case of pr enclosure config)
+        vpr2 = ls.enclosure[radiatorName].Qpr2
     ref2bem = ls.enclosure[radiatorName].ref2bem
-
+        
     if isinstance(ref2bem, int) is True:
         if ls.enclosure[radiatorName].config == "sealed":  # check if 1 radiator because sealed or bp config
             ls.results[study].addTransferFunction("driver_"+radiatorName,
@@ -915,7 +1092,11 @@ def apply_Velocity_From_EAD(loudspeakerSystem, study, radiatorName):
     :return:
     """
     ls = loudspeakerSystem
-    v = ls.driver[radiatorName].v
+    
+    if "xSource" not in ls.acoustic_study[study].__dict__:
+        v = ls.driver[radiatorName].v
+    else:
+        v = ls.driver[radiatorName].Q
     ref2bem = ls.driver[radiatorName].ref2bem
     if isinstance(ref2bem, int) is True:
         ls.results[study].addTransferFunction("driver_"+radiatorName, v, [ref2bem])

@@ -130,7 +130,7 @@ def dBSPL(x):
 
 def SPL(x):
     """
-    Convert peak signal values to dBSPL (decibels Sound Pressure Level).
+    Convert peak signal values to dBSPL (decibels Sound Pressure Level), RMS.
 
     Parameters
     ----------

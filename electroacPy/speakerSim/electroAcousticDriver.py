@@ -137,6 +137,7 @@ class electroAcousticDriver:
         self.inBox    = False
         self.isPorted = False  # easier to manage if radiator in study_ is not a speakerBox object
         self.v        = self.Hv 
+        self.Q        = self.v * self.Sd
 
         # references
         self.ref2bem   = False
