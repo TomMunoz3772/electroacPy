@@ -28,6 +28,13 @@ warnings.filterwarnings("ignore", category=CompilerWarning)
 # bempp.api.POTENTIAL_OPERATOR_DEVICE_TYPE = 'gpu'
 # bempp.api.DEFAULT_PRECISION = 'single'
 
+try:
+    from pyopencl import CompilerWarning
+    warnings.filterwarnings("ignore", category=CompilerWarning)
+except:
+    None
+
+
 class bem:
     def __init__(self, meshPath, radiatingElement, velocity, frequency, 
                  domain="exterior", c_0=343, rho_0=1.22, **kwargs):
