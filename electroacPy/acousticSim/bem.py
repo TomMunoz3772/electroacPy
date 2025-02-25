@@ -15,13 +15,17 @@ from bempp.api.linalg import gmres
 import numpy as np
 from tqdm import tqdm
 import warnings
-from pyopencl import CompilerWarning
 import electroacPy.general as gtb
 from .ACSHelpers_ import getSurfaceAdmittance
 
 warnings.filterwarnings("ignore", message="splu requires CSC matrix format")
 warnings.filterwarnings("ignore", message="splu converted its input to CSC format")
-warnings.filterwarnings("ignore", category=CompilerWarning)
+
+try: 
+    from pyopencl import CompilerWarning
+    warnings.filterwarnings("ignore", category=CompilerWarning)
+except:
+    None
 
 # bempp.api.set_default_gpu_device_by_name('NVIDIA CUDA')
 # bempp.api.BOUNDARY_OPERATOR_DEVICE_TYPE = 'gpu'
@@ -455,8 +459,6 @@ def getRadiationCoefficients(support_elements, centroids, vibrometric_data,
     _, coefficients = gtb.geometry.points_within_radius(vertex_center,
                                                         vibrometry_points,
                                                         5e-3, vibrometric_data, Nfft)
-
-    print("COEFFICIENTS: ", coefficients.shape)
     if sizeFactor > 1:
         coefficients = np.tile(coefficients, (1, sizeFactor))
     return coefficients
