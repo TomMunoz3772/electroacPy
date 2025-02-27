@@ -148,8 +148,11 @@ class evaluations:
             if setup.isComputed is False:
                 mic2compute = np.concatenate((mic2compute, xMic))
         
-        _, pMic = self.bemObject.getMicPressure(mic2compute, 
-                                                individualSpeakers=True)
+        if mic2compute.any() == np.True_:
+            _, pMic = self.bemObject.getMicPressure(mic2compute, 
+                                                    individualSpeakers=True)
+        else:
+            None
         
         # ungroup microphones and store within each setup
         current_index = 0
