@@ -840,9 +840,7 @@ def plot_system_gmsh(eval_obj):
             nodeTags_n = []
             coord = []
             
-            maxPhysicalGroup = int(np.max(gmsh.model.getPhysicalGroups())) + 1
-            
-            try:
+            try: # in case plottingGrids are set before other evaluations
                 maxDim0 = int(np.max(gmsh.model.getEntities(0)) + 1)
             except:
                 maxDim0 = 1    
