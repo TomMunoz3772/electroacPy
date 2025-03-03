@@ -507,6 +507,8 @@ class PlottingGrid:
         self.dof      = grid.vertices.shape[1]
         self.vertices = grid.vertices
         self.elements = grid.elements
+        self.edges    = grid.edges[:, grid.edge_on_boundary]
+        # self.edges_on_boundary = grid.edge_on_boundary
         self.xMic     = grid.vertices.T
         self.nMic     = len(self.xMic)
         
@@ -787,6 +789,17 @@ def plot_system_gmsh(eval_obj):
     else:
         gmsh.open(eval_obj.bemObject.meshPath)
   
+
+    # get max nodes in system
+    all_nodes = gmsh.model.mesh.getNodes()
+    maxNode =  []
+    for i in all_nodes:
+        try:
+            maxNode.append(np.max(i))
+        except:
+            None
+    maxNODE = int(np.max(maxNode)) + 1
+    
     colors = [
         [0, 0, 255],    # Blue
         [255, 165, 0],  # Orange
@@ -808,19 +821,65 @@ def plot_system_gmsh(eval_obj):
     colorsEval = get_colors(nEval) 
 
     for s, setup in enumerate(eval_obj.setup):
+        cl = colorsEval[s]
         csetup = eval_obj.setup[setup]
         obs_group = []
-        mNic = csetup.nMic
+        nMic = csetup.nMic
         xMic = csetup.xMic
-        for i in range(mNic):
-            cl = colorsEval[s]
-            point = gmsh.model.geo.add_point(xMic[i, 0], xMic[i, 1], xMic[i, 2])
-            obs_group.append(point) 
-            gmsh.model.geo.synchronize()
-            gmsh.model.setColor([(0, point)], cl[0], cl[1], cl[2])  # Red for point p1
-        physical_group_id = gmsh.model.addPhysicalGroup(0, obs_group)  # '0' stands for point entities
-        gmsh.model.setPhysicalName(0, physical_group_id, setup)  # Optional: name the physical group
+        if csetup.type != "grid":
+            for i in range(nMic):
+                point = gmsh.model.geo.add_point(xMic[i, 0], xMic[i, 1], xMic[i, 2])
+                obs_group.append(point) 
+                gmsh.model.geo.synchronize()
+                gmsh.model.setColor([(0, point)], cl[0], cl[1], cl[2])     # Red for point p1
+            physical_group_id = gmsh.model.addPhysicalGroup(0, obs_group)  # '0' stands for point entities
+            gmsh.model.setPhysicalName(0, physical_group_id, setup)        # Optional: name the physical group
         
+        elif csetup.type == "grid":
+            # node
+            nodeTags_n = []
+            coord = []
+            
+            maxPhysicalGroup = int(np.max(gmsh.model.getPhysicalGroups())) + 1
+            
+            try:
+                maxDim0 = int(np.max(gmsh.model.getEntities(0)) + 1)
+            except:
+                maxDim0 = 1    
+            maxDim2 = int(np.max(gmsh.model.getEntities(2)) + 1)
+            
+        
+            # elements
+            elements              = csetup.elements
+            nElements             = elements.shape[1]
+            nodeTags_elements     = []
+            elementTags_elements  = []
+            
+            for i in range(nMic):
+                nodeTags_n.append(i+maxNODE)
+                coord.append(xMic[i, 0])
+                coord.append(xMic[i, 1])
+                coord.append(xMic[i, 2])
+        
+            # elements of dim 2
+            for k in range(nElements):
+                elementTags_elements.append(k+1)
+                nodeTags_elements.append(elements[0, k]+maxNODE) 
+                nodeTags_elements.append(elements[1, k]+maxNODE) 
+                nodeTags_elements.append(elements[2, k]+maxNODE)
+                
+
+            gmsh.model.addDiscreteEntity(0, maxDim0)
+            gmsh.model.addDiscreteEntity(2, maxDim2)
+            gmsh.model.mesh.addNodes(0, maxDim0, nodeTags_n, coord)
+            gmsh.model.mesh.addElements(2, maxDim2, [2], 
+                                                    [elementTags_elements], [nodeTags_elements])
+            
+            physical_group_id = gmsh.model.addPhysicalGroup(2, [maxDim2])  # '0' stands for point entities
+            gmsh.model.setPhysicalName(2, physical_group_id, setup) 
+            
+            maxNODE += i
+    
     gmsh.option.setNumber("Geometry.PointSize", 3)
     gmsh.option.setNumber("Geometry.PointType", 1)
     gmsh.model.geo.synchronize()
@@ -829,3 +888,20 @@ def plot_system_gmsh(eval_obj):
 
     gmsh.finalize()
     return None
+
+
+
+def create_gmsh_mesh(xMic, elements, mesh_filename="mesh.msh"):
+    import gmsh
+    gmsh.initialize()
+    gmsh.model.add("mic_mesh")
+
+    # Add nodes
+    nMic = xMic.shape[0]
+    for i in range(nMic):
+        gmsh.model.mesh.addNode(i + 1, xMic[i, 0], xMic[i, 1], xMic[i, 2])
+
+    # Add triangular elements
+    nElements = elements.shape[1]
+    elementType = gmsh.model.mesh.getElementType("triangle", 1)  # 2D triangle element
+    gmsh.model.mesh.addElements(2, [elementType], [[i + 1 for i in range(nElements)]], elements + 1)
