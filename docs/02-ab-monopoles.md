@@ -32,7 +32,7 @@ Let's take a room of dimensions $L_x=3.15$ m, $L_y=5$ m and $L_z=2.3$ m. We set 
 
 ```{figure} ./monopole_images/source_mic_position.png
     :name: monopole-system
-    :scale: 50%
+    :width: 15cm
 
 Shoebox room, visualization done in Salome.
 ```
@@ -109,7 +109,7 @@ Finally, using `sim.plot_pressureMesh("room")` we display the pressure over the 
 
 ```{figure} ./monopole_images/modes.png
     :name: room-mode-bem
-    :scale: 30%
+    :width: 15cm
 Some room modes.
 ```
 
