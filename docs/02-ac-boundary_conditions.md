@@ -31,7 +31,7 @@ this would give the following system:
 
 ```{figure} ./boundary_conditions_images/infinite_boundary_z.png
     :name: inf-z
-    :scale: 60%
+    :width: 15cm
 
 Infinite boundary, with $z$ normal to the mirror plane.
 ```
