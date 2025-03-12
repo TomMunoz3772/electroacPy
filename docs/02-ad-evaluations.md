@@ -34,7 +34,7 @@ radius    = 1.8
 
 ```{figure} ./evaluations_images/polar_radiation.png
     :name: polar-radiation-setup
-    :scale: 80%
+    :width: 15cm
 Example of polar radiation settings. Top-down view of the monitor speaker.
 ```
 
@@ -69,7 +69,7 @@ Similar to the polar radiation, `radius` and `offset` define the size and positi
 
 ```{figure} ./evaluations_images/spherical_radiation_setup.png
     :name: sph-setup
-    :width: 15cm
+    :width: 20cm
 
 Spherical array of evaluation points.
 ```

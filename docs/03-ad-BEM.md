@@ -83,7 +83,7 @@ If Gmsh is installed --- and accessible through Python --- `p_total.plot(transfo
 
 ```{figure} ./BEM_backend_images/pressure_sphere.png
     :name: pressure-sphere
-    :scale: 75 %
+    :width: 15cm
 
 Pressure distribution over a spherical loudspeaker.
 ```
