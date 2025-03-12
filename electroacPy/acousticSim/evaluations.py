@@ -185,8 +185,8 @@ class evaluations:
             obj = plot_system_gmsh(self)
         return obj
     
-    def plot(self, evaluations=[], radiatingElement=[], processing=None, 
-             **kwargs):
+    def plot(self, evaluations=[], radiatingElement=[], processing=None,
+             pf2grid=False, **kwargs):
         """
         Plot evaluations for given radiatingElement
 
@@ -197,7 +197,9 @@ class evaluations:
         radiatingElement : int or list of int, optional
             List of radiating element to plot. The default is "all"
         processing : postProcessing object
-            post-processing to apply on given surfaces.
+            Post-processing to apply on given surfaces.
+        pf2grid : bool
+            If True, pressure-fields are "converted" into grids to plot in gmsh.
         **kwargs : key arguments for post-processing options
             for now there is not much options. Mostly for transformation of 
             plotting grids.
@@ -250,7 +252,7 @@ class evaluations:
             if setup.type == "polar":
                 polar.append(setup)
                 polarName.append(key)
-            elif setup.type == "pressure_field":
+            elif setup.type == "pressure_field" and pf2grid is False:
                 field.append(setup)
                 pmicField.append(setup.pMic)
                 xMic_f.append(setup.xMic)
@@ -263,6 +265,9 @@ class evaluations:
             elif setup.type == "field_point":
                 point.append(setup)
             elif setup.type == "grid":
+                grid.append(setup)
+                gridName.append(key)
+            elif setup.type == "pressure_field" and pf2grid is True:
                 grid.append(setup)
                 gridName.append(key)
         
@@ -405,7 +410,10 @@ class PolarRadiation:
 
 class FieldPoint:
     def __init__(self, micPositions, **kwargs): 
-        self.xMic = np.array(micPositions)
+        if isinstance(micPositions, np.ndarray):
+            self.xMic = micPositions    
+        else:
+            self.xMic = np.array(micPositions)
         self.nMic = len(self.xMic)
         self.legend = None
         
@@ -452,7 +460,7 @@ class PressureField:
         
         # Set dimensions based on the selected plane
         self.nx, self.ny, self.nz = plane_mapping.get((self.plane[0], 
-                                                       self.plane[1]), 
+                                                      self.plane[1]), 
                                                       (0, 0, 0))
 
         # edit evaluationParameters
@@ -460,6 +468,19 @@ class PressureField:
         self.isComputed = False
         self.pMic = None
         
+        # data for gmsh plots
+        from scipy.spatial import Delaunay
+        if plane == "xy" or plane == "yx":
+            dim_ = [0, 1]
+        elif plane == "xz" or plane == "zx":
+            dim_ = [0, 2]
+        elif plane == "yz" or plane == "zy":
+            dim_ = [1, 2]
+    
+        triangulation = Delaunay(self.xMic[:, dim_])
+        self.elements = triangulation.simplices.T
+        self.dof      = self.nMic
+        self.vertices = self.xMic.T
 
 class BoundingBox:
     def __init__(self, Lx, Ly, Lz, step=1, offset=[0, 0, 0]):
@@ -826,7 +847,7 @@ def plot_system_gmsh(eval_obj):
         obs_group = []
         nMic = csetup.nMic
         xMic = csetup.xMic
-        if csetup.type != "grid":
+        if csetup.type not in ["grid", "pressure_field"]:
             for i in range(nMic):
                 point = gmsh.model.geo.add_point(xMic[i, 0], xMic[i, 1], xMic[i, 2])
                 obs_group.append(point) 
@@ -835,7 +856,7 @@ def plot_system_gmsh(eval_obj):
             physical_group_id = gmsh.model.addPhysicalGroup(0, obs_group)  # '0' stands for point entities
             gmsh.model.setPhysicalName(0, physical_group_id, setup)        # Optional: name the physical group
         
-        elif csetup.type == "grid":
+        elif csetup.type in ["grid", "pressure_field"]:
             # node
             nodeTags_n = []
             coord = []

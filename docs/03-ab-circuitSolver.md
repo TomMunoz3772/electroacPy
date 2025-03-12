@@ -485,6 +485,11 @@ network.addComponent(L1, L2, L3, L4, L5,
 network.addBlock(LF, MF, HF)
 network.run()
 
+# filter transfer function (to be used in a filter network)
+H_lf = network.getPotential(2) / network.getPotential(1)
+H_mf = network.getPotential(9) / network.getPotential(1)
+H_hf = network.getPotential(13) / network.getPotential(1)
+
 #%% add transfer functions to network
 system.filter_network("LF_xover", ref2bem=[1, 2], ref2study="free-field")
 system.filter_addTransferFunction("LF_xover", "hlf", H_lf)

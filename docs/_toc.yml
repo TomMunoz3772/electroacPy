@@ -1,21 +1,25 @@
 # Table of contents
 # Learn more at https://jupyterbook.org/customize/toc.html
 format: jb-book
-root: 01-introduction
+root: 00-aa-introduction
 parts:
-- caption: Loudspeaker System
+- caption: Walkthrough
   chapters:
-  - file: 02-loudspeaker_system
-  - file: 021-system_and_mesh
-  - file: 03-lumped_modeler
-  - file: 04-BEM_modeler
-  - file: 05-post_processing
+  - file: 01-aa-loudspeaker_system
+  - file: 01-ab-system_and_mesh
+  - file: 01-ac-LEM
+  - file: 01-ad-BEM
+  - file: 01-ae-post_processing
+- caption: Advanced Mechanics
+  chapters:
+  - file: 02-ab-monopoles
+  - file: 02-ac-boundary_conditions
+  - file: 02-ad-evaluations
 - caption: Back-end
   chapters:
-  - file: 06-back_end
-  - file: 07-circuitSolver
-  - file: 08-LEM_backend
-  - file: 09-BEM_backend
+  - file: 03-ab-circuitSolver
+  - file: 03-ac-LEM
+  - file: 03-ad-BEM
 - caption: References
   chapters:
   - file: 100-ref

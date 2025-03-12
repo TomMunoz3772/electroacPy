@@ -659,7 +659,7 @@ class loudspeakerSystem:
     ## PLOT
     def plot_results(self, study=[], 
                      evaluation=[], radiatingElement=[], bypass_xover=False,
-                     transformation="SPL", export_grid=False):
+                     transformation="SPL", export_grid=False, pf2grid=False):
         
         # update solutions
         if isinstance(radiatingElement, int) is True: # avoid possible error if only one rad surf is selected
@@ -671,13 +671,15 @@ class loudspeakerSystem:
                 _ = self.evaluation[s].plot(evaluation, radiatingElement,  
                                              processing=self.results[s],
                                              transformation=transformation,
-                                             export_grid=export_grid)
+                                             export_grid=export_grid, 
+                                             pf2grid=pf2grid)
         else: # plot specific study
             _ = updateResults(self, study, bypass_xover)
             _ = self.evaluation[study].plot(evaluation, radiatingElement,
                                                  processing=self.results[study],
                                                  transformation=transformation,
-                                                 export_grid=export_grid)
+                                                 export_grid=export_grid,
+                                                 pf2grid=pf2grid)
         return None
 
     def plot_system(self, study, backend="pyvista"):

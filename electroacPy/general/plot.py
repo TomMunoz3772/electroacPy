@@ -136,7 +136,6 @@ def FRF(freq, H, transformation="SPL", logx=True, legend=None, **kwargs):  #logx
                 else:
                     plt.plot(freq[i], tr(H[i]), label=labels[i])
 
-    plt.xlabel('Frequency [Hz]')
     # plt.title('Frequency Response Function')
     if labels != None:
         if "loc" in kwargs:
@@ -164,6 +163,10 @@ def FRF(freq, H, transformation="SPL", logx=True, legend=None, **kwargs):  #logx
         plt.ylabel(kwargs['ylabel'])
     else:
         plt.ylabel(tr_str)
+    if 'xlabel' in kwargs:
+        plt.xlabel(kwargs['xlabel'])
+    else:
+        plt.xlabel('Frequency [Hz]')
 
     plt.grid(True, which='both', linestyle='dotted')
 

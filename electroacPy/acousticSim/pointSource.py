@@ -180,7 +180,10 @@ class pointSourceBEM:
         """
         
         # inputs
-        self.xSource = np.array(xSource)
+        if isinstance(xSource, np.ndarray) is True:
+            self.xSource = xSource
+        else:
+            self.xSource = np.array(xSource)
         self.xSystem = None
         self.QSource = np.array(volumeVelocity)
         self.QSystem = None

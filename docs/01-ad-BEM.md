@@ -15,6 +15,7 @@ The BEM modeler is mostly focused on exterior acoustic radiation (e.g. a loudspe
 Structure of the Boundary-Element Modeler.
 ```
 
+(content:reference:acousticStudy)=
 ## `.acoustic_study[]` 
 The first computational step is to estimate the acoustic pressure on boundaries. The method `.study_acousticBEM()` is used for that effect. The inputs of `.study_acousticBEM()` are:
 
@@ -68,6 +69,7 @@ The tweeter pressure on system's boundaries is shown in {numref}`boundary-pressu
 Estimated pressure on boundary.
 ```
 
+(BEM-evaluations)=
 ## `.evaluation[]`
 While computing the boundary pressure is the most computationally expensive step, it doesn't provide a complete picture of the system. Information about the system's radiated pressure (e.g. directivity, baffle diffraction, etc.) is obtained through the **evaluation** class, which efficiently automates the placement of observation points and visualization of results.
 

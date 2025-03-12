@@ -1,9 +1,9 @@
 ## Geometry import and meshing
 
-In the following sections, we demonstrate ElectroacPy's capabilities using a three-way loudspeaker. {numref}`cad-model` shows the system in its relatively complex CAD form: drivers are fully detailed, including the cone, basket, motor, etc., and the enclosure accounts for internal separations, port dimensions, and wall thickness. However, this level of detail is unnecessary for simple exterior-field studies, as many features will not significantly impact the acoustic radiation. Therefore, we simplify the system by retaining only the outer shell and representing each radiating element as flat surfaces --- see {numref}`sim-model`. These significant simplifications should still provide valuable insights into acoustic radiation.
+In the following sections, we demonstrate ElectroacPy's capabilities using a three-way loudspeaker. The left sub-figure of {numref}`cad-sim-model` shows the system in its relatively complex CAD form: drivers are fully detailed, including the cone, basket, motor, etc., and the enclosure accounts for internal separations, port dimensions, and wall thickness. However, this level of detail is unnecessary for simple exterior-field studies, as many features will not significantly impact the acoustic radiation. Therefore, we simplify the system by retaining only the outer shell and representing each radiating element as flat surfaces --- see the right sub-figure of {numref}`cad-sim-model`. These significant simplifications should still provide valuable insights into acoustic radiation.
 
 
-```{figure} ./system_images/studio_monitor.png
+<!-- ```{figure} ./system_images/studio_monitor.png
     :name: cad-model
     :width: 300px
     :align: left
@@ -17,6 +17,12 @@ CAD model.
     :align: right
 
 Simplified model for simulations.
+``` -->
+
+```{figure} ./system_images/studio_monitor_cad_sim.png
+    :name: cad-sim-model
+
+CAD model (left) and simplified version for simulation (right).
 ```
 
 ### Mesh

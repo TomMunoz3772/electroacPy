@@ -276,7 +276,7 @@ def create_circular_array(theta, on_axis, rotation, radius, offset):
 
 
 def create_planar_array(length, width, micSpacing, plane, offset=[0, 0, 0], 
-                        vert=False, mode=False):
+                      vert=False, mode=False):
     """
     Create a rectangular array of microphones on given plane. Place the corner on [x=0, y=0, z=0]
 
@@ -304,9 +304,11 @@ def create_planar_array(length, width, micSpacing, plane, offset=[0, 0, 0],
         Array corresponding to the given width
 
     """
-    L = np.arange(0, length+micSpacing, micSpacing)
-    W = np.arange(0, width+micSpacing, micSpacing)
-    nMic = len(L)*len(W)
+    nMic_L = int(length / micSpacing)
+    nMic_W = int(width / micSpacing)
+    L = np.linspace(0, length, nMic_L) #np.arange(0, length+micSpacing, micSpacing)
+    W = np.linspace(0, width, nMic_W)  #np.arange(0, width+micSpacing, micSpacing)
+    nMic = nMic_L * nMic_W  #len(L)*len(W)
     xmic = np.zeros([nMic, 3])
     xOffset = np.ones([nMic, 3]) * offset
     # is there a better way to do it?
@@ -353,6 +355,7 @@ def create_planar_array(length, width, micSpacing, plane, offset=[0, 0, 0],
         W_n = W[np.isin(W, xmic_n[:, dim2])]
         out = (xmic_n, L_n, W_n)
     return out
+
 
 def filter_points(points, boundary, mode='inside'):
     """
