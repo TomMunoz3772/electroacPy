@@ -49,7 +49,7 @@ This sets an infinite boundary at 1 m below the source:
 
 ```{figure} ./boundary_conditions_images/infinite_boundary_z_w_offset.png
     :name: inf-z-offset
-    :scale: 60%
+    :width: 15cm
 
 Infinite boundary with an additional offset.
 ```
@@ -85,7 +85,7 @@ To keep some continuity in the documentation, we take the previous room acoustic
 
 ```{figure} ./boundary_conditions_images/pressure_response_mode_association.png
     :name: corner-mic-w-modes
-    :scale: 70%
+    :width: 15cm
 
 Room response and first five modes.
 ```
