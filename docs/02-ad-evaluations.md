@@ -264,7 +264,7 @@ Bounding-box evaluations compute the acoustic pressure within a cubic volume sur
 Plotting-grids are user-made meshes on which the pressure is computed. Compatible formats are `.msh` and `.med`.
 
 ### Setup
-As long as the evaluation mesh is available, setting-up plotting grids is very straightforward:
+As long as the evaluation mesh is available, setting-up plotting-grids is very straightforward:
 
 ```python
 system.evaluation_plottingGrid("reference_study",  # reference study 
@@ -272,7 +272,7 @@ system.evaluation_plottingGrid("reference_study",  # reference study
                                path_to_grid)       # path to evaluation mesh
 ```
 
-In that fashion, we load two plotting grids:
+In that fashion, we load two plotting-grids:
 
 ```python
 system.evaluation_plottingGrid("free-field", "hor_plane", "hor_plane.med")
@@ -291,7 +291,7 @@ Importing two evaluation grids.
 
 ### Visualization
 
-For now, plotting grids are only displayed through Gmsh. Depending on the input arguments, it is also possible to plot different visualizations or export data:
+For now, plotting-grids are only displayed through Gmsh. Depending on the input arguments, it is also possible to plot different visualizations or export data:
 
 - `transformation` can be set to `"real"`, `"imag"`, `"spl"` or `"phase"`: this changes the field's value,
 - `export_grid` saves the evaluation mesh in the given file (ex: `"data_export.msh"`).
