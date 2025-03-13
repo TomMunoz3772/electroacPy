@@ -15,13 +15,13 @@ from bempp.api.linalg import gmres
 import numpy as np
 from tqdm import tqdm
 import warnings
-from pyopencl import CompilerWarning
+# from pyopencl import CompilerWarning
 import electroacPy.general as gtb
 from .ACSHelpers_ import getSurfaceAdmittance
 
 warnings.filterwarnings("ignore", message="splu requires CSC matrix format")
 warnings.filterwarnings("ignore", message="splu converted its input to CSC format")
-warnings.filterwarnings("ignore", category=CompilerWarning)
+# warnings.filterwarnings("ignore", category=CompilerWarning)
 
 # bempp.api.set_default_gpu_device_by_name('NVIDIA CUDA')
 # bempp.api.BOUNDARY_OPERATOR_DEVICE_TYPE = 'gpu'
