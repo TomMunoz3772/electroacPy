@@ -101,6 +101,7 @@ For now, it is only possible to export directivity and impedance data. The follo
 
 The export syntax are:
 ```python
+# directivity
 system.export_directivity(folder_path,      # path to export folder (mkdir if doesn't exists)
                           file_name,        # file prefix (angles are added to it)
                           study,            # study to export
@@ -109,6 +110,7 @@ system.export_directivity(folder_path,      # path to export folder (mkdir if do
                           bypass_xover,     # if crossovers need to be bypassed, optional
                           frd)              # if True, uses *.frd extension, optional
 
+# impedance
 system.export_impedance(folder_path, # path to export folder (mkdir if doesn't exists)
                         file_name,   # file name
                         objName,     # driver object or enclosure object to export
