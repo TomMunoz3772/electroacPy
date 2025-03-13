@@ -857,9 +857,9 @@ class loudspeakerSystem:
         return out
     
     
-    def export_directivity(self, folder_name, file_name,
+    def export_directivity(self, folder_path, file_name,
                            study, evaluation, radiatingElement=[], 
-                           bypass_xover=False):
+                           bypass_xover=False, frd=False):
         """
         Export directivity results.
 
@@ -867,14 +867,18 @@ class loudspeakerSystem:
         ----------
         folder_name : str
             where data are saved.
+        file_name: str
+            file prefix.
         study : str
             name of study to export.
         evaluation : str
             evaluation to export.
-        radiatingElement : int or list of int,
+        radiatingElement : int or list of int, optional
             extract specific element.
-        bypass_xover : bool, 
+        bypass_xover : bool, optional 
             if True, will export filtered response.
+        frd : bool, optional
+            if True, uses *.frd file extension instead of *.txt
 
         Returns
         -------
@@ -886,115 +890,42 @@ class loudspeakerSystem:
         pmic = self.get_pMic(study, evaluation, radiatingElement, bypass_xover)
         theta = self.evaluation[study].setup[evaluation].theta
         frequency = self.frequency
-        export_directivity(folder_name, file_name, frequency, theta, pmic)
+        export_directivity(folder_path, file_name, frequency, theta, pmic, frd)
         
         
-    def export_impedance(self, folder_name, file_name, objName):
+    def export_impedance(self, folder_path, file_name, objName, zma=False):
         """
         Export impedance into .txt file
 
         Parameters
         ----------
-        filename : str
-            export file.
+        folder_name : str
+            where data are saved.
+        file_name: str
+            file prefix.
         objName : str
             enclosure or driver object to export.
-
+        zma : bool, optional
+            if True, uses the *.zma file extension.
+            
         Returns
         -------
         None.
 
         """
-        if objName in self.enclosure:
-            self.enclosure[objName].exportZe(folder_name, file_name + ".txt")
-        elif objName in self.driver:
-            self.driver[objName].exportZe(folder_name, file_name + ".txt")
-
         
+        if zma is False:
+            if objName in self.enclosure:
+                self.enclosure[objName].exportZe(folder_path, file_name + ".txt")
+            elif objName in self.driver:
+                self.driver[objName].exportZe(folder_path, file_name + ".txt")
+        elif zma is True:
+            if objName in self.enclosure:
+                self.enclosure[objName].exportZe(folder_path, file_name + ".zma")
+            elif objName in self.driver:
+                self.driver[objName].exportZe(folder_path, file_name + ".zma")
         
-
-# def create_polarRadiation_dataframe(data_array, angle_array, freq_array):
-#     import pandas as pd
-
-#     # Ensure the input arrays are numpy arrays
-#     data_array = np.array(data_array)
-#     angle_array = np.array(angle_array)
-#     freq_array = np.array(freq_array)
-#     # Create DataFrame using pandas
-#     df = pd.DataFrame(data_array, index=freq_array, columns=angle_array)
-#     return df
-
-# def create_pressureResponse_dataframe(data_array, xmic_array, freq_array):
-#     import pandas as pd
-
-#     # Ensure the input arrays are numpy arrays
-#     data_array = np.array(data_array)
-#     xmic_array = np.array(xmic_array)
-#     freq_array = np.array(freq_array)
-#     # Create DataFrame using pandas
-#     columns_out = []
-#     for i in range(len(xmic_array)):
-#         columns_out.append(str(xmic_array[i, 0]) + '_' + str(xmic_array[i, 1]) + '_' + str(xmic_array[i, 2]))
-#     df = pd.DataFrame(data_array, index=freq_array, columns=columns_out)
-#     return df
-
-
-# def exportToVituixCAD(name, out, angle, frequency):
-#     """
-#     Export a polar dataframe to import in VituixCAD2
-#     :param dataframe:
-#     :return:
-#     """
-#     import generalToolbox as gtb
-
-#     for i in range(len(angle)):
-#         fileName = name + str("_deg")+str(angle[i])+".txt"
-#         outSPL = gtb.gain.SPL(out[:, i])
-#         outPhase = np.rad2deg(np.angle(out[:, i]))
-#         np.savetxt(fileName, np.array([frequency, outSPL, outPhase]).T,  fmt='%.3f',
-#                    header="Freq(Hz) SPL(dB) Phase (degrees)")
-#     return None
-
-
-# def groupSurfaces2Export(loudspeakerSystem):
-#     """
-#     Not used anywhere, this is a remnant from some part I don't remember.
-#     Maybe it was about exporting field studies.
-#     """
-#     radiatorName = []
-#     radiatingSurface = []
-#     for radname in loudspeakerSystem.radiator_id:
-#         # PLV
-#         if loudspeakerSystem.radiator_id[radname] == "PLV":
-#             if type(loudspeakerSystem.vibrometry[radname].ref2bem) == list:
-#                 for i in range(len(loudspeakerSystem.vibrometry[radname].ref2bem)):
-#                     radiatorName.append(radname)
-#                     radiatingSurface.append(loudspeakerSystem.vibrometry[radname].ref2bem[i])
-#             else:
-#                 radiatorName.append(radname)
-#                 radiatingSurface.append(loudspeakerSystem.vibrometry[radname].ref2bem)
-
-#         # SPKBOX
-#         elif loudspeakerSystem.radiator_id[radname] == "SPKBOX":
-#             if type(loudspeakerSystem.enclosure[radname].ref2bem) == list:
-#                 for i in range(len(loudspeakerSystem.enclosure[radname].ref2bem)):
-#                     radiatorName.append(radname)
-#                     radiatingSurface.append(loudspeakerSystem.enclosure[radname].ref2bem[i])
-#             else:
-#                 radiatorName.append(radname)
-#                 radiatingSurface.append(loudspeakerSystem.enclosure[radname].ref2bem)
-#         # EAC
-#         elif loudspeakerSystem.radiator_id[radname] == "EAC":
-#             if type(loudspeakerSystem.driver[radname].ref2bem) == list:
-#                 for i in range(len(loudspeakerSystem.driver[radname].ref2bem)):
-#                     radiatorName.append(radname)
-#                     radiatingSurface.append(loudspeakerSystem.driver[radname].ref2bem[i])
-#             else:
-#                 radiatorName.append(radname)
-#                 radiatingSurface.append(loudspeakerSystem.driver[radname].ref2bem)
-#     return radiatorName, radiatingSurface
-
-
+    
 ## =======================
 # %% post-processing tools
 def updateResults(loudspeakerSystem, study_to_plot, bypass_xover):

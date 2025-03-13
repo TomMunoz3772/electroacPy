@@ -97,23 +97,45 @@ Filtered loudspeaker response.
 It is important to note that electroacPy's crossover tools are considered as digital filters: interactions between speaker and supposed electrical components are not taken into account. In order to have a better understanding of the electrical behavior with passive components, it is either possible to use the **circuitSolver** class, or to export results to an external software for crossover design. 
 
 ## Export simulation data
-For now, it is only possible to export directivity and impedance data. Because it is free and provides a lot of great tools, we'll use VituixCAD to build a crossover network. The following code extracts pressure and impedance with `.export_directivity()` and `.export_impedance()`. Results are then imported into VituixCAD as shown in {numref}`vituixcad-import`. In the import window, you can notice that the "Minimum phase" box is checked: this helps reducing the comb-filtering coming from VituixCAD re-calculation of radiated pressure. Keep in mind that the overall radiation will be slightly off; you can un-check this box if you want a better estimation (although "noisier").
+For now, it is only possible to export directivity and impedance data. The following code extracts pressure and impedance with `.export_directivity()` and `.export_impedance()`. Results are then imported into VituixCAD as shown in {numref}`vituixcad-import`. In the import window, you can notice that the "Minimum phase" box is checked: this helps reducing the comb-filtering coming from VituixCAD re-calculation of radiated pressure. Keep in mind that the overall radiation will be slightly off; you can un-check this box if you want a better estimation (although "noisier").
+
+The export syntax are:
+```python
+system.export_directivity(folder_path,      # path to export folder (mkdir if doesn't exists)
+                          file_name,        # file prefix (angles are added to it)
+                          study,            # study to export
+                          evaluation,       # evaluation setup to export
+                          radiatingElement, # radiating elements to export, optional
+                          bypass_xover,     # if crossovers need to be bypassed, optional
+                          frd)              # if True, uses *.frd extension, optional
+
+system.export_impedance(folder_path, # path to export folder (mkdir if doesn't exists)
+                        file_name,   # file name
+                        objName,     # driver object or enclosure object to export
+                        zma)         # if True, uses *.zma extension, optional
+```
+
+In our case:
 
 ```python
 # export woofer data 
-system.export_directivity("woofer_hor", "free-field", 
-                          "polar_hor", [1, 2], bypass_xover=True)
-system.export_impedance("Z_ported_woofer", "ported_LF")
+
+system.export_directivity("export/woofer", 
+                           "polar_hor", "free-field", "polar_hor", 
+                           radiatingElement=[1, 2], bypass_xover=True)
+system.export_impedance("export_impedance", "ported_LF", "ported_LF")
 
 # export midrange
-system.export_directivity("midrange_hor", "free-field", 
-                          "polar_hor", 3, bypass_xover=True)
-system.export_impedance("Z_sealed_midrange", "sealed_MF")
+system.export_directivity("export/midrange", 
+                          "polar_hor", "free-field", "polar_hor", 
+                          radiatingElement=3, bypass_xover=True)
+system.export_impedance("export_impedance", "sealed_MF", "sealed_MF")
 
 # export tweeter
-system.export_directivity("tweeter_hor", "free-field", 
-                          "polar_hor", 4, bypass_xover=True)
-system.export_impedance("Z_tweeter", "TW29")
+system.export_directivity("export/tweeter", 
+                           "polar_hor", "free-field", "polar_hor", 
+                           radiatingElement=4, bypass_xover=True)
+system.export_impedance("export_impedance", "TW29", "TW29")
 ```
 
 ```{figure} ./postP_images/vituixcad_parameter_import.png
@@ -131,5 +153,26 @@ Frequency response, directivity and impedance plot without crossovers.
         :name: vituixcad-network
 Frequency response, directivity and impedance plot of system with crossovers.
 ```
+
+If you'd rather use Xsim for your design, it is possible to add the `frd=True` and `zma=True` to the directivity and impedance export functions. By doing that, `.export_directivity()` and `.export_impedance()` use`*.frd` and `*.zma` extensions instead of `*.txt`.
+
+```python
+# directivity export
+system.export_directivity("export/woofer_FRD", 
+                           "polar_hor", "free-field", "polar_hor", 
+                           radiatingElement=[1, 2], bypass_xover=True, frd=True)
+
+# impedance export
+system.export_impedance("export_impedance_ZMA", "ported_LF", "ported_LF", zma=True)
+
+```
+
+```{figure} ./postP_images/xsim_network.png
+        :name: xsim-network
+        :width: 15cm
+
+Crossover design with Xsim4.
+```
+
 
 As you'll see in section **{ref}`Application example <monitorCrossover>`**, it is possible re-create the above crossover using electroacPy's own Modified Nodal Analysis (MNA) tool: **circuitSolver**.
