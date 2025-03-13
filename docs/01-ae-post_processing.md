@@ -171,8 +171,8 @@ system.export_impedance("export_impedance_ZMA", "ported_LF", "ported_LF", zma=Tr
 
 ```{figure} ./postP_images/xsim_network.png
         :name: xsim-network
-        :width: 15cm
-
+        :width: 20cm
+        
 Crossover design with Xsim4.
 ```
 
