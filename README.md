@@ -27,7 +27,21 @@ The recommended installation method uses the **Conda** package manager for Pytho
     - **Windows**: Use the Miniforge Prompt for installation.
     - **macOS/Linux**: Use your terminal (bash/zsh).
 
-### Installation Steps
+### Install with pip
+The easiest way to install electroacpy is by using pip. In your Python environment:
+```shell
+pip install electroacPy
+```
+
+If you wish to use the OpenCL backend, you can install pyopencl:
+
+```shell
+pip install pyopencl
+```
+
+Remember that you'll need to install opencl drivers on your computer.
+
+### Install from source
 
 1. **Create a new Conda environment** (recommended but optional):
 ```shell
@@ -78,8 +92,15 @@ conda install spyder
 ## OpenCL
 In Windows and Linux, you can actually use the OpenCL backend to reduce computing time. In the corresponding Conda environment:
 ```shell
-pip install pyopencl intel-opencl-rt
+pip install pyopencl
 ```
+
+and in the case you're using a intel CPU
+
+```shell
+pip install intel-opencl-rt
+```
+
 You'll also need to install OpenCL drivers, which you'll find [here](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-cpu-runtime-for-opencl-applications-with-sycl-support.html) for intel users. For more information, you can follow the **OpenCL** section from [bempp-cl installation guide](https://bempp.com/installation.html).
 
 ---
