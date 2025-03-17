@@ -33,7 +33,23 @@ The recommended installation method uses the **Conda** package manager for Pytho
     - **Windows**: Use the Miniforge Prompt for installation.
     - **macOS/Linux**: Use your terminal (bash/zsh).
 
-### Installation Steps
+
+### Install from PyPI
+The easiest way to install electroacpy is by using the [PyPI repository](https://pypi.org/project/electroacPy/). In your Python environment:
+```shell
+pip install electroacPy
+```
+
+If you wish to use the OpenCL backend, you can install pyopencl:
+
+```shell
+pip install pyopencl
+```
+
+Remember that you'll need to install opencl drivers on your computer.
+
+
+### Install from source
 
 1. **Create a new Conda environment** (recommended but optional):
 ```shell
