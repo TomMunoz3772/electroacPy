@@ -572,8 +572,8 @@ class boundaryConditions:
         self.parameters[name]["frequency"] = frequency
         
         if data_type == "impedance":
-            Z = self.parameters[name]["impedance"]
             self.parameters[name]["impedance"] = value
+            Z = value
             self.parameters[name]["admittance"] = 1/Z
             self.parameters[name]["absorption"] = 1 - np.abs((Z-self.Zc)/(Z+self.Zc))**2
         elif data_type == "reflection":
