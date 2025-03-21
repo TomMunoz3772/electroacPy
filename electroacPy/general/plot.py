@@ -316,7 +316,7 @@ def directivityViewer(theta, freq, pMic, xscale='log', fmin=20, fmax=20e3,
                              np.arange(dBmin, dBmax+3, 3), cmap='turbo')
     ax1.set_xscale('log')
     ax1.set(xlabel="Frequency [Hz]", ylabel="Angle [deg]", xlim=[fmin, fmax], 
-            title='Raw directivity (SPL)')
+            title='Directivity (SPL)')
     plt.colorbar(gca1)
     
     # Total directivity NORMALIZED
@@ -324,7 +324,7 @@ def directivityViewer(theta, freq, pMic, xscale='log', fmin=20, fmax=20e3,
     gca2 = ax2.contourf(freq, theta, directivity.T, np.arange(-21, 3, 3), cmap='turbo')
     ax2.set_xscale('log')
     ax2.set(xlabel="Frequency [Hz]", ylabel="Angle [deg]", xlim=[fmin, fmax], 
-            title='Absolute directivity')
+            title='Normalized directivity')
     plt.colorbar(gca2)
     
     # pressure response
