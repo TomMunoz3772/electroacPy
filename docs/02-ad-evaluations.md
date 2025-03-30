@@ -69,13 +69,13 @@ Similar to the polar radiation, `radius` and `offset` define the size and positi
 
 ```{figure} ./evaluations_images/spherical_radiation_setup.png
     :name: sph-setup
-    :width: 20cm
+    :width: 15cm
 
 Spherical array of evaluation points.
 ```
 
 ### Visualization
-Plotting results with a spherical evaluation will display a PyVista window:
+Plotting results with a spherical evaluation displays a PyVista window:
 
 ```{figure} ./evaluations_images/spherical_radiation_window.png
     :name: spherical-radiation-window
@@ -105,7 +105,7 @@ system.evaluation_pressureField("reference_study", # reference study
 where
 
 - `L1` and `L2` are the length along the first and second dimension (in metres),
-- `step` is the distance between two points, 
+- `step` is the target distance between two points, 
 - `plane` is a `str` variable that defines first and second dimensions (e.g. `"xy"`, `"-zx"`, etc.),
 - `offset` will move the rectangular observation plane with the given cartesian coordinates.
 
@@ -256,10 +256,6 @@ plt.tight_layout()
 Attenuation of SPL with distance. This checks the -6 dB per doubling of distance.
 ```
 
-<!-- ## Bounding-box
-Bounding-box evaluations compute the acoustic pressure within a cubic volume surrounding the system. This method provides a comprehensive view of the pressure distribution in three dimensions, helping to identify and mitigate potential issues in the acoustic environment.
- -->
-
 ## Plotting-grids
 Plotting-grids are user-made meshes on which the pressure is computed. Compatible formats are `.msh` and `.med`.
 
@@ -287,7 +283,6 @@ Using `system.plot_system("free-field", "gmsh")`, the total system is shown in {
 
 Importing two evaluation grids.
 ```
-
 
 ### Visualization
 
