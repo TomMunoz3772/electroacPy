@@ -1,7 +1,7 @@
 # Boundary Conditions
-Boundaries are a key aspect of acoustic simulations. While a loudspeaker can generally be defined with infinitely rigid surfaces, some studies need to be given impedance and mirroring planes.
+Boundaries are a key aspect of acoustic simulations. While a loudspeaker can generally be defined with infinitely rigid surfaces, some studies need to be given impedances and mirroring planes.
 
-In that fashion, electroacPy provides the **boundaryConditions** class. While for now, it has only been used once to create an infinite boundary (simulate the presence of a floor), it is possible to set impedance data on mesh surfaces.
+In that fashion, electroacPy provides the **boundaryConditions** class. While for now, it has only been used to create an infinite boundary (simulate the presence of a floor), it is possible to set impedance data on mesh surfaces.
 
 ## Implementation
 Boundary conditions should be passed as keyword arguments of the `.study_acousticBEM()` and `.study_acousticPointSource()` methods. A **boundaryCondition** object is created as follow:
@@ -13,21 +13,21 @@ bc = boundaryConditions(rho=1.22,  # optional
                         c=343)     # optional
 ```
 
-At this stage, `bc` is just an empty object. Depending on the system's boundaries, two methods are available:
+At this stage, `bc` empty. Depending on the system's boundaries, two methods are available:
 
 - `.addInfiniteBoundary(normal, offset)`,
 - `.addSurfaceImpedance(name, index, data_type, value)`.
 
-It is important to note that the infinite boundary conditions should be only used for exterior studies, as it creates a mirror of the system's mesh.
+It is important to note that infinite boundary conditions should only be used for exterior studies, as it creates a mirror of the system's mesh.
 
 ### Infinite boundaries
-As an example, we can add an infinite boundary normal to $z$ and with with no offset:
+As an example, we can add an infinite boundary normal to $z$ with no offset:
 ```python
 bc.addInfiniteBoundary(normal="z",  # axis normal to the boundary 
                        offset=0)    # offset of the boundary related to the normal axis
 ```
 
-this would give the following system:
+this gives the following system:
 
 ```{figure} ./boundary_conditions_images/infinite_boundary_z.png
     :name: inf-z
@@ -62,20 +62,23 @@ There is no hard-coded limit in the number of infinite boundaries a user can set
 An impedance condition is created with this syntax:
 
 ```python
-bc.addSurfaceImpedance("name",     # reference 
-                       index,      # BEM surface index
-                       data_type,  # type of input data 
-                       value)      # impedance data
+bc.addSurfaceImpedance("name",          # reference 
+                       index,           # BEM surface index
+                       data_type,       # type of input data 
+                       value,           # impedance data
+                       frequency,       # optional, frequency range of "value"
+                       targetFrequency, # optional, BEM frequency range (if "frequency" is different from the frequency axis given in the study object)
+                       interpolation)   # optional, how to interpolate "frequency" on "targetFrequency)
 ```
 
-Surface impedance is directly set over the physical groups of the mesh. Different "types" of impedance can be set as inputs depending on `data_type`.
+A surface impedance is set over the physical groups listed in the `index` argument. Different "types" of impedance can be passed depending on `data_type`:
 
 - `"impedance"`: the specific impedance of the surface in $\frac{Pa\times s}{m}$,
 - `"admittance"`: the inverse of specific impedance,
 - `"absorption"`: the absorption coefficient, between 0 and 1,
 - `"reflection"`: the reflection coefficient, between 0 and 1.
 
-These data can be either given as single values or as frequency dependent variables. For its BEM computations, bempp-cl uses the normalized specific impedance $Z_n = \frac{Z}{\rho c}$.
+These data can either be given as single values or as frequency dependent variables. For its BEM computations, bempp-cl uses the normalized specific impedance $Z_n = \frac{Z}{\rho c}$ --- the normalization is done automatically.
 
 
 ## Practical example
@@ -102,7 +105,7 @@ $$
 
 with 
 
-- $r_s$ the loss resistance, can be expressed as a scalar multiple of $Z_c$,
+- $r_s$ the loss resistance, which can be expressed as a scalar multiple of $Z_c$,
 - $M'$ the mass per surface area of the membrane,
 - $d$ the distance between the membrane and the back of the absorber.
 

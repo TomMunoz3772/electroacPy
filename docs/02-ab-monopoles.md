@@ -1,6 +1,6 @@
 (reference:content:pointSource)=
 # Point source
-Acoustic monopoles are the simplest type of sound sources. They can be seen as a single point in space radiating sound waves in all directions. The mathematical expression of a monopole in the frequency domain can be written as follow:
+Acoustic monopoles are the simplest type of sound sources. They can be seen as single points in space, radiating sound waves in all directions. The mathematical expression of a monopole in the frequency domain can be written as follow:
 
 $$
 p(r) = jk\rho c Q \frac{e^{-jkr}}{4\pi r},
@@ -9,7 +9,7 @@ $$
 where $r$ is the distance from the monopole, $k=\frac{2\pi f}{c}$ the wavenumber, $\rho$ the density of propagation medium, $c$ the speed of sound in said medium, and $Q$ the volume velocity. Using a point source is practical when solving problems that are not specifically source related, such as the acoustic of a room.
 
 ## Implementation
-A monopole study uses the following syntax:
+Monopole studies use the following syntax:
 
 ```python
 system.study_acousticPointSource("monopole",         # reference
@@ -22,7 +22,7 @@ system.study_acousticPointSource("monopole",         # reference
 where:
 
 - `monopolePosition` can either be a numpy array of size `(nSource, 3)`, or a vector of vectors (e.g. `[[x1, y1, z1], [x2, y2, z2], ..., [xN, yN, zN]]`),
-- `acoustic_radiator` is defined in the same way as for `.study_acousticBEM()`. References to BEM still need to be set, even-though no mesh surface is radiating. Hence, `ref2bem` can be given arbitrarily,
+- `acoustic_radiator` is defined in the same way as for `.study_acousticBEM()`. References to BEM need to be set even-though no mesh surface is radiating. Hence, `ref2bem` can be given arbitrarily,
 - `meshPath` is optional: point source studies can be set with or without physical boundaries,
 - `domain` is set to `"exterior"` or `"interior"`, similarly to `.study_acousticBEM()`.
 
@@ -37,8 +37,7 @@ Let's take a room of dimensions $L_x=3.15$ m, $L_y=5$ m and $L_z=2.3$ m. We set 
 Shoebox room, visualization done in Salome.
 ```
 
-
-As usual, we start by importing libraries, setting the mesh path and initializing the system object.
+As usual, we start by importing libraries, setting the mesh path and initializing the system object:
 
 ```python
 import numpy as np
@@ -53,9 +52,7 @@ frequency = np.arange(10, 200.25, 0.25)
 sim = ep.loudspeakerSystem(frequency)
 ```
 
-Now, the position of sources and evaluation points are written as vectors. The source has a  unit-velocity. In that case, `ref2bem` is set to `10` --- even-though this value is not "used" directly as a reference to a mesh surface, the post-processing function will use it.
-
-<!-- it is important to set it in order for the post-processing functions to be applied correctly. -->
+Now, the position of sources and evaluation points are written as vectors. The source has a unit velocity. In that case, `ref2bem` is set to `10` --- even-though this value is not "used" directly as a reference to a mesh surface, the post-processing function will use it.
 
 ```python
 #%% source and microphone position
