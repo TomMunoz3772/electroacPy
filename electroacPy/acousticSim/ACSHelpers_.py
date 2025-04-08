@@ -3,7 +3,7 @@ Helper functions for BEM and point-source methods
 
 """
 import numpy as np
-import bempp.api
+import bempp_cl.api
 
 
 #%% Green-function and monopole 
@@ -110,7 +110,7 @@ def buildGridFunction(space, *args):
     coeff = np.ones(dof, dtype=complex)
     for arg in args:
         coeff *= arg
-    grid_fun = bempp.api.GridFunction(space, coefficients=coeff)
+    grid_fun = bempp_cl.api.GridFunction(space, coefficients=coeff)
     return grid_fun
 
 def element2vertice_pressure(grid, p_mesh):
@@ -137,7 +137,7 @@ def element2vertice_pressure(grid, p_mesh):
     
     # Step 1: Initialize an array to accumulate pressure per vertex
     vertice_pressure = np.empty(p_mesh.shape, dtype="object")
-    space_vert = bempp.api.function_space(grid, "P", 1)
+    space_vert = bempp_cl.api.function_space(grid, "P", 1)
     
     # Step 2: Loop through each element and distribute pressure
     for f in range(p_mesh.shape[0]):
@@ -152,13 +152,13 @@ def element2vertice_pressure(grid, p_mesh):
         
             nonzero_mask = vertex_count > 0
             coeff[f, nonzero_mask] /= vertex_count[nonzero_mask] 
-            vertice_pressure[f, rs] = bempp.api.GridFunction(space_vert, 
+            vertice_pressure[f, rs] = bempp_cl.api.GridFunction(space_vert, 
                                                              coefficients=coeff[f, :])
     
     # for f in range(p_mesh.shape[0]):
     #     for rs in range(p_mesh.shape[1]):
     #         projection_coeff = p_mesh[f, rs].projections(space_vert)
-    #         vertice_pressure[f, rs] = bempp.api.GridFunction(space_vert, coefficients=projection_coeff)
+    #         vertice_pressure[f, rs] = bempp_cl.api.GridFunction(space_vert, coefficients=projection_coeff)
     return vertice_pressure
 
  
@@ -197,8 +197,8 @@ def mirror_mesh(grid_init, boundary_conditions):
                         elements[[2, 0], :] = elements[[0, 2], :]               
                 else:
                     print("{} not infinite baffle.".format(item))
-                grid_mirror = bempp.api.Grid(vertices, elements, domain_indices=grid_tot.domain_indices)
-                grid_tot = bempp.api.grid.union([grid_tot, grid_mirror],
+                grid_mirror = bempp_cl.api.Grid(vertices, elements, domain_indices=grid_tot.domain_indices)
+                grid_tot = bempp_cl.api.grid.union([grid_tot, grid_mirror],
                                                 [grid_tot.domain_indices, grid_mirror.domain_indices])
                 size_factor *= 2
     return grid_tot, size_factor

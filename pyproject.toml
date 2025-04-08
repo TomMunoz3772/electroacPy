@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "electroacPy"
-version = "2025.03.18"
+version = "2025.04.08"
 authors = [
   { name="Tom Munoz", email="munozt@outlook.fr" },
 ]
@@ -25,5 +25,5 @@ dependencies = ["numpy", "pandas", "pyarrow", "matplotlib",
 include = [
     "electroacPy/**",  # Include all files under electroacPy
     "generalToolbox/**",  # Include all files under generalToolbox
-    "bempp/**"  # Include all files under bempp
+    "bempp_cl/**"  # Include all files under bempp
 ]

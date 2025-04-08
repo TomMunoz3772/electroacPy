@@ -6,12 +6,12 @@ Created on Thu Jan 30 11:32:22 2025
 @author: tom
 """
 
-import bempp.api
-from bempp.api.operators.boundary import helmholtz, sparse
-from bempp.api.operators.potential import helmholtz as helmholtz_potential
-from bempp.api.assembly.discrete_boundary_operator import DiagonalOperator
+import bempp_cl.api
+from bempp_cl.api.operators.boundary import helmholtz, sparse
+from bempp_cl.api.operators.potential import helmholtz as helmholtz_potential
+from bempp_cl.api.assembly.discrete_boundary_operator import DiagonalOperator
 from scipy.sparse.linalg import gmres as scipy_gmres
-from bempp.api.linalg import gmres
+from bempp_cl.api.linalg import gmres
 import numpy as np
 from tqdm import tqdm
 import warnings
@@ -222,8 +222,8 @@ class pointSourceBEM:
         self.propag_function = np.empty([len(frequency), self.Ns], dtype=object)
         
         # load simulation grid and mirror mesh if needed
-        self.grid_sim = bempp.api.import_grid(self.meshPath)
-        self.grid_init = bempp.api.import_grid(self.meshPath)
+        self.grid_sim = bempp_cl.api.import_grid(self.meshPath)
+        self.grid_init = bempp_cl.api.import_grid(self.meshPath)
         self.grid_sim, self.sizeFactor = mirror_mesh(self.grid_init, self.boundary_conditions)
         self.vertices = np.shape(self.grid_sim.vertices)[1]
         
@@ -234,7 +234,7 @@ class pointSourceBEM:
         
         
         # define space functions
-        self.spaceP   = bempp.api.function_space(self.grid_sim, "DP", 0)
+        self.spaceP   = bempp_cl.api.function_space(self.grid_sim, "DP", 0)
         self.identity = sparse.identity(self.spaceP, self.spaceP, self.spaceP)
         
         
@@ -364,7 +364,7 @@ class pointSourceBEM:
 
                 # ABSORBING SURFACES
                 Yn = self.admittanceCoeff[:, i]  # all admittance coeff at current frequency
-                yn_fun = bempp.api.GridFunction(self.spaceP, coefficients=Yn)  # ? doubts on its usefulness
+                yn_fun = bempp_cl.api.GridFunction(self.spaceP, coefficients=Yn)  # ? doubts on its usefulness
                 yn = DiagonalOperator(yn_fun.coefficients)
                 
                 lhs = ((double_layer + 
@@ -385,9 +385,9 @@ class pointSourceBEM:
                     
                     u_total_coeff, _ = scipy_gmres(lhs, rhs, rtol=self.tol)
                     u_total_coeff_Y = 1j*k[i]*u_total_coeff*yn_fun.coefficients
-                    self.u_mesh[i, rs] = bempp.api.GridFunction(self.spaceP, 
+                    self.u_mesh[i, rs] = bempp_cl.api.GridFunction(self.spaceP, 
                                                                 coefficients=u_total_coeff)
-                    self.u_mesh_Y[i, rs] = bempp.api.GridFunction(self.spaceP, 
+                    self.u_mesh_Y[i, rs] = bempp_cl.api.GridFunction(self.spaceP, 
                                                                 coefficients=u_total_coeff_Y)
 
                     

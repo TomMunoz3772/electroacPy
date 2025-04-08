@@ -414,7 +414,7 @@ def bempp_grid(bemOBJ, eval_grid, pmic, radiationCoeff, radiatingElement,
 
     """
     import gmsh
-    import bempp.api
+    import bempp_cl.api
     import tempfile
     import subprocess
 
@@ -445,19 +445,19 @@ def bempp_grid(bemOBJ, eval_grid, pmic, radiationCoeff, radiatingElement,
         
     # set all grid and plotting grid to a single list (for union!)
     grids = []
-    grids.append(bempp.api.Grid(grid.vertices, grid.elements))
+    grids.append(bempp_cl.api.Grid(grid.vertices, grid.elements))
     coeff_limits = np.zeros(len(eval_grid)+2, dtype=int)
     coeff_limits[0] = 1
     coeff_limits[1] = Nvert_grid+1
     for i in range(len(eval_name)):
-        grid_tmp = bempp.api.Grid(eval_grid[i].vertices, eval_grid[i].elements)
+        grid_tmp = bempp_cl.api.Grid(eval_grid[i].vertices, eval_grid[i].elements)
         grids.append(grid_tmp)
         coeff_limits[i+2] = coeff_limits[i+1]+eval_grid[i].vertices.shape[1]
 
-    grid_union = bempp.api.grid.union(grids)
+    grid_union = bempp_cl.api.grid.union(grids)
     
     with tempfile.NamedTemporaryFile(delete=False, suffix=".msh") as tmp_file:
-        bempp.api.export(tmp_file.name, grid_union, write_binary=False)
+        bempp_cl.api.export(tmp_file.name, grid_union, write_binary=False)
 
     
     # Initialize GMSH
