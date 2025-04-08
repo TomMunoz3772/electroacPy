@@ -125,7 +125,7 @@ class evaluations:
     
     def solve(self, evaluation_name="all"):
         if evaluation_name == "all":
-            obs_to_compute = [] #list(self.setup.keys())
+            obs_to_compute = []
             for key in self.setup:
                 if self.setup[key].isComputed is False:
                     obs_to_compute.append(key)
