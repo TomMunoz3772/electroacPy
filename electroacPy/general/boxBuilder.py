@@ -36,13 +36,15 @@ class shoebox:
         self.membrane = []
 
 
-
     def addCircularMembrane(self, face, x, y, radius, physical_group):
         self.membrane.append([face, x, y, radius, physical_group])
         
               
     def addRectangularMembrane(self, face, x, y, lx, ly, physical_group):
         self.membrane.append([face, x, y, lx, ly, physical_group])
+        
+    def addPolygon(self, face, X, Y, physical_group):
+        self.membrane.append([face, X, Y, physical_group])
         
     def build(self):
         """
@@ -145,6 +147,8 @@ class shoebox:
                 piston_type = "circle"
             elif len(piston_tmp) == 6:
                 piston_type = "rectangle"
+            elif len(piston_tmp) == 4:
+                piston_type = "polygon"
             
             if piston_type == "circle":
                 face = piston_tmp[0]
@@ -268,22 +272,26 @@ class shoebox:
                 
                 if face in ["x", "+x", "X", "+X", "-x", "-X"]:
                     if '-'  in face:
-                        Lx_offset = -Lx/2
+                        Lxc_offset = -Lx/2
+                        Lxr_offset = 0
+                        Lyr_offset = Ly
                         sign = -1
                     else:
-                        Lx_offset = Lx/2
+                        Lxc_offset = Lx/2
+                        Lxr_offset = Lx
+                        Lyr_offset = 0
                         sign = 1
                         
                     if self.position == "center":
-                        point_p1 = gmsh.model.geo.addPoint(Lx_offset, sign*(x-lx/2), y-ly/2)
-                        point_p2 = gmsh.model.geo.addPoint(Lx_offset, sign*(x+lx/2), y-ly/2)
-                        point_p3 = gmsh.model.geo.addPoint(Lx_offset, sign*(x+lx/2), y+ly/2)
-                        point_p4 = gmsh.model.geo.addPoint(Lx_offset, sign*(x-lx/2), y+ly/2)
-                    # elif self.position == "corner":
-                    #     point_p1 = gmsh.model.geo.addPoint(Lx_offset, x-lx/2, y-ly/2)
-                    #     point_p2 = gmsh.model.geo.addPoint(Lx_offset, x+lx/2, y-ly/2)
-                    #     point_p3 = gmsh.model.geo.addPoint(Lx_offset, x+lx/2, y+ly/2)
-                    #     point_p4 = gmsh.model.geo.addPoint(Lx_offset, x-lx/2, y+ly/2)
+                        point_p1 = gmsh.model.geo.addPoint(Lxc_offset, sign*(x-lx/2), y-ly/2)
+                        point_p2 = gmsh.model.geo.addPoint(Lxc_offset, sign*(x+lx/2), y-ly/2)
+                        point_p3 = gmsh.model.geo.addPoint(Lxc_offset, sign*(x+lx/2), y+ly/2)
+                        point_p4 = gmsh.model.geo.addPoint(Lxc_offset, sign*(x-lx/2), y+ly/2)
+                    elif self.position == "corner":
+                        point_p1 = gmsh.model.geo.addPoint(Lxr_offset, Lyr_offset + sign*x, y)
+                        point_p2 = gmsh.model.geo.addPoint(Lxr_offset, Lyr_offset + sign*(x+lx), y)
+                        point_p3 = gmsh.model.geo.addPoint(Lxr_offset, Lyr_offset + sign*(x+lx), y+ly)
+                        point_p4 = gmsh.model.geo.addPoint(Lxr_offset, Lyr_offset + sign*x, y+ly)
                     
                     rect_1 = gmsh.model.geo.addLine(point_p1, point_p2)
                     rect_2 = gmsh.model.geo.addLine(point_p2, point_p3)
@@ -299,23 +307,28 @@ class shoebox:
                         panel_xp.append(piston_loop)
         
                 
-                if face in ["y", "+y", "Y", "+Y", "-y", "-Y"]:                    
+                if face in ["y", "+y", "Y", "+Y", "-y", "-Y"]:
+                    if '-' in face:
+                        Lyc_offset = -Ly/2
+                        Lyr_offset = 0
+                        Lxr_offset = 0
+                        sign = -1
+                    else:
+                        Lyc_offset = Ly/2
+                        Lyr_offset = Ly
+                        Lxr_offset = Lx
+                        sign = 1
+                        
                     if self.position == "center":
-                        if '-' in face:
-                            Ly_offset = -Ly/2
-                            sign = -1
-                        else:
-                            Ly_offset = Ly/2
-                            sign = 1
-                        point_p1 = gmsh.model.geo.addPoint(sign*(x+lx/2), Ly_offset, y-ly/2)
-                        point_p2 = gmsh.model.geo.addPoint(sign*(x-lx/2), Ly_offset, y-ly/2)
-                        point_p3 = gmsh.model.geo.addPoint(sign*(x-lx/2), Ly_offset, y+ly/2)
-                        point_p4 = gmsh.model.geo.addPoint(sign*(x+lx/2), Ly_offset, y+ly/2)
-                    # elif self.position == "corner":
-                    #     point_p1 = gmsh.model.geo.addPoint(x-lx/2, Ly_offset, y-ly/2)
-                    #     point_p2 = gmsh.model.geo.addPoint(x-lx/2, Ly_offset, y-ly/2)
-                    #     point_p3 = gmsh.model.geo.addPoint(x-lx/2, Ly_offset, y-ly/2)
-                    #     point_p4 = gmsh.model.geo.addPoint(x-lx/2, Ly_offset, y-ly/2)
+                        point_p1 = gmsh.model.geo.addPoint(sign*(x+lx/2), Lyc_offset, y-ly/2)
+                        point_p2 = gmsh.model.geo.addPoint(sign*(x-lx/2), Lyc_offset, y-ly/2)
+                        point_p3 = gmsh.model.geo.addPoint(sign*(x-lx/2), Lyc_offset, y+ly/2)
+                        point_p4 = gmsh.model.geo.addPoint(sign*(x+lx/2), Lyc_offset, y+ly/2)
+                    elif self.position == "corner":
+                        point_p1 = gmsh.model.geo.addPoint(Lxr_offset - sign*x, Lyr_offset, y)
+                        point_p2 = gmsh.model.geo.addPoint(Lxr_offset - sign*(x+lx), Lyr_offset, y)
+                        point_p3 = gmsh.model.geo.addPoint(Lxr_offset - sign*(x+lx), Lyr_offset, y+ly)
+                        point_p4 = gmsh.model.geo.addPoint(Lxr_offset - sign*x, Lyr_offset, y+ly)
                     
                     rect_1 = gmsh.model.geo.addLine(point_p1, point_p2)
                     rect_2 = gmsh.model.geo.addLine(point_p2, point_p3)
@@ -331,29 +344,36 @@ class shoebox:
                         panel_yp.append(piston_loop)   
                         
                 if face in ["z", "+z", "Z", "+Z", "-z", "-Z"]:                    
+                    if '-' in face:
+                        Lzc_offset = -Lz/2
+                        Lzr_offset = 0
+                        Lxr_offset = Lx
+                        sign = -1 
+                    else:
+                        Lzc_offset = Lz/2
+                        Lzr_offset = Lz
+                        Lxr_offset = 0
+                        sign = 1
+                        
                     if self.position == "center":
-                        if '-' in face:
-                            Lz_offset = -Lz/2
-                            sign = -1 
-                        else:
-                            Lz_offset = Lz/2
-                            sign = 1
-                        point_p1 = gmsh.model.geo.addPoint(sign*(x+lx/2), y-ly/2, Lz_offset)
-                        point_p2 = gmsh.model.geo.addPoint(sign*(x-lx/2), y-ly/2, Lz_offset)
-                        point_p3 = gmsh.model.geo.addPoint(sign*(x-lx/2), y+ly/2, Lz_offset)
-                        point_p4 = gmsh.model.geo.addPoint(sign*(x+lx/2), y+ly/2, Lz_offset)
-                    # elif self.position == "corner":
-                    #     point_p1 = gmsh.model.geo.addPoint(x-lx/2, Ly_offset, y-ly/2)
-                    #     point_p2 = gmsh.model.geo.addPoint(x-lx/2, Ly_offset, y-ly/2)
-                    #     point_p3 = gmsh.model.geo.addPoint(x-lx/2, Ly_offset, y-ly/2)
-                    #     point_p4 = gmsh.model.geo.addPoint(x-lx/2, Ly_offset, y-ly/2)
+                        point_p1 = gmsh.model.geo.addPoint(sign*(x+lx/2), y-ly/2, Lzc_offset)
+                        point_p2 = gmsh.model.geo.addPoint(sign*(x-lx/2), y-ly/2, Lzc_offset)
+                        point_p3 = gmsh.model.geo.addPoint(sign*(x-lx/2), y+ly/2, Lzc_offset)
+                        point_p4 = gmsh.model.geo.addPoint(sign*(x+lx/2), y+ly/2, Lzc_offset)
+                        pos_sign = -1
+                    elif self.position == "corner":
+                        point_p1 = gmsh.model.geo.addPoint(Lxr_offset + sign*x, y, Lzr_offset)
+                        point_p2 = gmsh.model.geo.addPoint(Lxr_offset + sign*(x+lx), y, Lzr_offset)
+                        point_p3 = gmsh.model.geo.addPoint(Lxr_offset + sign*(x+lx), y+ly, Lzr_offset)
+                        point_p4 = gmsh.model.geo.addPoint(Lxr_offset + sign*x, y+ly, Lzr_offset)
+                        pos_sign = 1
                     
                     rect_1 = gmsh.model.geo.addLine(point_p1, point_p2)
                     rect_2 = gmsh.model.geo.addLine(point_p2, point_p3)
                     rect_3 = gmsh.model.geo.addLine(point_p3, point_p4)
                     rect_4 = gmsh.model.geo.addLine(point_p4, point_p1)
-                    piston_loop = gmsh.model.geo.addCurveLoop([-rect_1, -rect_2, 
-                                                               -rect_3, -rect_4])
+                    piston_loop = gmsh.model.geo.addCurveLoop([pos_sign*rect_1, pos_sign*rect_2, 
+                                                               pos_sign*rect_3, pos_sign*rect_4])
                     radSurf.append(gmsh.model.geo.addPlaneSurface([piston_loop]))
                      
                     if "-" in face:
