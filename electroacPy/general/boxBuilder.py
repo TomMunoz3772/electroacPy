@@ -6,7 +6,8 @@ import gmsh
 
 
 class shoebox:
-    def __init__(self, Lx, Ly, Lz, position="center", meshSize=0.057):
+    def __init__(self, Lx, Ly, Lz, position="center", 
+                 minSize=0.0057, maxSize=0.057):
         """
         Create a parallelepipede.
 
@@ -33,20 +34,25 @@ class shoebox:
         self.Ly = Ly
         self.Lz = Lz
         self.position = position
+        self.minSize = minSize
+        self.maxSize = maxSize
         self.membrane = []
+        self.name = []
 
 
-    def addCircularMembrane(self, face, x, y, radius, physical_group):
+    def addCircularMembrane(self, face, x, y, radius, physical_group, name=None):
         self.membrane.append([face, x, y, radius, physical_group])
-        
+        self.name.append(name)
               
-    def addRectangularMembrane(self, face, x, y, lx, ly, physical_group):
+    def addRectangularMembrane(self, face, x, y, lx, ly, physical_group, name=None):
         self.membrane.append([face, x, y, lx, ly, physical_group])
+        self.name.append(name)
         
-    def addPolygon(self, face, X, Y, physical_group):
+    def addPolygon(self, face, X, Y, physical_group, name=None):
         self.membrane.append([face, X, Y, physical_group])
+        self.name.append(name)
         
-    def build(self):
+    def build(self, path=None):
         """
         Build the geometry.
 
@@ -67,7 +73,10 @@ class shoebox:
         radSurf = []
         
         gmsh.initialize()
-        
+        gmsh.option.setNumber("Mesh.CharacteristicLengthMin", self.minSize)
+        gmsh.option.setNumber("Mesh.CharacteristicLengthMax", self.maxSize)
+        gmsh.option.setNumber("Mesh.MshFileVersion",2.2)   
+
         if self.position == "center":
             point_1 = gmsh.model.geo.addPoint(Lx/2, -Ly/2, -Lz/2)
             point_2 = gmsh.model.geo.addPoint(Lx/2, Ly/2, -Lz/2)
@@ -130,7 +139,6 @@ class shoebox:
         loop_4 = gmsh.model.geo.addCurveLoop([line_13, line_14, line_15, line_16])      # -z
         loop_5 = gmsh.model.geo.addCurveLoop([line_17, line_18, line_19, line_20])      # -y
         loop_6 = gmsh.model.geo.addCurveLoop([line_21, line_22, line_23, line_24])      # -x
-        loops = [loop_1, loop_2, loop_3, loop_4, loop_5, loop_6]
         
         ## LIST OF PANELS TO BUILD 
         panel_xp = [loop_1]
@@ -381,8 +389,6 @@ class shoebox:
                     else:
                         panel_zp.append(piston_loop)   
                                 
-                        
-                        
         nonRadSurf = []
         nonRadSurf.append(gmsh.model.geo.addPlaneSurface(panel_xp))
         nonRadSurf.append(gmsh.model.geo.addPlaneSurface(panel_xm))
@@ -390,21 +396,31 @@ class shoebox:
         nonRadSurf.append(gmsh.model.geo.addPlaneSurface(panel_ym))
         nonRadSurf.append(gmsh.model.geo.addPlaneSurface(panel_zp))
         nonRadSurf.append(gmsh.model.geo.addPlaneSurface(panel_zm))
-        
         gmsh.model.geo.synchronize()
-        
         
         ## SURFACE GROUP
         for i in range(len(args)):
             piston_tmp = args[i]
-            gmsh.model.addPhysicalGroup(2, [radSurf[i]], tag=piston_tmp[-1], name=f"rad_surf_{i+1}")
+            if self.name[i] is None:
+                name = f"rad_surf_{i+1}"
+            else:
+                name = self.name[i]
+            gmsh.model.addPhysicalGroup(2, [radSurf[i]], tag=piston_tmp[-1], name=name)
         
         gmsh.model.addPhysicalGroup(2, nonRadSurf, name="rigid_boundary")
         
-        ## BUILD GEOMETRY
+        ## BUILD GEOMETRY        
         gmsh.model.mesh.generate(dim=2)
-        gmsh.fltk.run()
         
+        if path is None:
+            gmsh.write("geo_mesh.msh")
+        elif type(path) == str:
+            if path[-4::] in [".med", ".msh"]:
+                gmsh.write(path)
+            else:
+                gmsh.finalize()
+                raise Exception("Mesh extension not supported. Try '.med' or '.msh'.")
+            
         gmsh.finalize()
         return None
         
