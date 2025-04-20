@@ -51,8 +51,8 @@ For now, electroacPy supports the following file format:
 Once parameters are loaded in a **driver**, it is possible to plot its electrical impedance and mechanical behavior using `.plotZe()` and `.plotXVA()`. To access these functions, the object is called from its `.driver[]` dictionary. Resulting plot are shown in {numref}`woofer-ze` and {numref}`woofer-xva`.
 
 ```python
-floorstander.driver["SB34"].plotZe()
-floorstander.driver["SB34"].plotXVA()
+system.driver["SB34"].plotZe()
+system.driver["SB34"].plotXVA()
 ```
 
 ```{figure} ./lumped_images/woofer_ze_b.svg
