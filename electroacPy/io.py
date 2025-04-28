@@ -10,7 +10,7 @@ from electroacPy import loudspeakerSystem
 from electroacPy.acousticSim.bem import bem
 from electroacPy.acousticSim.pointSource import pointSource, pointSourceBEM
 from electroacPy.acousticSim.evaluations import evaluations as evs
-import bempp.api
+import bempp_cl.api
 
 def save(projectPath, loudspeakerSystem):
     """
@@ -272,15 +272,15 @@ def loadPressureMeshResults(obj, pressureMesh):
 
     for f in range(Nfft):
         for rs in range(nRad):
-            obj.p_mesh[f, rs] = bempp.api.GridFunction(obj.spaceP, coefficients=pressureMesh[f, rs, :])
+            obj.p_mesh[f, rs] = bempp_cl.api.GridFunction(obj.spaceP, coefficients=pressureMesh[f, rs, :])
             dofCount = obj.spaceU_freq[rs].grid_dof_count
             coeff_radSurf = np.ones(dofCount, dtype=complex) * obj.coeff_radSurf[f, rs, :dofCount]
-            spaceU = bempp.api.function_space(obj.grid_sim, "DP", 0,
+            spaceU = bempp_cl.api.function_space(obj.grid_sim, "DP", 0,
                                               segments=[obj.radiatingElement[rs]])
-            u_total = bempp.api.GridFunction(spaceU, coefficients=-coeff_radSurf)
+            u_total = bempp_cl.api.GridFunction(spaceU, coefficients=-coeff_radSurf)
             obj.u_mesh[f, rs] = u_total
 
-        obj.p_total_mesh[f] = bempp.api.GridFunction(obj.spaceP,
+        obj.p_total_mesh[f] = bempp_cl.api.GridFunction(obj.spaceP,
                                                      coefficients=np.sum(pressureMesh[f, :, :], 0))
     return None
 
@@ -290,11 +290,11 @@ def loadPointSourceBEM(obj, pressureMesh, velocityMesh, velocityMesh_Y):
     nRad  = np.shape(pressureMesh)[1]
     for f in range(Nfft):
         for rs in range(nRad):
-            obj.p_mesh[f, rs] = bempp.api.GridFunction(obj.spaceP, 
+            obj.p_mesh[f, rs] = bempp_cl.api.GridFunction(obj.spaceP, 
                                                        coefficients=pressureMesh[f, rs, :])
-            obj.u_mesh[f, rs] = bempp.api.GridFunction(obj.spaceP, 
+            obj.u_mesh[f, rs] = bempp_cl.api.GridFunction(obj.spaceP, 
                                                        coefficients=velocityMesh[f, rs, :])        
             if obj.admittanceCoeff is not None:
-                obj.u_mesh_Y[f, rs] = bempp.api.GridFunction(obj.spaceP, 
+                obj.u_mesh_Y[f, rs] = bempp_cl.api.GridFunction(obj.spaceP, 
                                                              coefficients=velocityMesh_Y[f, rs, :])
     return None

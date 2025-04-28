@@ -6,12 +6,12 @@ Created on Tue Oct  3 15:42:38 2023
 @author: tom.munoz
 """
 
-import bempp.api
-from bempp.api.operators.boundary import helmholtz, sparse
-from bempp.api.operators.potential import helmholtz as helmholtz_potential
-from bempp.api.assembly.discrete_boundary_operator import DiagonalOperator
+import bempp_cl.api
+from bempp_cl.api.operators.boundary import helmholtz, sparse
+from bempp_cl.api.operators.potential import helmholtz as helmholtz_potential
+from bempp_cl.api.assembly.discrete_boundary_operator import DiagonalOperator
 from scipy.sparse.linalg import gmres as scipy_gmres
-from bempp.api.linalg import gmres
+from bempp_cl.api.linalg import gmres
 import numpy as np
 from tqdm import tqdm
 import warnings
@@ -23,10 +23,10 @@ warnings.filterwarnings("ignore", message="splu requires CSC matrix format")
 warnings.filterwarnings("ignore", message="splu converted its input to CSC format")
 # warnings.filterwarnings("ignore", category=CompilerWarning)
 
-# bempp.api.set_default_gpu_device_by_name('NVIDIA CUDA')
-# bempp.api.BOUNDARY_OPERATOR_DEVICE_TYPE = 'gpu'
-# bempp.api.POTENTIAL_OPERATOR_DEVICE_TYPE = 'gpu'
-# bempp.api.DEFAULT_PRECISION = 'single'
+# bempp_cl.api.set_default_gpu_device_by_name('NVIDIA CUDA')
+# bempp_cl.api.BOUNDARY_OPERATOR_DEVICE_TYPE = 'gpu'
+# bempp_cl.api.POTENTIAL_OPERATOR_DEVICE_TYPE = 'gpu'
+# bempp_cl.api.DEFAULT_PRECISION = 'single'
 
 try:
     from pyopencl import CompilerWarning
@@ -112,14 +112,14 @@ class bem:
         self.p_total_mesh = np.empty([len(frequency)], dtype=object)   # summed sources
         
         # load simulation grid and mirror mesh if needed
-        self.grid_sim = bempp.api.import_grid(self.meshPath)
-        self.grid_init = bempp.api.import_grid(self.meshPath)
+        self.grid_sim = bempp_cl.api.import_grid(self.meshPath)
+        self.grid_init = bempp_cl.api.import_grid(self.meshPath)
         self.grid_sim, self.sizeFactor = mirror_mesh(self.grid_init, 
                                                      self.boundary_conditions)
         self.vertices = np.shape(self.grid_sim.vertices)[1]
 
         # define space functions
-        self.spaceP   = bempp.api.function_space(self.grid_sim, "P", 1)
+        self.spaceP   = bempp_cl.api.function_space(self.grid_sim, "P", 1)
         self.identity = sparse.identity(self.spaceP, self.spaceP, self.spaceP)
 
         # initialize flow space
@@ -130,7 +130,7 @@ class bem:
         self.correctionCoefficients = []
         dof = np.zeros(self.Ns)
         for i in range(self.Ns):
-            spaceU = bempp.api.function_space(self.grid_sim, "DP", 0,
+            spaceU = bempp_cl.api.function_space(self.grid_sim, "DP", 0,
                                               segments=[radiatingElement[i]])
             self.spaceU_freq[i] = spaceU
             dof[i] = int(spaceU.grid_dof_count)   # degree of freedom of each radiators
@@ -249,77 +249,85 @@ class bem:
         print("Computing pressure on mesh")
         if self.admittanceCoeff is None:
             for i in tqdm(range(len(k))):
+                # run simulation from highest frequency to lowest
+                i_reverse = -i-1
+                k_i = k[i_reverse]
+                
                 # creation of the double layer
                 double_layer = helmholtz.double_layer(self.spaceP, self.spaceP,
-                                                      self.spaceP, k[i])
+                                                      self.spaceP, k_i)
                 lhs = double_layer + 0.5 * self.identity * domain_operator
                 for rs in range(self.Ns):                
-                    coeff_radSurf = self.coeff_radSurf[i, rs, :int(self.dof[rs])]
-                    spaceU = bempp.api.function_space(self.grid_sim, "DP", 0,
+                    coeff_radSurf = self.coeff_radSurf[i_reverse, rs, :int(self.dof[rs])]
+                    spaceU = bempp_cl.api.function_space(self.grid_sim, "DP", 0,
                                                       segments=[self.radiatingElement[rs]])
     
                     # get velocity on current radiator
-                    u_total = bempp.api.GridFunction(spaceU, 
+                    u_total = bempp_cl.api.GridFunction(spaceU, 
                                                      coefficients=-coeff_radSurf *
                                                      self.correctionCoefficients[rs])
                     # single layer
                     single_layer = helmholtz.single_layer(spaceU,
                                                           self.spaceP, self.spaceP,
-                                                          k[i])
+                                                          k_i)
     
                     # pressure over the whole surface of the loudspeaker (p_total)
-                    rhs = 1j * omega[i] * self.rho_0 * single_layer * u_total
+                    rhs = 1j * omega[i_reverse] * self.rho_0 * single_layer * u_total
                     p_total, _ = gmres(lhs, rhs, tol=self.tol, 
                                        return_residuals=False)
     
-                    self.p_mesh[i, rs] = p_total # individual speakers
-                    self.u_mesh[i, rs] = u_total # individual speakers
+                    self.p_mesh[i_reverse, rs] = p_total # individual speakers
+                    self.u_mesh[i_reverse, rs] = u_total # individual speakers
             self.isComputed = True
             
         elif self.admittanceCoeff is not None:
             for i in tqdm(range(len(k))):
+                # run simulation from highest frequency to lowest
+                i_reverse = -i-1
+                k_i = k[i_reverse]
+                
                 # creation of the double layer
                 double_layer = helmholtz.double_layer(self.spaceP, self.spaceP,
-                                                      self.spaceP, k[i])
+                                                      self.spaceP, k_i)
                 # admittance single layer
                 single_layer_Y = helmholtz.single_layer(self.spaceP, self.spaceP,
-                                                        self.spaceP, k[i])
+                                                        self.spaceP, k_i)
                 # ABSORBING SURFACES
-                Yn = self.admittanceCoeff[:, i]  # all admittance coeff at current frequency
-                yn_fun = bempp.api.GridFunction(self.spaceP, coefficients=Yn)  # ? doubts on its usefulness
+                Yn = self.admittanceCoeff[:, i_reverse]  # all admittance coeff at current frequency
+                yn_fun = bempp_cl.api.GridFunction(self.spaceP, coefficients=Yn)  # ? doubts on its usefulness
                 yn = DiagonalOperator(yn_fun.coefficients)
 
                 # building left-hand-side term
                 lhs = ((double_layer + 0.5*self.identity * domain_operator).weak_form()
-                       - (1j*k[i]*single_layer_Y.weak_form()*yn))    
+                       - (1j*k_i*single_layer_Y.weak_form()*yn))    
                 
                 for rs in range(self.Ns):
                     # RADIATING SURFACES
-                    coeff_radSurf = self.coeff_radSurf[i, rs, :int(self.dof[rs])]
+                    coeff_radSurf = self.coeff_radSurf[i_reverse, rs, :int(self.dof[rs])]
 
-                    spaceU = bempp.api.function_space(self.grid_sim, "DP", 0,
+                    spaceU = bempp_cl.api.function_space(self.grid_sim, "DP", 0,
                                                       segments=[self.radiatingElement[rs]])
 
                     # get velocity on current radiator
-                    u_total = bempp.api.GridFunction(spaceU, 
+                    u_total = bempp_cl.api.GridFunction(spaceU, 
                                                      coefficients=-coeff_radSurf *
                                                      self.correctionCoefficients[rs])
 
                     # single layer - radiating surface
                     single_layer = helmholtz.single_layer(spaceU,
                                                           self.spaceP, self.spaceP,
-                                                          k[i])
+                                                          k_i)
 
 
-                    rhs = 1j * omega[i] * self.rho_0 * single_layer * u_total
+                    rhs = 1j * omega[i_reverse] * self.rho_0 * single_layer * u_total
                     rhs = rhs.projections(self.spaceP)
 
                     # pressure over the whole surface of the loudspeaker (p_total)
                     p_total_coefficients, _ = scipy_gmres(lhs, rhs, rtol=self.tol)
-                    p_total = bempp.api.GridFunction(self.spaceP, coefficients=p_total_coefficients)
+                    p_total = bempp_cl.api.GridFunction(self.spaceP, coefficients=p_total_coefficients)
 
-                    self.p_mesh[i, rs] = p_total  # individual speakers
-                    self.u_mesh[i, rs] = u_total  # individual speakers
+                    self.p_mesh[i_reverse, rs] = p_total  # individual speakers
+                    self.u_mesh[i_reverse, rs] = u_total  # individual speakers
             self.isComputed = True 
         return None
         
@@ -431,8 +439,8 @@ def mirror_mesh(grid_init, boundary_conditions):
                         elements[[2, 0], :] = elements[[0, 2], :]               
                 else:
                     print("{} not infinite baffle.".format(item))
-                grid_mirror = bempp.api.Grid(vertices, elements, domain_indices=grid_tot.domain_indices)
-                grid_tot = bempp.api.grid.union([grid_tot, grid_mirror],
+                grid_mirror = bempp_cl.api.Grid(vertices, elements, domain_indices=grid_tot.domain_indices)
+                grid_tot = bempp_cl.api.grid.union([grid_tot, grid_mirror],
                                                 [grid_tot.domain_indices, grid_mirror.domain_indices])
                 size_factor *= 2
     return grid_tot, size_factor
