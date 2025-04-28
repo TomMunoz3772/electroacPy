@@ -75,7 +75,7 @@ class shoebox:
         gmsh.initialize()
         gmsh.option.setNumber("Mesh.CharacteristicLengthMin", self.minSize)
         gmsh.option.setNumber("Mesh.CharacteristicLengthMax", self.maxSize)
-        gmsh.option.setNumber("Mesh.MshFileVersion",2.2)   
+        gmsh.option.setNumber("Mesh.MshFileVersion", 2.2)   
 
         if self.position == "center":
             point_1 = gmsh.model.geo.addPoint(Lx/2, -Ly/2, -Lz/2)
@@ -100,45 +100,30 @@ class shoebox:
         
         
         ## BUILD LINES
-        # panel 1 (front)
         line_1 = gmsh.model.geo.add_line(point_1, point_2)
         line_2 = gmsh.model.geo.add_line(point_2, point_3)
         line_3 = gmsh.model.geo.add_line(point_3, point_4)
         line_4 = gmsh.model.geo.add_line(point_4, point_1)
-        # panel 2 (right)
+        
         line_5 = gmsh.model.geo.add_line(point_2, point_6)
         line_6 = gmsh.model.geo.add_line(point_6, point_7)
         line_7 = gmsh.model.geo.add_line(point_7, point_3)
-        line_8 = gmsh.model.geo.add_line(point_3, point_2)
-        # panel 3 (top)
-        line_9 = gmsh.model.geo.add_line(point_3, point_7)
-        line_10 = gmsh.model.geo.add_line(point_7, point_8)
-        line_11 = gmsh.model.geo.add_line(point_8, point_4)
-        line_12 = gmsh.model.geo.add_line(point_4, point_3)
-        # panel 4 (bottom)
-        line_13 = gmsh.model.geo.add_line(point_2, point_1)
-        line_14 = gmsh.model.geo.add_line(point_1, point_5)
-        line_15 = gmsh.model.geo.add_line(point_5, point_6)
-        line_16 = gmsh.model.geo.add_line(point_6, point_2)
-        # panel 5 (left)
-        line_17 = gmsh.model.geo.add_line(point_5, point_1)
-        line_18 = gmsh.model.geo.add_line(point_1, point_4)
-        line_19 = gmsh.model.geo.add_line(point_4, point_8)
-        line_20 = gmsh.model.geo.add_line(point_8, point_5)
-        # panel 6 (back)
-        line_21 = gmsh.model.geo.add_line(point_7, point_6)
-        line_22 = gmsh.model.geo.add_line(point_6, point_5)
-        line_23 = gmsh.model.geo.add_line(point_5, point_8)
-        line_24 = gmsh.model.geo.add_line(point_8, point_7)
+        line_8 = gmsh.model.geo.add_line(point_7, point_8)
+
+        line_9 = gmsh.model.geo.add_line(point_8, point_4)
+        line_10 = gmsh.model.geo.add_line(point_5, point_6)
+        line_11 = gmsh.model.geo.add_line(point_5, point_1)
+        line_12 = gmsh.model.geo.add_line(point_5, point_8)
+
 
         ## MAKE CURVE LOOP FROM LINES
         # curve loop
-        loop_1 = gmsh.model.geo.addCurveLoop([line_1, line_2, line_3, line_4])          # +x
-        loop_2 = gmsh.model.geo.addCurveLoop([line_5, line_6, line_7, line_8])          # +y
-        loop_3 = gmsh.model.geo.addCurveLoop([line_9, line_10, line_11, line_12])       # +z
-        loop_4 = gmsh.model.geo.addCurveLoop([line_13, line_14, line_15, line_16])      # -z
-        loop_5 = gmsh.model.geo.addCurveLoop([line_17, line_18, line_19, line_20])      # -y
-        loop_6 = gmsh.model.geo.addCurveLoop([line_21, line_22, line_23, line_24])      # -x
+        loop_1 = gmsh.model.geo.addCurveLoop([line_1, line_2, line_3, line_4])      # +x
+        loop_2 = gmsh.model.geo.addCurveLoop([line_5, line_6, line_7, -line_2])     # +y
+        loop_3 = gmsh.model.geo.addCurveLoop([-line_3, -line_7, line_8, line_9])      # +z
+        loop_4 = gmsh.model.geo.addCurveLoop([-line_11, line_10, -line_5, -line_1])   # -z
+        loop_5 = gmsh.model.geo.addCurveLoop([line_11, -line_4, -line_9, -line_12])    # -y
+        loop_6 = gmsh.model.geo.addCurveLoop([-line_8, -line_6, -line_10, line_12])   # -x
         
         ## LIST OF PANELS TO BUILD 
         panel_xp = [loop_1]

@@ -249,12 +249,16 @@ class bem:
         print("Computing pressure on mesh")
         if self.admittanceCoeff is None:
             for i in tqdm(range(len(k))):
+                # run simulation from highest frequency to lowest
+                i_reverse = -i-1
+                k_i = k[i_reverse]
+                
                 # creation of the double layer
                 double_layer = helmholtz.double_layer(self.spaceP, self.spaceP,
-                                                      self.spaceP, k[i])
+                                                      self.spaceP, k_i)
                 lhs = double_layer + 0.5 * self.identity * domain_operator
                 for rs in range(self.Ns):                
-                    coeff_radSurf = self.coeff_radSurf[i, rs, :int(self.dof[rs])]
+                    coeff_radSurf = self.coeff_radSurf[i_reverse, rs, :int(self.dof[rs])]
                     spaceU = bempp_cl.api.function_space(self.grid_sim, "DP", 0,
                                                       segments=[self.radiatingElement[rs]])
     
@@ -265,37 +269,41 @@ class bem:
                     # single layer
                     single_layer = helmholtz.single_layer(spaceU,
                                                           self.spaceP, self.spaceP,
-                                                          k[i])
+                                                          k_i)
     
                     # pressure over the whole surface of the loudspeaker (p_total)
-                    rhs = 1j * omega[i] * self.rho_0 * single_layer * u_total
+                    rhs = 1j * omega[i_reverse] * self.rho_0 * single_layer * u_total
                     p_total, _ = gmres(lhs, rhs, tol=self.tol, 
                                        return_residuals=False)
     
-                    self.p_mesh[i, rs] = p_total # individual speakers
-                    self.u_mesh[i, rs] = u_total # individual speakers
+                    self.p_mesh[i_reverse, rs] = p_total # individual speakers
+                    self.u_mesh[i_reverse, rs] = u_total # individual speakers
             self.isComputed = True
             
         elif self.admittanceCoeff is not None:
             for i in tqdm(range(len(k))):
+                # run simulation from highest frequency to lowest
+                i_reverse = -i-1
+                k_i = k[i_reverse]
+                
                 # creation of the double layer
                 double_layer = helmholtz.double_layer(self.spaceP, self.spaceP,
-                                                      self.spaceP, k[i])
+                                                      self.spaceP, k_i)
                 # admittance single layer
                 single_layer_Y = helmholtz.single_layer(self.spaceP, self.spaceP,
-                                                        self.spaceP, k[i])
+                                                        self.spaceP, k_i)
                 # ABSORBING SURFACES
-                Yn = self.admittanceCoeff[:, i]  # all admittance coeff at current frequency
+                Yn = self.admittanceCoeff[:, i_reverse]  # all admittance coeff at current frequency
                 yn_fun = bempp_cl.api.GridFunction(self.spaceP, coefficients=Yn)  # ? doubts on its usefulness
                 yn = DiagonalOperator(yn_fun.coefficients)
 
                 # building left-hand-side term
                 lhs = ((double_layer + 0.5*self.identity * domain_operator).weak_form()
-                       - (1j*k[i]*single_layer_Y.weak_form()*yn))    
+                       - (1j*k_i*single_layer_Y.weak_form()*yn))    
                 
                 for rs in range(self.Ns):
                     # RADIATING SURFACES
-                    coeff_radSurf = self.coeff_radSurf[i, rs, :int(self.dof[rs])]
+                    coeff_radSurf = self.coeff_radSurf[i_reverse, rs, :int(self.dof[rs])]
 
                     spaceU = bempp_cl.api.function_space(self.grid_sim, "DP", 0,
                                                       segments=[self.radiatingElement[rs]])
@@ -308,18 +316,18 @@ class bem:
                     # single layer - radiating surface
                     single_layer = helmholtz.single_layer(spaceU,
                                                           self.spaceP, self.spaceP,
-                                                          k[i])
+                                                          k_i)
 
 
-                    rhs = 1j * omega[i] * self.rho_0 * single_layer * u_total
+                    rhs = 1j * omega[i_reverse] * self.rho_0 * single_layer * u_total
                     rhs = rhs.projections(self.spaceP)
 
                     # pressure over the whole surface of the loudspeaker (p_total)
                     p_total_coefficients, _ = scipy_gmres(lhs, rhs, rtol=self.tol)
                     p_total = bempp_cl.api.GridFunction(self.spaceP, coefficients=p_total_coefficients)
 
-                    self.p_mesh[i, rs] = p_total  # individual speakers
-                    self.u_mesh[i, rs] = u_total  # individual speakers
+                    self.p_mesh[i_reverse, rs] = p_total  # individual speakers
+                    self.u_mesh[i_reverse, rs] = u_total  # individual speakers
             self.isComputed = True 
         return None
         
