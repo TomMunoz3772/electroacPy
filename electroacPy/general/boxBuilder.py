@@ -3,54 +3,164 @@ Functions to automate the creation of simple shoebox-like geometries
 """
 
 import gmsh
+import numpy as np
 
 
 class shoebox:
+    """
+    Create a parallelepipede.
+
+    Parameters
+    ----------
+    Lx : float
+        Length along x axis.
+    Ly : float
+        Length along y axis.
+    Lz : float
+        Length along z axis.
+    position : str, optional
+        How the box is placed: "center" will put its center at (x, y, z) = 0,
+        "corner" will place the lower left corner of the box at (x, y, z) = 0. The default is "center".
+    meshSize : float, optional
+        Mesh size in metres. The default is 0.057 (343/1000/6).
+
+    Returns
+    -------
+    None.
+
+    """
     def __init__(self, Lx, Ly, Lz, position="center", 
                  minSize=0.0057, maxSize=0.057):
-        """
-        Create a parallelepipede.
-
-        Parameters
-        ----------
-        Lx : float
-            Length along x axis.
-        Ly : float
-            Length along y axis.
-        Lz : float
-            Length along z axis.
-        position : str, optional
-            How the box is placed: "center" will put its center at (x, y, z) = 0,
-            "corner" will place the lower left corner of the box at (x, y, z) = 0. The default is "center".
-        meshSize : float, optional
-            Mesh size in metres. The default is 0.057 (343/1000/6).
-
-        Returns
-        -------
-        None.
-
-        """
+       
         self.Lx = Lx
         self.Ly = Ly
         self.Lz = Lz
         self.position = position
         self.minSize = minSize
         self.maxSize = maxSize
-        self.membrane = []
-        self.name = []
+        self.membrane = {}
+        # self.name = []
+        # self.local = []
 
 
-    def addCircularMembrane(self, face, x, y, radius, physical_group, name=None):
-        self.membrane.append([face, x, y, radius, physical_group])
-        self.name.append(name)
-              
-    def addRectangularMembrane(self, face, x, y, lx, ly, physical_group, name=None):
-        self.membrane.append([face, x, y, lx, ly, physical_group])
-        self.name.append(name)
+    def addCircularBoundary(self, face, x, y, radius, 
+                          physical_group, mesh_size=0., name=None, 
+                          local="center"):
+        """
+        Add a circular piston on the given face.
+
+        Parameters
+        ----------
+        face : str
+            Face on which the circular membrane is set. Can be "x", "y", "z", "-x", etc.
+        x : float
+            Abscissa position of the membrane on the given face.
+        y : float
+            Ordinate position of the membrane on the given face.
+        radius : float
+            Radius of the circular membrane.
+        physical_group : int
+            Physical grouping of the surface. Should be used as reference for the BEM calculations.
+        mesh_size : float, optional
+            If > 0, size of the membrane's mesh. The default is 0.
+        name : str, optional
+            Reference given to the physical group. The default is None (will then set 'rad_surf_X').
+
+        Returns
+        -------
+        None.
+
+        """
+        # self.membrane.append([face, x, y, radius, mesh_size, physical_group])
+        # self.name.append(name)
+        # self.local.append(local)
+        if name is None and bool(self.membrane) is False:
+            name = "rad_surf_1"
+        elif name is None and bool(self.membrane) is True:
+            M = len(self.membrane)
+            name = f"rad_surf_{M+1}"
         
-    def addPolygon(self, face, X, Y, physical_group, name=None):
-        self.membrane.append([face, X, Y, physical_group])
-        self.name.append(name)
+        self.membrane[name] = circularMembrane(face, x, y, radius,
+                                               mesh_size, physical_group, local)
+
+    def addRectangularBoundary(self, face, x, y, lx, ly, 
+                             physical_group, mesh_size=0., name=None, 
+                             local="center"):
+        """
+        Add a rectangular membrane on the given face.
+
+        Parameters
+        ----------
+        face : str
+            Face on which the circular membrane is set. Can be "x", "y", "z", "-x", etc.
+        x : float
+            Abscissa position of the membrane on the given face.
+        y : float
+            Ordinate position of the membrane on the given face.
+        lx : float
+            Length along abscissa.
+        ly : float
+            Length along ordinate.
+        physical_group : int
+            Physical grouping of the surface. Should be used as reference for the BEM calculations.
+        mesh_size : float, optional
+            If > 0, size of the membrane's mesh. The default is 0.
+        name : str, optional
+            Reference given to the physical group. The default is None (will then set 'rad_surf_X').
+
+        Returns
+        -------
+        None.
+
+        """
+        # self.membrane.append([face, x, y, lx, ly, mesh_size, physical_group])
+        # self.name.append(name)
+        
+        if name is None and bool(self.membrane) is False:
+            name = "rad_surf_1"
+        elif name is None and bool(self.membrane) is True:
+            M = len(self.membrane)
+            name = f"rad_surf_{M+1}"
+        self.membrane[name] = rectangularMembrane(face, x, y, lx, ly, 
+                                                  mesh_size, physical_group, local)
+        
+    def addPolygonBoundary(self, face, X, Y, physical_group, 
+                         mesh_size=0., name=None, local="center"):
+        """
+        Add a polygon as a radiating on the given face.
+
+        Parameters
+        ----------
+        face : str
+            Face on which the circular membrane is set. Can be "x", "y", "z", "-x", etc.
+        X : list of float
+            Abscissae of all polygon points.
+        Y : list of float
+            Ordinates of all polygon points. Length should be the same than X.
+        physical_group : int
+            Physical grouping of the surface. Should be used as reference for the BEM calculations.
+        mesh_size : float, optional
+            If > 0, size of the membrane's mesh. The default is 0.
+        name : str, optional
+            Reference given to the physical group. The default is None (will then set 'rad_surf_X').
+
+        Returns
+        -------
+        None.
+
+        """
+        # self.membrane.append([face, X, Y, mesh_size, physical_group])
+        # self.name.append(name)
+        
+        if name is None and bool(self.membrane) is False:
+            name = "rad_surf_1"
+        elif name is None and bool(self.membrane) is True:
+            M = len(self.membrane)
+            name = f"rad_surf_{M+1}"
+        
+        self.membrane[name] = polygonMembrane(face, X, Y, mesh_size, 
+                                              physical_group, local)
+        
         
     def build(self, path=None):
         """
@@ -133,247 +243,122 @@ class shoebox:
         panel_zp = [loop_3]
         panel_zm = [loop_4]
         
-        ## BUILD PANELS
-        for i in range(len(args)):
-            piston_tmp = args[i]
-            if len(piston_tmp) == 5:
-                piston_type = "circle"
-            elif len(piston_tmp) == 6:
-                piston_type = "rectangle"
-            elif len(piston_tmp) == 4:
-                piston_type = "polygon"
-            
-            if piston_type == "circle":
-                face = piston_tmp[0]
-                x    = piston_tmp[1]
-                y    = piston_tmp[2]
-                r    = piston_tmp[3]
         
-                if face in ["x", "+x", "X", "+X", "-x", "-X"]:
-                    if '-' in face:
-                        sign = -1
-                        Lx_offset = 0
-                        Ly_offset = Ly
-                    else:
-                        sign = 1
-                        Lx_offset = Lx
-                        Ly_offset = 0
-                        
-                    if self.position == "center":
-                        point_p1 = gmsh.model.geo.addPoint(sign * Lx/2, sign*x, y)
-                        point_p2 = gmsh.model.geo.addPoint(sign * Lx/2, sign*(x+r), y)
-                        point_p3 = gmsh.model.geo.addPoint(sign * Lx/2, sign*x, y+r)
-                        point_p4 = gmsh.model.geo.addPoint(sign * Lx/2, sign*(x-r), y)
-                        point_p5 = gmsh.model.geo.addPoint(sign * Lx/2, sign*x, y-r)
-                    elif self.position == "corner":
-                        point_p1 = gmsh.model.geo.addPoint(Lx_offset, Ly_offset + sign*x, y)
-                        point_p2 = gmsh.model.geo.addPoint(Lx_offset, Ly_offset + sign*(x+r), y)
-                        point_p3 = gmsh.model.geo.addPoint(Lx_offset, Ly_offset + sign*x, y+r)
-                        point_p4 = gmsh.model.geo.addPoint(Lx_offset, Ly_offset + sign*(x-r), y)
-                        point_p5 = gmsh.model.geo.addPoint(Lx_offset, Ly_offset + sign*x, y-r)
-                    circle_1 = gmsh.model.geo.addCircleArc(point_p2, point_p1, point_p3)
-                    circle_2 = gmsh.model.geo.addCircleArc(point_p3, point_p1, point_p4)
-                    circle_3 = gmsh.model.geo.addCircleArc(point_p4, point_p1, point_p5)
-                    circle_4 = gmsh.model.geo.addCircleArc(point_p5, point_p1, point_p2)
-                    piston_loop = gmsh.model.geo.addCurveLoop([circle_1, circle_2, 
-                                                               circle_3, circle_4])
-                    radSurf.append(gmsh.model.geo.addPlaneSurface([piston_loop]))
-                    
+        for m in self.membrane:
+            m_tmp = self.membrane[m]
+            if m_tmp.mtype == "circular":
+                face  = m_tmp.face
+                ms    = m_tmp.mesh_size
+                xp    = m_tmp.get_placement(Lx, Ly, Lz, self.position)
+                
+                # place points on face
+                point_p1 = gmsh.model.geo.addPoint(xp[0, 0], xp[0, 1], xp[0, 2], ms)
+                point_p2 = gmsh.model.geo.addPoint(xp[1, 0], xp[1, 1], xp[1, 2], ms)
+                point_p3 = gmsh.model.geo.addPoint(xp[2, 0], xp[2, 1], xp[2, 2], ms)
+                point_p4 = gmsh.model.geo.addPoint(xp[3, 0], xp[3, 1], xp[3, 2], ms)
+                point_p5 = gmsh.model.geo.addPoint(xp[4, 0], xp[4, 1], xp[4, 2], ms)
+                
+                # add circle
+                circle_1 = gmsh.model.geo.addCircleArc(point_p2, point_p1, point_p3)
+                circle_2 = gmsh.model.geo.addCircleArc(point_p3, point_p1, point_p4)
+                circle_3 = gmsh.model.geo.addCircleArc(point_p4, point_p1, point_p5)
+                circle_4 = gmsh.model.geo.addCircleArc(point_p5, point_p1, point_p2)
+                piston_loop = gmsh.model.geo.addCurveLoop([circle_1, circle_2, 
+                                                           circle_3, circle_4])
+                
+                # create new boundary 
+                radSurf.append(gmsh.model.geo.addPlaneSurface([piston_loop]))
+                
+                if face in ["x", "X", "+x", "+X", "-x", "-X"]:
                     if "-" in face:
                         panel_xm.append(piston_loop)
                     else:
                         panel_xp.append(piston_loop)
-                            
-                elif face in ["y", "+y", "Y", "+Y", "-y", "-Y"]:
+                elif face in ["y", "Y", "+y", "+Y", "-y", "-Y"]:
                     if "-" in face:
-                        sign = -1
-                        Lx_offset = 0
-                        Ly_offset = 0
-                    else:
-                        sign = 1
-                        Lx_offset = Lx
-                        Ly_offset = Ly
-                        
-                    if self.position == "center":
-                        point_p1 = gmsh.model.geo.addPoint(-sign*x, sign*Ly/2, y)
-                        point_p2 = gmsh.model.geo.addPoint(-sign*(x+r), sign*Ly/2, y)
-                        point_p3 = gmsh.model.geo.addPoint(-sign*x, sign*Ly/2, y+r)
-                        point_p4 = gmsh.model.geo.addPoint(-sign*(x-r), sign*Ly/2, y)
-                        point_p5 = gmsh.model.geo.addPoint(-sign*x, sign*Ly/2, y-r)
-                    elif self.position == "corner":
-                        point_p1 = gmsh.model.geo.addPoint(Lx_offset-sign*x, Ly_offset, y)
-                        point_p2 = gmsh.model.geo.addPoint(Lx_offset-sign*(x+r), Ly_offset, y)
-                        point_p3 = gmsh.model.geo.addPoint(Lx_offset-sign*x, Ly_offset, y+r)
-                        point_p4 = gmsh.model.geo.addPoint(Lx_offset-sign*(x-r), Ly_offset, y)
-                        point_p5 = gmsh.model.geo.addPoint(Lx_offset-sign*x, Ly_offset, y-r)
-                    circle_1 = gmsh.model.geo.addCircleArc(point_p2, point_p1, point_p3)
-                    circle_2 = gmsh.model.geo.addCircleArc(point_p3, point_p1, point_p4)
-                    circle_3 = gmsh.model.geo.addCircleArc(point_p4, point_p1, point_p5)
-                    circle_4 = gmsh.model.geo.addCircleArc(point_p5, point_p1, point_p2)
-                    piston_loop = gmsh.model.geo.addCurveLoop([circle_1, circle_2, 
-                                                               circle_3, circle_4])
-                    radSurf.append(gmsh.model.geo.addPlaneSurface([piston_loop]))
-                    
-                    if "-" in face:
-                        panel_ym.append(piston_loop)         
-                    else:
-                        panel_yp.append(piston_loop)            
-        
-        
-                elif face in ["z", "+z", "Z", "+Z", "-z", "-Z"]:
-                    if "-" in face:
-                        sign = -1
-                        Lz_offset = 0
-                        Lx_offset = Lx
-                    else:
-                        sign = 1
-                        Lz_offset = Lz
-                        Lx_offset = 0
-                                        
-                    if self.position == "center":
-                        point_p1 = gmsh.model.geo.addPoint(sign*x, y, sign*Lz/2)
-                        point_p2 = gmsh.model.geo.addPoint(sign*(x+r), y, sign*Lz/2)
-                        point_p3 = gmsh.model.geo.addPoint(sign*x, (y+r), sign*Lz/2)
-                        point_p4 = gmsh.model.geo.addPoint(sign*(x-r), y, sign*Lz/2)
-                        point_p5 = gmsh.model.geo.addPoint(sign*x, (y-r), sign*Lz/2)
-                    elif self.position == "corner":
-                        point_p1 = gmsh.model.geo.addPoint(Lx_offset+sign*x, y, Lz_offset)
-                        point_p2 = gmsh.model.geo.addPoint(Lx_offset+sign*(x+r), y, Lz_offset)
-                        point_p3 = gmsh.model.geo.addPoint(Lx_offset+sign*x, (y+r), Lz_offset)
-                        point_p4 = gmsh.model.geo.addPoint(Lx_offset+sign*(x-r), y, Lz_offset)
-                        point_p5 = gmsh.model.geo.addPoint(Lx_offset+sign*x, y-r, Lz_offset)
-                    circle_1 = gmsh.model.geo.addCircleArc(point_p2, point_p1, point_p3)
-                    circle_2 = gmsh.model.geo.addCircleArc(point_p3, point_p1, point_p4)
-                    circle_3 = gmsh.model.geo.addCircleArc(point_p4, point_p1, point_p5)
-                    circle_4 = gmsh.model.geo.addCircleArc(point_p5, point_p1, point_p2)
-                    piston_loop = gmsh.model.geo.addCurveLoop([circle_1, circle_2, 
-                                                               circle_3, circle_4])
-                    radSurf.append(gmsh.model.geo.addPlaneSurface([piston_loop]))
-                    
-                    if "-" in face:
-                        panel_zm.append(piston_loop)         
-                    else:
-                        panel_zp.append(piston_loop) 
-            
-        
-            elif piston_type == "rectangle":                
-                face = piston_tmp[0]
-                x    = piston_tmp[1]
-                y    = piston_tmp[2]
-                lx   = piston_tmp[3]
-                ly   = piston_tmp[4]                
-                
-                if face in ["x", "+x", "X", "+X", "-x", "-X"]:
-                    if '-'  in face:
-                        Lxc_offset = -Lx/2
-                        Lxr_offset = 0
-                        Lyr_offset = Ly
-                        sign = -1
-                    else:
-                        Lxc_offset = Lx/2
-                        Lxr_offset = Lx
-                        Lyr_offset = 0
-                        sign = 1
-                        
-                    if self.position == "center":
-                        point_p1 = gmsh.model.geo.addPoint(Lxc_offset, sign*(x-lx/2), y-ly/2)
-                        point_p2 = gmsh.model.geo.addPoint(Lxc_offset, sign*(x+lx/2), y-ly/2)
-                        point_p3 = gmsh.model.geo.addPoint(Lxc_offset, sign*(x+lx/2), y+ly/2)
-                        point_p4 = gmsh.model.geo.addPoint(Lxc_offset, sign*(x-lx/2), y+ly/2)
-                    elif self.position == "corner":
-                        point_p1 = gmsh.model.geo.addPoint(Lxr_offset, Lyr_offset + sign*x, y)
-                        point_p2 = gmsh.model.geo.addPoint(Lxr_offset, Lyr_offset + sign*(x+lx), y)
-                        point_p3 = gmsh.model.geo.addPoint(Lxr_offset, Lyr_offset + sign*(x+lx), y+ly)
-                        point_p4 = gmsh.model.geo.addPoint(Lxr_offset, Lyr_offset + sign*x, y+ly)
-                    
-                    rect_1 = gmsh.model.geo.addLine(point_p1, point_p2)
-                    rect_2 = gmsh.model.geo.addLine(point_p2, point_p3)
-                    rect_3 = gmsh.model.geo.addLine(point_p3, point_p4)
-                    rect_4 = gmsh.model.geo.addLine(point_p4, point_p1)
-                    piston_loop = gmsh.model.geo.addCurveLoop([rect_1, rect_2, 
-                                                               rect_3, rect_4])
-                    radSurf.append(gmsh.model.geo.addPlaneSurface([piston_loop]))
-                    
-                    if "-" in face:
-                        panel_xm.append(piston_loop)         
-                    else:
-                        panel_xp.append(piston_loop)
-        
-                
-                if face in ["y", "+y", "Y", "+Y", "-y", "-Y"]:
-                    if '-' in face:
-                        Lyc_offset = -Ly/2
-                        Lyr_offset = 0
-                        Lxr_offset = 0
-                        sign = -1
-                    else:
-                        Lyc_offset = Ly/2
-                        Lyr_offset = Ly
-                        Lxr_offset = Lx
-                        sign = 1
-                        
-                    if self.position == "center":
-                        point_p1 = gmsh.model.geo.addPoint(sign*(x+lx/2), Lyc_offset, y-ly/2)
-                        point_p2 = gmsh.model.geo.addPoint(sign*(x-lx/2), Lyc_offset, y-ly/2)
-                        point_p3 = gmsh.model.geo.addPoint(sign*(x-lx/2), Lyc_offset, y+ly/2)
-                        point_p4 = gmsh.model.geo.addPoint(sign*(x+lx/2), Lyc_offset, y+ly/2)
-                    elif self.position == "corner":
-                        point_p1 = gmsh.model.geo.addPoint(Lxr_offset - sign*x, Lyr_offset, y)
-                        point_p2 = gmsh.model.geo.addPoint(Lxr_offset - sign*(x+lx), Lyr_offset, y)
-                        point_p3 = gmsh.model.geo.addPoint(Lxr_offset - sign*(x+lx), Lyr_offset, y+ly)
-                        point_p4 = gmsh.model.geo.addPoint(Lxr_offset - sign*x, Lyr_offset, y+ly)
-                    
-                    rect_1 = gmsh.model.geo.addLine(point_p1, point_p2)
-                    rect_2 = gmsh.model.geo.addLine(point_p2, point_p3)
-                    rect_3 = gmsh.model.geo.addLine(point_p3, point_p4)
-                    rect_4 = gmsh.model.geo.addLine(point_p4, point_p1)
-                    piston_loop = gmsh.model.geo.addCurveLoop([rect_1, rect_2, 
-                                                               rect_3, rect_4])
-                    radSurf.append(gmsh.model.geo.addPlaneSurface([piston_loop]))
-                     
-                    if "-" in face:
-                        panel_ym.append(piston_loop)         
+                        panel_ym.append(piston_loop)
                     else:
                         panel_yp.append(piston_loop)   
-                        
-                if face in ["z", "+z", "Z", "+Z", "-z", "-Z"]:                    
-                    if '-' in face:
-                        Lzc_offset = -Lz/2
-                        Lzr_offset = 0
-                        Lxr_offset = Lx
-                        sign = -1 
-                    else:
-                        Lzc_offset = Lz/2
-                        Lzr_offset = Lz
-                        Lxr_offset = 0
-                        sign = 1
-                        
-                    if self.position == "center":
-                        point_p1 = gmsh.model.geo.addPoint(sign*(x+lx/2), y-ly/2, Lzc_offset)
-                        point_p2 = gmsh.model.geo.addPoint(sign*(x-lx/2), y-ly/2, Lzc_offset)
-                        point_p3 = gmsh.model.geo.addPoint(sign*(x-lx/2), y+ly/2, Lzc_offset)
-                        point_p4 = gmsh.model.geo.addPoint(sign*(x+lx/2), y+ly/2, Lzc_offset)
-                        pos_sign = -1
-                    elif self.position == "corner":
-                        point_p1 = gmsh.model.geo.addPoint(Lxr_offset + sign*x, y, Lzr_offset)
-                        point_p2 = gmsh.model.geo.addPoint(Lxr_offset + sign*(x+lx), y, Lzr_offset)
-                        point_p3 = gmsh.model.geo.addPoint(Lxr_offset + sign*(x+lx), y+ly, Lzr_offset)
-                        point_p4 = gmsh.model.geo.addPoint(Lxr_offset + sign*x, y+ly, Lzr_offset)
-                        pos_sign = 1
-                    
-                    rect_1 = gmsh.model.geo.addLine(point_p1, point_p2)
-                    rect_2 = gmsh.model.geo.addLine(point_p2, point_p3)
-                    rect_3 = gmsh.model.geo.addLine(point_p3, point_p4)
-                    rect_4 = gmsh.model.geo.addLine(point_p4, point_p1)
-                    piston_loop = gmsh.model.geo.addCurveLoop([pos_sign*rect_1, pos_sign*rect_2, 
-                                                               pos_sign*rect_3, pos_sign*rect_4])
-                    radSurf.append(gmsh.model.geo.addPlaneSurface([piston_loop]))
-                     
+                elif face in ["z", "Z", "+z", "+Z", "-z", "-Z"]:
                     if "-" in face:
-                        panel_zm.append(piston_loop)         
+                        panel_zm.append(piston_loop)
                     else:
-                        panel_zp.append(piston_loop)   
+                        panel_zp.append(piston_loop)
+                        
+            if m_tmp.mtype == "rectangular":
+                face  = m_tmp.face
+                ms    = m_tmp.mesh_size
+                xp    = m_tmp.get_placement(Lx, Ly, Lz, self.position)
                                 
+                # place points on face
+                point_p1 = gmsh.model.geo.addPoint(xp[0, 0], xp[0, 1], xp[0, 2], ms)
+                point_p2 = gmsh.model.geo.addPoint(xp[1, 0], xp[1, 1], xp[1, 2], ms)
+                point_p3 = gmsh.model.geo.addPoint(xp[2, 0], xp[2, 1], xp[2, 2], ms)
+                point_p4 = gmsh.model.geo.addPoint(xp[3, 0], xp[3, 1], xp[3, 2], ms)
+                
+                rect_1 = gmsh.model.geo.addLine(point_p1, point_p2)
+                rect_2 = gmsh.model.geo.addLine(point_p2, point_p3)
+                rect_3 = gmsh.model.geo.addLine(point_p3, point_p4)
+                rect_4 = gmsh.model.geo.addLine(point_p4, point_p1)
+                
+                piston_loop = gmsh.model.geo.addCurveLoop([rect_1, rect_2, 
+                                                           rect_3, rect_4])
+                
+                # create new boundary 
+                radSurf.append(gmsh.model.geo.addPlaneSurface([piston_loop]))
+                
+                if face in ["x", "X", "+x", "+X", "-x", "-X"]:
+                    if "-" in face:
+                        panel_xm.append(piston_loop)
+                    else:
+                        panel_xp.append(piston_loop)
+                elif face in ["y", "Y", "+y", "+Y", "-y", "-Y"]:
+                    if "-" in face:
+                        panel_ym.append(piston_loop)
+                    else:
+                        panel_yp.append(piston_loop)   
+                elif face in ["z", "Z", "+z", "+Z", "-z", "-Z"]:
+                    if "-" in face:
+                        panel_zm.append(piston_loop)
+                    else:
+                        panel_zp.append(piston_loop)
+                        
+                        
+            if m_tmp.mtype == "polygon":
+                face  = m_tmp.face
+                ms    = m_tmp.mesh_size
+                xp = m_tmp.get_placement(Lx, Ly, Lz, self.position)
+                point_px = []
+                poly = []
+                
+                for i in range(len(xp)):
+                    point_px.append(gmsh.model.geo.addPoint(xp[i, 0],
+                                                            xp[i, 1], xp[i, 2]))    
+                    
+                # link points together (lines)
+                for j in range(len(point_px)-1):
+                    poly.append(gmsh.model.geo.addLine(point_px[j], point_px[j+1]))
+                poly.append(gmsh.model.geo.addLine(point_px[-1], point_px[0]))
+                piston_loop = gmsh.model.geo.addCurveLoop(poly)
+                radSurf.append(gmsh.model.geo.addPlaneSurface([piston_loop]))
+            
+                if face in ["x", "X", "+x", "+X", "-x", "-X"]:
+                    if "-" in face:
+                        panel_xm.append(piston_loop)
+                    else:
+                        panel_xp.append(piston_loop)
+                elif face in ["y", "Y", "+y", "+Y", "-y", "-Y"]:
+                    if "-" in face:
+                        panel_ym.append(piston_loop)
+                    else:
+                        panel_yp.append(piston_loop)   
+                elif face in ["z", "Z", "+z", "+Z", "-z", "-Z"]:
+                    if "-" in face:
+                        panel_zm.append(piston_loop)
+                    else:
+                        panel_zp.append(piston_loop)
+                        
+            
         nonRadSurf = []
         nonRadSurf.append(gmsh.model.geo.addPlaneSurface(panel_xp))
         nonRadSurf.append(gmsh.model.geo.addPlaneSurface(panel_xm))
@@ -383,15 +368,23 @@ class shoebox:
         nonRadSurf.append(gmsh.model.geo.addPlaneSurface(panel_zm))
         gmsh.model.geo.synchronize()
         
-        ## SURFACE GROUP
-        for i in range(len(args)):
-            piston_tmp = args[i]
-            if self.name[i] is None:
-                name = f"rad_surf_{i+1}"
+        # create rad/impedance groups
+        groups = {}
+        gname  = {}
+        for i, m in enumerate(self.membrane):
+            m_tmp = self.membrane[m]
+            group_tmp = str(m_tmp.physical_group)
+            if group_tmp not in groups:
+                groups[group_tmp] = [radSurf[i]]
+                gname[group_tmp] = m
             else:
-                name = self.name[i]
-            gmsh.model.addPhysicalGroup(2, [radSurf[i]], tag=piston_tmp[-1], name=name)
+                groups[group_tmp].append(radSurf[i])
         
+        for g in groups:
+            surf_tmp = groups[g]
+            gmsh.model.addPhysicalGroup(2, surf_tmp, tag=int(g), name=gname[g])
+        
+        # remaining group (enclosure / room)
         gmsh.model.addPhysicalGroup(2, nonRadSurf, name="rigid_boundary")
         
         ## BUILD GEOMETRY        
@@ -410,3 +403,536 @@ class shoebox:
         return None
         
         
+        
+#%% SHAPE INFO HOLDER
+class circularMembrane:
+    def __init__(self, face, x, y, radius, mesh_size, physical_group, local):
+        self.face           = face
+        self.x              = x
+        self.y              = y
+        self.radius         = radius
+        self.mesh_size      = mesh_size
+        self.physical_group = physical_group
+        self.local          = local
+        self.mtype          = "circular"
+        
+    def get_placement(self, Lx, Ly, Lz, position):
+        # for more lisibility
+        x = self.x
+        y = self.y
+        r = self.radius
+        
+        
+        if self.face in ["x", "+x", "X", "+X", "-x", "-X"]:
+            # check which side of the box
+            if "-" in self.face:
+                sign = -1            
+                # get local coordinates (Lx_offset, Ly_offset, Lz_offset)
+                if position == "center" and self.local == "center":
+                    Lx_offset = -Lx/2
+                    Ly_offset = 0
+                    Lz_offset = 0
+                elif position == "center" and self.local == "corner":
+                    Lx_offset = -Lx/2
+                    Ly_offset = Ly/2
+                    Lz_offset = -Lz/2
+                elif position == "corner" and self.local == "center":
+                    Lx_offset = 0
+                    Ly_offset = Ly/2
+                    Lz_offset = Lz/2
+                elif position == "corner" and self.local == "corner":
+                    Lx_offset = 0
+                    Ly_offset = Ly
+                    Lz_offset = 0 
+            else:
+                sign = 1
+                # get local coordinates (Lx_offset, Ly_offset, Lz_offset)                    
+                if position == "center" and self.local == "center":
+                    Lx_offset = Lx/2
+                    Ly_offset = 0
+                    Lz_offset = 0
+                elif position == "center" and self.local == "corner":
+                    Lx_offset = Lx/2
+                    Ly_offset = -Ly/2
+                    Lz_offset = -Lz/2
+                elif position == "corner" and self.local == "center":
+                    Lx_offset = Lx
+                    Ly_offset = Ly/2
+                    Lz_offset = Lz/2
+                elif position == "corner" and self.local == "corner":
+                    Lx_offset = Lx
+                    Ly_offset = 0
+                    Lz_offset = 0
+            
+            # point position
+            xp = np.array([[0, x, y], 
+                           [0, x+r, y], 
+                           [0, x, y+r], 
+                           [0, x-r, y],
+                           [0, x, y-r]])
+            xp[:, 1] *= sign
+            xp[:, 0] += Lx_offset
+            xp[:, 1] += Ly_offset
+            xp[:, 2] += Lz_offset
+        
+        if self.face in ["y", "+y", "Y", "+Y", "-y", "-Y"]:
+            # check which side of the box
+            if "-" in self.face:
+                sign = 1            
+                # get local coordinates (Lx_offset, Ly_offset, Lz_offset)
+                if position == "center" and self.local == "center":
+                    Lx_offset = 0
+                    Ly_offset = -Ly/2
+                    Lz_offset = 0
+                elif position == "center" and self.local == "corner":
+                    Lx_offset = -Lx/2
+                    Ly_offset = -Ly/2
+                    Lz_offset = -Lz/2
+                elif position == "corner" and self.local == "center":
+                    Lx_offset = Lx/2
+                    Ly_offset = 0
+                    Lz_offset = Lz/2
+                elif position == "corner" and self.local == "corner":
+                    Lx_offset = 0
+                    Ly_offset = 0
+                    Lz_offset = 0 
+            else:
+                sign = -1
+                # get local coordinates (Lx_offset, Ly_offset, Lz_offset)                    
+                if position == "center" and self.local == "center":
+                    Lx_offset = 0
+                    Ly_offset = Ly/2
+                    Lz_offset = 0
+                elif position == "center" and self.local == "corner":
+                    Lx_offset = Lx/2
+                    Ly_offset = Ly/2
+                    Lz_offset = -Lz/2
+                elif position == "corner" and self.local == "center":
+                    Lx_offset = Lx/2
+                    Ly_offset = Ly
+                    Lz_offset = Lz/2
+                elif position == "corner" and self.local == "corner":
+                    Lx_offset = Lx
+                    Ly_offset = Ly
+                    Lz_offset = 0
+            # point position
+            xp = np.array([[x, 0, y], 
+                           [x+r, 0, y], 
+                           [x, 0, y+r], 
+                           [x-r, 0, y],
+                           [x, 0, y-r]])
+            xp[:, 0] *= sign
+            xp[:, 0] += Lx_offset
+            xp[:, 1] += Ly_offset
+            xp[:, 2] += Lz_offset    
+                         
+            
+        if self.face in ["z", "+z", "Z", "+Z", "-z", "-Z"]:
+            # check which side of the box
+            if "-" in self.face:
+                sign = -1            
+                # get local coordinates (Lx_offset, Ly_offset, Lz_offset)
+                if position == "center" and self.local == "center":
+                    Lx_offset = 0
+                    Ly_offset = 0
+                    Lz_offset = -Lz/2
+                elif position == "center" and self.local == "corner":
+                    Lx_offset = +Lx/2
+                    Ly_offset = -Ly/2
+                    Lz_offset = -Lz/2
+                elif position == "corner" and self.local == "center":
+                    Lx_offset = Lx/2
+                    Ly_offset = Ly/2
+                    Lz_offset = 0
+                elif position == "corner" and self.local == "corner":
+                    Lx_offset = Lx
+                    Ly_offset = 0
+                    Lz_offset = 0 
+            else:
+                sign = 1
+                # get local coordinates (Lx_offset, Ly_offset, Lz_offset)                    
+                if position == "center" and self.local == "center":
+                    Lx_offset = 0
+                    Ly_offset = 0
+                    Lz_offset = Lz/2
+                elif position == "center" and self.local == "corner":
+                    Lx_offset = -Lx/2
+                    Ly_offset = -Ly/2
+                    Lz_offset = Lz/2
+                elif position == "corner" and self.local == "center":
+                    Lx_offset = Lx/2
+                    Ly_offset = Ly/2
+                    Lz_offset = Lz
+                elif position == "corner" and self.local == "corner":
+                    Lx_offset = 0
+                    Ly_offset = 0
+                    Lz_offset = Lz
+            
+            # point position
+            xp = np.array([[x, y, 0], 
+                           [x+r, y, 0], 
+                           [x, y+r, 0], 
+                           [x-r, y, 0],
+                           [x, y-r, 0]])
+            xp[:, 0] *= sign
+            xp[:, 0] += Lx_offset
+            xp[:, 1] += Ly_offset
+            xp[:, 2] += Lz_offset        
+        return xp
+        
+        
+class rectangularMembrane:
+    def __init__(self, face, x, y, lx, ly, mesh_size, physical_group, local):
+        self.face           = face
+        self.x              = x
+        self.y              = y
+        self.lx             = lx
+        self.ly             = ly
+        self.mesh_size      = mesh_size
+        self.physical_group = physical_group
+        self.local          = local
+        self.mtype          = "rectangular"
+        
+    def get_placement(self, Lx, Ly, Lz, position):
+        # for more lisibility
+        x = self.x
+        y = self.y
+        lx = self.lx
+        ly = self.ly
+        
+        
+        if self.face in ["x", "+x", "X", "+X", "-x", "-X"]:
+            # check which side of the box
+            if "-" in self.face:
+                sign = -1            
+                # get local coordinates (Lx_offset, Ly_offset, Lz_offset)
+                if position == "center" and self.local == "center":
+                    Lx_offset = -Lx/2
+                    Ly_offset = 0
+                    Lz_offset = 0
+                elif position == "center" and self.local == "corner":
+                    Lx_offset = -Lx/2
+                    Ly_offset = Ly/2
+                    Lz_offset = -Lz/2
+                elif position == "corner" and self.local == "center":
+                    Lx_offset = 0
+                    Ly_offset = Ly/2
+                    Lz_offset = Lz/2
+                elif position == "corner" and self.local == "corner":
+                    Lx_offset = 0
+                    Ly_offset = Ly
+                    Lz_offset = 0 
+            else:
+                sign = 1
+                # get local coordinates (Lx_offset, Ly_offset, Lz_offset)                    
+                if position == "center" and self.local == "center":
+                    Lx_offset = Lx/2
+                    Ly_offset = 0
+                    Lz_offset = 0
+                elif position == "center" and self.local == "corner":
+                    Lx_offset = Lx/2
+                    Ly_offset = -Ly/2
+                    Lz_offset = -Lz/2
+                elif position == "corner" and self.local == "center":
+                    Lx_offset = Lx
+                    Ly_offset = Ly/2
+                    Lz_offset = Lz/2
+                elif position == "corner" and self.local == "corner":
+                    Lx_offset = Lx
+                    Ly_offset = 0
+                    Lz_offset = 0
+            
+            # point position
+            xp = np.array([[0, x-lx/2, y-ly/2], 
+                           [0, x+lx/2, y-ly/2], 
+                           [0, x+lx/2, y+ly/2], 
+                           [0, x-lx/2, y+ly/2]])
+            xp[:, 1] *= sign
+            xp[:, 0] += Lx_offset
+            xp[:, 1] += Ly_offset
+            xp[:, 2] += Lz_offset
+        
+        if self.face in ["y", "+y", "Y", "+Y", "-y", "-Y"]:
+            # check which side of the box
+            if "-" in self.face:
+                sign = 1            
+                # get local coordinates (Lx_offset, Ly_offset, Lz_offset)
+                if position == "center" and self.local == "center":
+                    Lx_offset = 0
+                    Ly_offset = -Ly/2
+                    Lz_offset = 0
+                elif position == "center" and self.local == "corner":
+                    Lx_offset = -Lx/2
+                    Ly_offset = -Ly/2
+                    Lz_offset = -Lz/2
+                elif position == "corner" and self.local == "center":
+                    Lx_offset = Lx/2
+                    Ly_offset = 0
+                    Lz_offset = Lz/2
+                elif position == "corner" and self.local == "corner":
+                    Lx_offset = 0
+                    Ly_offset = 0
+                    Lz_offset = 0 
+            else:
+                sign = -1
+                # get local coordinates (Lx_offset, Ly_offset, Lz_offset)                    
+                if position == "center" and self.local == "center":
+                    Lx_offset = 0
+                    Ly_offset = Ly/2
+                    Lz_offset = 0
+                elif position == "center" and self.local == "corner":
+                    Lx_offset = Lx/2
+                    Ly_offset = Ly/2
+                    Lz_offset = -Lz/2
+                elif position == "corner" and self.local == "center":
+                    Lx_offset = Lx/2
+                    Ly_offset = Ly
+                    Lz_offset = Lz/2
+                elif position == "corner" and self.local == "corner":
+                    Lx_offset = Lx
+                    Ly_offset = Ly
+                    Lz_offset = 0
+            # point position
+            xp = np.array([[x-lx/2, 0, y-ly/2], 
+                           [x+lx/2, 0, y-ly/2], 
+                           [x+lx/2, 0, y+ly/2], 
+                           [x-lx/2, 0, y+ly/2]])
+            xp[:, 0] *= sign
+            xp[:, 0] += Lx_offset
+            xp[:, 1] += Ly_offset
+            xp[:, 2] += Lz_offset    
+                         
+            
+        if self.face in ["z", "+z", "Z", "+Z", "-z", "-Z"]:
+            # check which side of the box
+            if "-" in self.face:
+                sign = -1            
+                # get local coordinates (Lx_offset, Ly_offset, Lz_offset)
+                if position == "center" and self.local == "center":
+                    Lx_offset = 0
+                    Ly_offset = 0
+                    Lz_offset = -Lz/2
+                elif position == "center" and self.local == "corner":
+                    Lx_offset = Lx/2
+                    Ly_offset = -Ly/2
+                    Lz_offset = -Lz/2
+                elif position == "corner" and self.local == "center":
+                    Lx_offset = Lx/2
+                    Ly_offset = Ly/2
+                    Lz_offset = 0
+                elif position == "corner" and self.local == "corner":
+                    Lx_offset = Lx
+                    Ly_offset = 0
+                    Lz_offset = 0 
+            else:
+                sign = 1
+                # get local coordinates (Lx_offset, Ly_offset, Lz_offset)                    
+                if position == "center" and self.local == "center":
+                    Lx_offset = 0
+                    Ly_offset = 0
+                    Lz_offset = Lz/2
+                elif position == "center" and self.local == "corner":
+                    Lx_offset = -Lx/2
+                    Ly_offset = -Ly/2
+                    Lz_offset = Lz/2
+                elif position == "corner" and self.local == "center":
+                    Lx_offset = Lx/2
+                    Ly_offset = Ly/2
+                    Lz_offset = Lz
+                elif position == "corner" and self.local == "corner":
+                    Lx_offset = 0
+                    Ly_offset = 0
+                    Lz_offset = Lz
+            
+            # point position
+            xp = np.array([[x-lx/2, y-ly/2, 0], 
+                           [x+lx/2, y-ly/2, 0], 
+                           [x+lx/2, y+ly/2, 0], 
+                           [x-lx/2, y+ly/2, 0]])
+            
+            xp[:, 0] *= sign
+            xp[:, 0] += Lx_offset
+            xp[:, 1] += Ly_offset
+            xp[:, 2] += Lz_offset        
+        return xp        
+    
+        
+class polygonMembrane:
+    def __init__(self, face, X, Y, mesh_size, physical_group, local):
+        self.face           = face
+        self.X              = X
+        self.Y              = Y
+        self.mesh_size      = mesh_size
+        self.physical_group = physical_group
+        self.local          = local
+        self.mtype          = "polygon"
+        
+
+    def get_placement(self, Lx, Ly, Lz, position):
+        # for more lisibility
+        X = self.X
+        Y = self.Y
+        
+        
+        if self.face in ["x", "+x", "X", "+X", "-x", "-X"]:
+            # check which side of the box
+            if "-" in self.face:
+                sign = -1            
+                # get local coordinates (Lx_offset, Ly_offset, Lz_offset)
+                if position == "center" and self.local == "center":
+                    Lx_offset = -Lx/2
+                    Ly_offset = 0
+                    Lz_offset = 0
+                elif position == "center" and self.local == "corner":
+                    Lx_offset = -Lx/2
+                    Ly_offset = Ly/2
+                    Lz_offset = -Lz/2
+                elif position == "corner" and self.local == "center":
+                    Lx_offset = 0
+                    Ly_offset = Ly/2
+                    Lz_offset = Lz/2
+                elif position == "corner" and self.local == "corner":
+                    Lx_offset = 0
+                    Ly_offset = Ly
+                    Lz_offset = 0 
+            else:
+                sign = 1
+                # get local coordinates (Lx_offset, Ly_offset, Lz_offset)                    
+                if position == "center" and self.local == "center":
+                    Lx_offset = Lx/2
+                    Ly_offset = 0
+                    Lz_offset = 0
+                elif position == "center" and self.local == "corner":
+                    Lx_offset = Lx/2
+                    Ly_offset = -Ly/2
+                    Lz_offset = -Lz/2
+                elif position == "corner" and self.local == "center":
+                    Lx_offset = Lx
+                    Ly_offset = Ly/2
+                    Lz_offset = Lz/2
+                elif position == "corner" and self.local == "corner":
+                    Lx_offset = Lx
+                    Ly_offset = 0
+                    Lz_offset = 0
+            
+            # point position
+            xp = np.zeros([len(X), 3])
+            
+            for i in range(len(X)):
+                xp[i, 1] = X[i]
+                xp[i, 2] = Y[i]
+            
+            xp[:, 1] *= sign
+            xp[:, 0] += Lx_offset
+            xp[:, 1] += Ly_offset
+            xp[:, 2] += Lz_offset
+        
+        if self.face in ["y", "+y", "Y", "+Y", "-y", "-Y"]:
+            # check which side of the box
+            if "-" in self.face:
+                sign = 1            
+                # get local coordinates (Lx_offset, Ly_offset, Lz_offset)
+                if position == "center" and self.local == "center":
+                    Lx_offset = 0
+                    Ly_offset = -Ly/2
+                    Lz_offset = 0
+                elif position == "center" and self.local == "corner":
+                    Lx_offset = -Lx/2
+                    Ly_offset = -Ly/2
+                    Lz_offset = -Lz/2
+                elif position == "corner" and self.local == "center":
+                    Lx_offset = Lx/2
+                    Ly_offset = 0
+                    Lz_offset = Lz/2
+                elif position == "corner" and self.local == "corner":
+                    Lx_offset = 0
+                    Ly_offset = 0
+                    Lz_offset = 0 
+            else:
+                sign = -1
+                # get local coordinates (Lx_offset, Ly_offset, Lz_offset)                    
+                if position == "center" and self.local == "center":
+                    Lx_offset = 0
+                    Ly_offset = Ly/2
+                    Lz_offset = 0
+                elif position == "center" and self.local == "corner":
+                    Lx_offset = Lx/2
+                    Ly_offset = Ly/2
+                    Lz_offset = -Lz/2
+                elif position == "corner" and self.local == "center":
+                    Lx_offset = Lx/2
+                    Ly_offset = Ly
+                    Lz_offset = Lz/2
+                elif position == "corner" and self.local == "corner":
+                    Lx_offset = Lx
+                    Ly_offset = Ly
+                    Lz_offset = 0
+
+            # point position
+            xp = np.zeros([len(X), 3])
+            
+            for i in range(len(X)):
+                xp[i, 0] = X[i]
+                xp[i, 2] = Y[i]
+            
+            xp[:, 0] *= sign
+            xp[:, 0] += Lx_offset
+            xp[:, 1] += Ly_offset
+            xp[:, 2] += Lz_offset
+            
+            
+        if self.face in ["z", "+z", "Z", "+Z", "-z", "-Z"]:
+            # check which side of the box
+            if "-" in self.face:
+                sign = -1            
+                # get local coordinates (Lx_offset, Ly_offset, Lz_offset)
+                if position == "center" and self.local == "center":
+                    Lx_offset = 0
+                    Ly_offset = 0
+                    Lz_offset = -Lz/2
+                elif position == "center" and self.local == "corner":
+                    Lx_offset = -Lx/2
+                    Ly_offset = -Ly/2
+                    Lz_offset = -Lz/2
+                elif position == "corner" and self.local == "center":
+                    Lx_offset = Lx/2
+                    Ly_offset = Ly/2
+                    Lz_offset = 0
+                elif position == "corner" and self.local == "corner":
+                    Lx_offset = 0
+                    Ly_offset = 0
+                    Lz_offset = 0 
+            else:
+                sign = 1
+                # get local coordinates (Lx_offset, Ly_offset, Lz_offset)                    
+                if position == "center" and self.local == "center":
+                    Lx_offset = 0
+                    Ly_offset = 0
+                    Lz_offset = Lz/2
+                elif position == "center" and self.local == "corner":
+                    Lx_offset = -Lx/2
+                    Ly_offset = Ly/2
+                    Lz_offset = Lz/2
+                elif position == "corner" and self.local == "center":
+                    Lx_offset = Lx/2
+                    Ly_offset = Ly/2
+                    Lz_offset = Lz
+                elif position == "corner" and self.local == "corner":
+                    Lx_offset = 0
+                    Ly_offset = Ly
+                    Lz_offset = Lz
+            
+            # point position
+            xp = np.zeros([len(X), 3])
+            
+            for i in range(len(X)):
+                xp[i, 0] = X[i]
+                xp[i, 1] = Y[i]
+            
+            xp[:, 0] *= sign
+            xp[:, 0] += Lx_offset
+            xp[:, 1] += Ly_offset
+            xp[:, 2] += Lz_offset  
+        return xp        
+
+

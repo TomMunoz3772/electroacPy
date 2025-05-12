@@ -520,7 +520,7 @@ class SphericalRadiation:
 
 class PlottingGrid:
     def __init__(self, path_to_grid):
-        from bempp.api import import_grid
+        from bempp_cl.api import import_grid
         from ..general.geometry import check_mesh
         
         self.path_to_grid = check_mesh(path_to_grid)

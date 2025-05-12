@@ -1,5 +1,5 @@
 # Introduction
-The main idea behind this project is to provide an easy-to-use toolbox to solve simple acoustic studies using Python --- with focus on loudspeaker radiation. It uses a mix of lumped-element-modeling (LEM) for drivers and boundary-element method (BEM) for interior and exterior acoustical radiation. This handbook provides examples on how to simulate loudspeaker systems, which should go through most aspects of the toolbox. The first part shows how the front-end works: defining a lumped-element network, simulate the interaction between loudspeaker drivers and enclosures, setting-up exterior and interior radiation studies; the second part dives into the back-end of the toolbox and how studies can be made bypassing the main **loudspeakerSystem** class. The BEM wrapper uses [bempp-cl](https://bempp.com/) which is installed alongside ElectroacPy. BEM simulations wouldn’t have been possible without the contributors of the bempp-cl project.
+The main idea behind this project is to provide an easy-to-use toolbox to solve simple acoustic studies using Python --- with focus on loudspeaker radiation. It uses a mix of lumped-element-modeling (LEM) for driver/box interaction and boundary-element method (BEM) for interior and exterior acoustical radiation. This handbook provides examples on how to simulate loudspeaker systems, which should go through most aspects of the toolbox. The first part shows how the front-end works: defining a lumped-element network, simulate the interaction between loudspeaker drivers and enclosures, setting-up exterior and interior radiation studies; the second part dives into "advanced mechanics" such as associating impedances to mesh surfaces or in-room simulation of point-sources. Finally, the last part explains bits of the toolbox's back-end and how studies can be made bypassing the main **loudspeakerSystem** class. The BEM wrapper uses [bempp-cl](https://bempp.com/) which is shipped alongside ElectroacPy. BEM simulations wouldn’t have been possible without the contributors of the bempp-cl project.
 
 The GitHub repo is available [here](https://github.com/TomMunoz3772/electroacPy).
 Examples are available in [this](https://github.com/TomMunoz3772/electroacPy_examples) repository.
@@ -33,40 +33,34 @@ The recommended installation method uses the **Conda** package manager for Pytho
     - **Windows**: Use the Miniforge Prompt for installation.
     - **macOS/Linux**: Use your terminal (bash/zsh).
 
+#### Creating a conda environment
+If you decide to manage your Python environments with conda, you can setup a specific environment for electroacPy as follow:
 
-### Install from PyPI
-The easiest way to install electroacpy is by using the [PyPI repository](https://pypi.org/project/electroacPy/). In your Python environment:
-```shell
-pip install electroacPy
-```
-
-If you wish to use the OpenCL backend, you can install pyopencl:
-
-```shell
-pip install pyopencl
-```
-
-Remember that you'll need to install opencl drivers on your computer.
-
-
-### Install from source
-
-1. **Create a new Conda environment** (recommended but optional):
+1. **Create the environment**
 ```shell
 conda create -n acoustic_sim
 ```
 
-2. **Activate the environment**:
+2. **Activate the environment**
 ```shell
 conda activate acoustic_sim
 ```
-3. **Install Python 3.11 and pip** (you can adjust the Python version if needed):
-```shell
+
+3. **Install a version of Python compatible with electroacPy, as well as the *pip* package manager**
+```shell 
 conda install python=3.11 pip
 ```
-4. **Install electroacPy**:
 
-For standard installation:
+These 3 steps are all you need to do before installing electroacPy.
+
+### Recommended installation: PyPI
+The easiest way to install electroacpy is to use the [PyPI repository](https://pypi.org/project/electroacPy/). In your Python/Conda environment:
+```shell
+pip install electroacPy
+```
+
+### Install from source
+To install from source, you'll need first to download or clone the main repository --- [here's a link to help you understand the process](https://docs.github.com/en/get-started/start-your-journey/downloading-files-from-github). Once you have downloaded what you need, you can use the following command (remember to be in your Python/Conda environment):
 
 ```shell
 pip install /path/to/electroacPy
@@ -77,7 +71,7 @@ For development installation:
 pip install -e /path/to/electroacPy
 ```
 
-You'll need to replace `/path/to/electroacPy` to where the toolbox is cloned/extracted on your computer --- pointing to the folder containing the "pyproject.toml" file. For example, if you use Windows, the path can look like this: `C:\Users\yourUsername\Documents\GitHub\electroacPy`.
+You'll need to replace `/path/to/electroacPy` by the actual location of  the toolbox on your computer --- pointing to the folder containing the "pyproject.toml" file. For example, if you use Windows, the path can look like this: `C:\Users\yourUsername\Documents\GitHub\electroacPy`.
 
 ### Notes
 **Using a separate environment**:  Installing ElectroacPy in its own Conda / Python environment is recommended. This helps prevent conflicts during updates and allows easier management of dependencies.
@@ -100,8 +94,9 @@ conda install spyder
 ## OpenCL
 In Windows and Linux, you can actually use the OpenCL backend to reduce computing time. In the corresponding Conda environment:
 ```shell
-pip install pyopencl intel-opencl-rt
+pip install pyopencl
 ```
+
 You'll also need to install OpenCL drivers, which you'll find [here](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-cpu-runtime-for-opencl-applications-with-sycl-support.html) for intel users. For more information, you can follow the **OpenCL** section from [bempp-cl installation guide](https://bempp.com/installation.html).
 
 

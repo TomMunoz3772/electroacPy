@@ -189,7 +189,7 @@ class loudspeakerSystem:
     
     def vibrometry_data_user(self, name, Hv, X, ref2bem=None, inputVoltage=1):
         """
-        Add acceleration data to the study. Meant to be used as a radiator - ref2bem strongly recommended.
+        Add velocity data to the study. Meant to be used as a radiator - ref2bem strongly recommended.
 
         Parameters
         ----------

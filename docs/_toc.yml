@@ -15,6 +15,7 @@ parts:
   - file: 02-ab-monopoles
   - file: 02-ac-boundary_conditions
   - file: 02-ad-evaluations
+  - file: 02-ae-automated_geometries
 - caption: Back-end
   chapters:
   - file: 03-ab-circuitSolver
