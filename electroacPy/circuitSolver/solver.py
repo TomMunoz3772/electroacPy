@@ -167,15 +167,22 @@ class circuit:
                 I += comp.stamp_I * comp.Gs[nf]
         return I
     
-    def run(self):
+    def run(self, progressBar=True):
         self.countNodesAndSources()
         self.X = zeros([self.N+self.M, self.Nfft], dtype=complex)
         
-        print("Solving network...")
-        for nf in tqdm(range(self.Nfft)):
-            self.G_m = self.build_G(nf)
-            self.I_s = self.build_Is(nf)
-            self.X[:, nf] = squeeze(linalg.inv(self.G_m) @ self.I_s)
+        if progressBar is True:
+            print("Solving network...")
+            for nf in tqdm(range(self.Nfft)):
+                self.G_m = self.build_G(nf)
+                self.I_s = self.build_Is(nf)
+                self.X[:, nf] = squeeze(linalg.inv(self.G_m) @ self.I_s)
+                
+        elif progressBar is False:
+            for nf in range(self.Nfft):
+                self.G_m = self.build_G(nf)
+                self.I_s = self.build_Is(nf)
+                self.X[:, nf] = squeeze(linalg.inv(self.G_m) @ self.I_s)
     
     def getPotential(self, node_id):
         """

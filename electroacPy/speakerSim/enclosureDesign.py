@@ -56,9 +56,6 @@ class speakerBox:
         if kwargs:
             self.detectConfig(**kwargs)
 
-        ## PROCESS
-        # self.computeImpedance()
-
         ## TO STORE RESULTS
         # velocity
         self.v    = np.zeros(len(frequencyRange), dtype=complex)
@@ -85,6 +82,9 @@ class speakerBox:
         self.isBEM = False
         self.ref2bem = None  # is it referenced to bem mesh ?
         self.poly_data = False  # is class from polytech?
+        
+        # equivalent circuit
+        self.network = None
 
 
     def detectConfig(self, **kwargs):
@@ -217,12 +217,14 @@ class speakerBox:
         # setup and run
         enclosure.addComponent(U, RAL, RAB, CAB, RAD)
         enclosure.addBlock(DRV)
-        enclosure.run()
+        enclosure.run(progressBar=False)
         
         # extract data
         Q  = enclosure.getPotential(2) * RAD.Gs
         v  = enclosure.getFlow("v")
         Ze = -enclosure.getPotential(1) / enclosure.getFlow(1)
+        
+        self.network = enclosure
         return Q, v, Ze
 
     def vented_box(self, driver):  
@@ -251,7 +253,7 @@ class speakerBox:
         # setup and run
         enclosure.addComponent(U, RAL, RAB, CAB, RAD, PORT, RADP)
         enclosure.addBlock(DRV)
-        enclosure.run()
+        enclosure.run(progressBar=False)
         
         # extract data
         Q  = enclosure.getPotential(2) * RAD.Gs
@@ -259,6 +261,8 @@ class speakerBox:
         v  = enclosure.getFlow("v")
         vp =  Qp / self.Sp
         Ze = -enclosure.getPotential(1) / enclosure.getFlow(1)
+        
+        self.network = enclosure
         return Q, Qp, v, vp, Ze
 
     def passive_radiator(self, driver):
@@ -287,7 +291,7 @@ class speakerBox:
         # setup and run
         enclosure.addComponent(U, RAL, RAB, CAB, RAD, PR, RADPR)
         enclosure.addBlock(DRV)
-        enclosure.run()
+        enclosure.run(progressBar=False)
         
         # extract data
         Q   = enclosure.getPotential(2) * RAD.Gs
@@ -295,6 +299,8 @@ class speakerBox:
         v   = enclosure.getFlow("v")
         vpr =  Qpr / self.Sd
         Ze  = -enclosure.getPotential(1) / enclosure.getFlow(1)
+
+        self.network = enclosure
         return Q, Qpr, v, vpr, Ze
 
     def bandpass4_port(self, driver):
@@ -332,13 +338,15 @@ class speakerBox:
         enclosure.addComponent(U, RALF, RABF, CABF, 
                        RAL, RAB, CAB, PORTF, RADPF)
         enclosure.addBlock(DRV)
-        enclosure.run()
+        enclosure.run(progressBar=False)
         
         # extract data
         Qp = enclosure.getPotential(4) * RADPF.Gs
         vp = Qp / self.Sp
         v  = enclosure.getFlow("v")
         Ze = -enclosure.getPotential(1) / enclosure.getFlow(1)
+        
+        self.network = enclosure
         return Qp, vp, v, Ze
 
     def bandpass6_port(self, driver):
@@ -380,8 +388,8 @@ class speakerBox:
                        RAL, RAB, CAB, PORTF, RADPF, 
                        PORTB, RADPB)
         enclosure.addBlock(DRV)
-        enclosure.run()
-        
+        enclosure.run(progressBar=False)
+    
 
         # extract data
         Qp = enclosure.getPotential(4) * RADPF.Gs  # front 
@@ -390,6 +398,8 @@ class speakerBox:
         vp2 = Qp2 / self.Sp2
         v  = enclosure.getFlow("v")
         Ze = -enclosure.getPotential(1) / enclosure.getFlow(1)
+        
+        self.network = enclosure
         return Qp, vp, Qp2, vp2, v, Ze
 
 
@@ -427,13 +437,15 @@ class speakerBox:
         enclosure.addComponent(U, RALF, RABF, CABF, PRF, RADPF,
                                RAL, RAB, CAB)
         enclosure.addBlock(DRV)
-        enclosure.run()
+        enclosure.run(progressBar=False)
         
         # extract data
         Qpr = enclosure.getPotential(4) * RADPF.Gs
         vpr = Qpr / self.Sd
         v   = enclosure.getFlow("v")
         Ze  = -enclosure.getPotential(1) / enclosure.getFlow(1)
+        
+        self.network = enclosure
         return Qpr, vpr, v, Ze
     
     
@@ -475,7 +487,7 @@ class speakerBox:
         enclosure.addComponent(U, RALF, RABF, CABF, PRF, RADPF,
                        RAL, RAB, CAB, PRB, RADPB)
         enclosure.addBlock(DRV)
-        enclosure.run()
+        enclosure.run(progressBar=False)
         
         # extract data
         Qpr  = enclosure.getPotential(4) * RADPF.Gs
@@ -484,6 +496,8 @@ class speakerBox:
         vpr2 = Qpr2 / self.Sd2
         v    = enclosure.getFlow("v")
         Ze   = -enclosure.getPotential(1) / enclosure.getFlow(1)
+        
+        self.network = enclosure
         return Qpr, vpr, Qpr2, vpr2, v, Ze
 
 

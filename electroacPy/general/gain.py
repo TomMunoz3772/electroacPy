@@ -106,7 +106,7 @@ def dB_zero(x):
 ## SPL calculation
 def dBSPL(x):
     """
-    Convert RMS signal values to dBSPL (decibels Sound Pressure Level).
+    Convert complex pressure to dBSPL (decibels Sound Pressure Level), Peak.
 
     Parameters
     ----------
@@ -130,7 +130,7 @@ def dBSPL(x):
 
 def SPL(x):
     """
-    Convert peak signal values to dBSPL (decibels Sound Pressure Level), RMS.
+    Convert complex pressure to dBSPL (decibels Sound Pressure Level), RMS.
 
     Parameters
     ----------

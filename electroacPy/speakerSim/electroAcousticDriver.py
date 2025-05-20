@@ -260,51 +260,45 @@ class electroAcousticDriver:
         Vb : sealed enclosure volume.
         fc : resonance frequency of the driver inside the enclosure (without radiation mass)
         """
+        from ..speakerSim.enclosureDesign import speakerBox
         
-        driver = self
+        driver = copy(self)
+        driver.Le = 1e-12
         c = self.c
         rho = self.rho
     
         ## box parameters
-        Vb = driver.Vas
-        fc = driver.Fs * np.sqrt(driver.Vas / Vb + 1)
-        Qtc = fc / driver.Fs * driver.Qts
-        Cab = Vb / rho / c**2
-    
+        self.Vb = driver.Vas
+        self.fc = driver.Fs * np.sqrt(driver.Vas / self.Vb + 1)
+        self.Qtc = self.fc / driver.Fs * driver.Qts
+        self.Qab = 120
+        self.Qal = 30
+        
         ## radiated pressure at 1 m
         f_axis = driver.f_array
         omega = 2 * np.pi * f_axis
         k = omega / c
     
-        Zac = driver.Zac
-        Zas = driver.Zas
-        Zab = 1 / 1j / omega / Cab
-        Ps = driver.Ps
-        Qs = Ps / (Zac + Zas + Zab)  # removed Zaf
+        # Zac = driver.Zac
+        # Zas = driver.Zas
+        # Zab = 1 / 1j / omega / Cab
+        # Ps = driver.Ps
+        # Qs = Ps / (Zac + Zas + Zab)  # removed Zaf
     
-        p = 1j * k * rho * c * Qs * np.exp(-1j * k * 1) / (2 * np.pi * 1)
-        Ze = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd ** 2 * (Zab))
+        # p = 1j * k * rho * c * Qs * np.exp(-1j * k * 1) / (2 * np.pi * 1)
+        # Ze = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd ** 2 * (Zab))
     
         # Setup Tkinter window
         root = tk.Tk()
         root.title("Sealed Alignment")
     
         # Create figure (using matplotlib's Figure class, not plt.subplots)
-        fig = Figure(figsize=(6, 4))
-        ax1 = fig.add_subplot(211)
-        ax2 = fig.add_subplot(212)
+        fig = Figure()
+        ax1 = fig.add_subplot(221)
+        ax2 = fig.add_subplot(222)
+        ax3 = fig.add_subplot(223)
+        ax4 = fig.add_subplot(224)
         
-        # Initial plot (SPL and Magnitude)
-        ax1.semilogx(f_axis, gtb.gain.SPL(p), label='SPL')
-        ax2.semilogx(f_axis, np.abs(Ze), label='Magnitude')
-    
-        ax2.set(xlabel='Frequency [Hz]', ylabel='Impedance')
-        ax1.set(ylabel='SPL [dB] at 1 meter')
-        ax1.legend(loc='best')
-        ax2.legend(loc='best')
-    
-        for ax in [ax1, ax2]:
-            ax.grid(which='both')
     
         # Embed the plot into Tkinter
         canvas = FigureCanvasTkAgg(fig, master=root)
@@ -312,87 +306,137 @@ class electroAcousticDriver:
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
     
         # Create Labels and Entry fields
-        defaultQtc = round(Qtc, 4)
-    
+        defaultQtc = round(self.Qtc, 4)
+        defaultVb  = round(self.Vb * 1e3, 4)
+        defaultQab = 120
+        defaultQal = 30
+        
         label_qtc = ttk.Label(root, text="Qtc:")
         label_qtc.pack(side=tk.LEFT, padx=5)
-        
         entry_qtc = ttk.Entry(root, width=10)
         entry_qtc.pack(side=tk.LEFT, padx=5)
         entry_qtc.insert(0, str(defaultQtc))
     
         label_vb = ttk.Label(root, text="Vb (L):")
         label_vb.pack(side=tk.LEFT, padx=5)
-        
         entry_vb = ttk.Entry(root, width=10)
         entry_vb.pack(side=tk.LEFT, padx=5)
-        entry_vb.insert(0, str(round(Vb * 1e3, 4)))
-    
+        entry_vb.insert(0, str(defaultVb))
+        
+        label_qab = ttk.Label(root, text="Qab:")
+        label_qab.pack(side=tk.LEFT, padx=5)
+        entry_qab = ttk.Entry(root, width=10)
+        entry_qab.pack(side=tk.LEFT, padx=5)
+        entry_qab.insert(0, str(defaultQab))
+        
+        label_qal = ttk.Label(root, text="Qal:")
+        label_qal.pack(side=tk.LEFT, padx=5)
+        entry_qal = ttk.Entry(root, width=10)
+        entry_qal.pack(side=tk.LEFT, padx=5)
+        entry_qal.insert(0, str(defaultQal))
+        
         # Function to update the plot based on Qtc entry
         def update_plot():
             try:
-                Qtc_value = float(entry_qtc.get())
-                fc = Qtc_value / driver.Qts * driver.Fs
-                Vb_new = driver.Vas / ((fc / driver.Fs)**2 - 1)
-                Cab_new = Vb_new / rho / c**2
-                Zab_new = 1 / 1j / omega / Cab_new
-    
-                Qs_new = Ps / (Zac + Zas + Zab_new)
-                p_new = 1j * k * rho * c * Qs_new * np.exp(-1j * k * 1) / (2 * np.pi * 1)
-                Ze_new = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd ** 2 * Zab_new)
-    
+                box = speakerBox(self.Vb, frequencyRange=driver.f_array,
+                                 Qab=self.Qab, Qal=self.Qal)
+                box.getDriverResponse(driver)
+                
+                p_s = 1j * k * rho * c * box.Q * np.exp(-1j * k * 1) / (2 * np.pi * 1)
+                Ze = box.Ze
+                v = box.v
+                P = np.abs(box.network.getPotential(1) * box.network.getFlow(1))
+                
                 # Clear and update the plots
                 ax1.clear()
                 ax2.clear()
+                ax3.clear()
+                ax4.clear()
     
-                ax1.semilogx(f_axis, gtb.gain.SPL(p_new), label='SPL')
-                ax2.semilogx(f_axis, np.abs(Ze_new), label='Magnitude')
-    
-                ax2.set(xlabel='Frequency [Hz]', ylabel='Impedance [Ohm]')
-                ax1.set(ylabel='SPL [dB] at 1 meter')
-                ax1.legend(loc='best')
-                ax2.legend(loc='upper left')
-    
-                for ax in [ax1, ax2]:
-                    ax.grid(which='both')
-    
+                ax1.semilogx(f_axis, gtb.gain.dBSPL(p_s))
+                ax2.semilogx(f_axis, np.abs(Ze))
+                ax3.semilogx(f_axis, np.abs(v))
+                ax4.semilogx(f_axis, P)
+                
+                ax1.set(ylabel="SPL [dB]")
+                ax2.set(ylabel="Impedance [Ohm]")
+                ax3.set(xlabel="Frequency [Hz]", ylabel="Velocity [m/s]")
+                ax4.set(xlabel="Frequency [Hz]", ylabel="Power [W]")
+                
+                for ax in [ax1, ax2, ax3, ax4]:
+                    ax.grid(which='both', linestyle="dotted")
+                    
                 canvas.draw()
-    
-                # Update volume value in the entry box
-                entry_vb.delete(0, tk.END)
-                entry_vb.insert(0, str(round(Vb_new * 1e3, 4)))
     
             except ValueError:
                 pass  # Prevent the function from crashing if non-numeric input is entered
     
         # Function to update Qtc based on Volume entry
+        def update_vb():
+            try:
+                self.Vb = float(entry_vb.get()) * 1e-3
+                self.fc = driver.Fs * np.sqrt(driver.Vas / self.Vb + 1)
+                self.Qtc = self.fc / driver.Fs * driver.Qts
+                
+                # update qtc value
+                entry_qtc.delete(0, tk.END)
+                entry_qtc.insert(0, str(round(self.Qtc, 4)))
+                
+                update_plot()
+                
+            except ValueError:
+                pass    
+            
         def update_qtc():
             try:
-                Vb_value = float(entry_vb.get()) * 1e-3  # Convert from liters to cubic meters
-                fc_new = driver.Fs * np.sqrt(driver.Vas / Vb_value + 1)
-                Qtc_new = fc_new / driver.Fs * driver.Qts
-    
-                # Update Qtc value in the entry box
-                entry_qtc.delete(0, tk.END)
-                entry_qtc.insert(0, str(round(Qtc_new, 4)))
+                self.Qtc = float(entry_qtc.get())
+                self.fc = self.Qtc / driver.Qts * driver.Fs
+                self.Vb = driver.Vas / ((self.fc / driver.Fs)**2 - 1)
+            
+                # Update vb value in the entry box
+                entry_vb.delete(0, tk.END)
+                entry_vb.insert(0, str(round(self.Vb*1e3, 4)))
     
                 update_plot()  # Automatically update plot with new values
     
             except ValueError:
                 pass  # Handle non-numeric input
+                
+        def update_QAB():
+            try:
+                self.Qab = float(entry_qab.get())
+                update_plot()
+            except ValueError:
+                pass
+        
+        def update_QAL():
+            try:
+                self.Qal = float(entry_qal.get())
+                update_plot()
+            except ValueError:
+                pass
     
         # Bind events to update the plot automatically when the user presses Enter or leaves the entry field
-        entry_qtc.bind("<Return>", lambda event: update_plot())
-        entry_qtc.bind("<FocusOut>", lambda event: update_plot())
+        entry_qtc.bind("<Return>", lambda event: update_qtc())
+        entry_qtc.bind("<FocusOut>", lambda event: update_qtc())
         
-        entry_vb.bind("<Return>", lambda event: update_qtc())
-        entry_vb.bind("<FocusOut>", lambda event: update_qtc())
+        entry_vb.bind("<Return>", lambda event: update_vb())
+        entry_vb.bind("<FocusOut>", lambda event: update_vb())
     
+        entry_qab.bind("<Return>", lambda event: update_QAB())
+        entry_qab.bind("<FocusOut>", lambda event: update_QAB())
+    
+        entry_qal.bind("<Return>", lambda event: update_QAL())
+        entry_qal.bind("<FocusOut>", lambda event: update_QAL())
+
         root.mainloop()
      
     
     def portedAlignment(self):
+        from ..speakerSim.enclosureDesign import speakerBox
+        
         driver = copy(self)
+        driver.Le = 1e-12
         c = self.c
         rho = self.rho
         f_axis = driver.f_array
@@ -402,26 +446,32 @@ class electroAcousticDriver:
         eta = 1e-5
     
         # Default parameters
+        self.driver = driver
         self.Vb = copy(driver.Vas)
         self.Lp = 343 / driver.Fs / 100  # Length in meters
         self.rp = self.Lp / 2  # Radius in meters
         self.Sp = np.pi * self.rp ** 2  # Port cross-sectional area
-    
+        self.Qab = 120
+        self.Qal = 30
+        
         # Create input widgets
-        default_volume = str(round(self.Vb * 1e3, 2))
-        default_length = str(round(self.Lp * 1e2, 2))
-        default_radius = str(round(self.rp * 1e2, 2))
+        default_volume  = str(round(self.Vb * 1e3, 2))
+        default_length  = str(round(self.Lp * 1e2, 2))
+        default_radius  = str(round(self.rp * 1e2, 2))
         default_section = str(round(self.Sp * 1e4, 2))
-    
+        default_Qab     = str(self.Qab)
+        default_Qal     = str(self.Qal)
+        
         # GUI creation
         root = tk.Tk()
         root.title("Ported Alignment")
     
         # Create a matplotlib figure
-        fig = Figure(figsize=(6, 4))
-        ax_spl = fig.add_subplot(211)
-        ax_imp = fig.add_subplot(212)
-        
+        fig = Figure()
+        ax_spl = fig.add_subplot(221)
+        ax_imp = fig.add_subplot(222)
+        ax_vx  = fig.add_subplot(223)
+        ax_px  = fig.add_subplot(224)
         
         # Create canvas for the plot and add to the tkinter window
         canvas = FigureCanvasTkAgg(fig, master=root)
@@ -453,52 +503,69 @@ class electroAcousticDriver:
         section_entry.pack(side=tk.LEFT, padx=5)
         section_entry.insert(0, default_section)
         
+        qab_label = ttk.Label(root, text=r"Qab:")
+        qab_label.pack(side=tk.LEFT, padx=5)
+        qab_entry = ttk.Entry(root, width=10)
+        qab_entry.pack(side=tk.LEFT, padx=5)
+        qab_entry.insert(0, default_Qab)
+        
+        qal_label = ttk.Label(root, text=r"Qal:")
+        qal_label.pack(side=tk.LEFT, padx=5)
+        qal_entry = ttk.Entry(root, width=10)
+        qal_entry.pack(side=tk.LEFT, padx=5)
+        qal_entry.insert(0, default_Qal)
+        
         def update_plot():
             try:
                 # box impedance
-                self.Cab = self.Vb / rho / c ** 2
-                self.Rab = rho * c / eta / self.Vb
-                self.Zbox = gtb.parallel(1 / s / self.Cab, self.Rab)
-        
-                # port impedance
-                self.Map = rho * self.Lp / self.Sp
-                self.Mal = 0.85 * 2 * self.rp
-                self.Map += self.Mal
-                Pp = 2 * np.pi * self.rp
-                alpha = np.sqrt(f_axis) * (0.95e-5 + 2.03e-5) * Pp / 2 / self.Sp
-                kl = k * (1 + alpha * (1 - 1j))
-                d0 = (0.6133 + 0.85) * self.rp
-                self.Zrad = rho * c / self.Sp * (1 / 4 * (kl * self.rp) ** 2 + 1j * kl * d0)
-                self.Zp = s * self.Map + self.Zrad
-                self.Zab = gtb.parallel(1 / s / self.Cab, self.Rab, s * self.Map + self.Zrad)
-    
-                # Calculate total system
-                ZaTot = driver.Zs
-                Ps = driver.Ps
-                Qs = Ps / (ZaTot + self.Zab)
-                Qp = Qs * self.Zbox / (self.Zbox + self.Zp)
-    
-                p_s = 1j * k * rho * c * Qs * np.exp(-1j * k * 1) / (2 * np.pi * 1)
-                p_p = -1j * k * rho * c * Qp * np.exp(-1j * k * 1) / (2 * np.pi * 1)
-                Ze = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd**2 * (self.Zab + driver.Zaf))
-        
+                box = speakerBox(self.Vb, self.f_array, 
+                                 Qab=self.Qab, Qal=self.Qal, 
+                                 Lp=self.Lp, Sp=self.Sp)
+                box.getDriverResponse(driver)
+                p_s = 1j * k * rho * c * box.Q * np.exp(-1j * k * 1) / (2 * np.pi * 1)
+                p_p = 1j * k * rho * c * box.Qp * np.exp(-1j * k * 1) / (2 * np.pi * 1)
+                Ze = box.Ze
+                v  = box.v
+                vp = box.vp
+                P  = box.network.getPotential(1) * box.network.getFlow(1)
+                
                 # Clear the axes and plot new data
                 ax_spl.clear()
                 ax_imp.clear()
-                ax_spl.semilogx(f_axis, gtb.gain.SPL(p_s), label='driver')
-                ax_spl.semilogx(f_axis, gtb.gain.SPL(p_p), label='port')
-                ax_spl.semilogx(f_axis, gtb.gain.SPL(p_s+p_p), label='total')
+                ax_vx.clear()
+                ax_px.clear()
+                ax_spl.semilogx(f_axis, gtb.gain.dBSPL(p_s), label='driver')
+                ax_spl.semilogx(f_axis, gtb.gain.dBSPL(p_p), label='port')
+                ax_spl.semilogx(f_axis, gtb.gain.dBSPL(p_s+p_p), label='total')
+                ax_spl.set_ylim(np.max(gtb.gain.dBSPL(p_s+p_p))-30, 
+                                np.max(gtb.gain.dBSPL(p_s+p_p))+6)
+
                 ax_imp.semilogx(f_axis, np.abs(Ze), label='Impedance')
+                
+                ax_vx.semilogx(f_axis, np.abs(v), label="driver")
+                ax_vx.semilogx(f_axis, np.abs(vp), label="port")
+                
+                ax_px.semilogx(f_axis, np.abs(P))
+                
+                # labels
                 ax_spl.set_ylabel('SPL [dB]')
-                ax_spl.set_ylim(np.min(gtb.gain.SPL(p_s+p_p)), 
-                                np.max(gtb.gain.SPL(p_s+p_p))+6)
                 ax_imp.set_ylabel('Impedance [Ohm]')
-                ax_imp.set_xlabel('Frequency [Hz]')
-                ax_spl.grid(which='both')
-                ax_imp.grid(which='both')
+                ax_vx.set(xlabel="Frequency [Hz]", ylabel="Velocity [m/s]")
+                ax_px.set(xlabel="Frequency [Hz]", ylabel="Power (W)")
+                
+                # grids
+                ax_spl.grid(which='both', linestyle="dotted")
+                ax_imp.grid(which='both', linestyle="dotted")
+                ax_vx.grid(which='both', linestyle="dotted")
+                ax_px.grid(which='both', linestyle="dotted")
+                
+                # legend location
                 ax_spl.legend(loc='best')
                 ax_imp.legend(loc='best')
+                ax_vx.legend(loc='best')
+                # ax_px.legend(loc='best')
                 canvas.draw()
+                
             except ValueError:
                 pass
                 
@@ -537,7 +604,21 @@ class electroAcousticDriver:
             except ValueError:
                 print("Invalid input for section. Please enter a numeric value.")
         
-    
+        def update_QAB():
+            try:
+                self.Qab = float(qab_entry.get())
+                update_plot()
+            except ValueError:
+                print("Invalid input. Please enter a numeric value.")
+        
+        def update_QAL():
+            try:
+                self.Qal = float(qal_entry.get())
+                update_plot()
+            except ValueError:
+                print("Invalid input. Please enter a numeric value.")
+        
+        
         # bind Return and FocusOut
         volume_entry.bind("<Return>", lambda event: update_volume())  # Bind Enter key
         volume_entry.bind("<FocusOut>", lambda event: update_volume())
@@ -547,7 +628,11 @@ class electroAcousticDriver:
         radius_entry.bind("<FocusOut>", lambda event: update_radius())
         section_entry.bind("<Return>", lambda event: update_section())
         section_entry.bind("<FocusOut>", lambda event: update_section())
-      
+        qab_entry.bind("<Return>", lambda event: update_QAB())
+        qab_entry.bind("<FocusOut>", lambda event: update_QAB())
+        qal_entry.bind("<Return>", lambda event: update_QAL())
+        qal_entry.bind("<FocusOut>", lambda event: update_QAL())
+        
         # Initial plot
         update_plot()
     
