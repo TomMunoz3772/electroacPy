@@ -278,16 +278,7 @@ class electroAcousticDriver:
         f_axis = driver.f_array
         omega = 2 * np.pi * f_axis
         k = omega / c
-    
-        # Zac = driver.Zac
-        # Zas = driver.Zas
-        # Zab = 1 / 1j / omega / Cab
-        # Ps = driver.Ps
-        # Qs = Ps / (Zac + Zas + Zab)  # removed Zaf
-    
-        # p = 1j * k * rho * c * Qs * np.exp(-1j * k * 1) / (2 * np.pi * 1)
-        # Ze = driver.Ze + driver.Bl ** 2 / (driver.Zms + driver.Sd ** 2 * (Zab))
-    
+        
         # Setup Tkinter window
         root = tk.Tk()
         root.title("Sealed Alignment")
@@ -298,7 +289,6 @@ class electroAcousticDriver:
         ax2 = fig.add_subplot(222)
         ax3 = fig.add_subplot(223)
         ax4 = fig.add_subplot(224)
-        
     
         # Embed the plot into Tkinter
         canvas = FigureCanvasTkAgg(fig, master=root)
@@ -551,7 +541,7 @@ class electroAcousticDriver:
                 ax_spl.set_ylabel('SPL [dB]')
                 ax_imp.set_ylabel('Impedance [Ohm]')
                 ax_vx.set(xlabel="Frequency [Hz]", ylabel="Velocity [m/s]")
-                ax_px.set(xlabel="Frequency [Hz]", ylabel="Power (W)")
+                ax_px.set(xlabel="Frequency [Hz]", ylabel="Power [W]")
                 
                 # grids
                 ax_spl.grid(which='both', linestyle="dotted")
@@ -563,7 +553,6 @@ class electroAcousticDriver:
                 ax_spl.legend(loc='best')
                 ax_imp.legend(loc='best')
                 ax_vx.legend(loc='best')
-                # ax_px.legend(loc='best')
                 canvas.draw()
                 
             except ValueError:
