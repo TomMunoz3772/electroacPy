@@ -8,7 +8,7 @@ Polar evaluations focus on determining the directivity patterns of acoustic sour
 ### Setup
 Polar evaluations are defined as follow:
 
-```python
+``` python
 system.evaluation_polarRadiation("reference_study", # associated study    
                                  "evaluation_name", # evaluation label
                                  min_angle,         # minimum angle 

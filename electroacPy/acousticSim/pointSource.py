@@ -10,15 +10,16 @@ import bempp_cl.api
 from bempp_cl.api.operators.boundary import helmholtz, sparse
 from bempp_cl.api.operators.potential import helmholtz as helmholtz_potential
 from bempp_cl.api.assembly.discrete_boundary_operator import DiagonalOperator
+from bempp_cl.api.assembly.boundary_operator import MultiplicationOperator
 from scipy.sparse.linalg import gmres as scipy_gmres
-from bempp_cl.api.linalg import gmres
+from bempp_cl.api.linalg import gmres, lu
 import numpy as np
 from tqdm import tqdm
 import warnings
 import electroacPy.general as gtb
 from .ACSHelpers_ import (getSurfaceAdmittance, mirror_mesh, 
                          greenMonopole, incidenceCoeff, buildGridFunction,
-                         element2vertice_pressure)
+                         element2vertice_pressure, admittanceSpaces)
 
 warnings.filterwarnings("ignore", message="splu requires CSC matrix format")
 warnings.filterwarnings("ignore", message="splu converted its input to CSC format")
@@ -214,11 +215,11 @@ class pointSourceBEM:
         self.parse_input()
         
         # initialize pressures and velocities arrays
-        self.u_mesh = np.empty([len(frequency), self.Ns], dtype=object)  # separate sources
-        self.u_mesh_Y = np.empty([len(frequency), self.Ns], dtype=object)
-        self.p_mesh = np.empty([len(frequency), self.Ns], dtype=object)  # separate drivers
-        self.u_total_mesh = np.empty([len(frequency)], dtype=object)   # summed sources
-        self.p_total_mesh = np.empty([len(frequency)], dtype=object)   # summed sources
+        self.u_mesh = np.empty([len(frequency), self.Ns], dtype=object)   # separate sources
+        self.u_mesh_Y = np.empty([len(frequency), self.Ns], dtype=object) # admittance term
+        self.p_mesh = np.empty([len(frequency), self.Ns], dtype=object)   # separate drivers
+        self.u_total_mesh = np.empty([len(frequency)], dtype=object)      # summed sources
+        self.p_total_mesh = np.empty([len(frequency)], dtype=object)      # summed sources
         self.propag_function = np.empty([len(frequency), self.Ns], dtype=object)
         
         # load simulation grid and mirror mesh if needed
@@ -237,10 +238,21 @@ class pointSourceBEM:
         self.spaceP   = bempp_cl.api.function_space(self.grid_sim, "DP", 0)
         self.identity = sparse.identity(self.spaceP, self.spaceP, self.spaceP)
         
+        # Assign vibrometric coefficients to corresponding radiators
+        self.spacesY, self.admittanceCoeff = admittanceSpaces(self.impedanceSurfaceIndex,
+                                                              self.surfaceImpedance,                                                               
+                                                              self.spaceP, 
+                                                              frequency,
+                                                              self.c_0, 
+                                                              self.rho_0)
         
-        # Assign vibrometric coefficients to corresponding radiators // Assign surface velocity if not vibration data
-        self.admittanceCoeff = getSurfaceAdmittance(self.impedanceSurfaceIndex, self.surfaceImpedance, 
-                                                    frequency, self.spaceP, self.c_0, self.rho_0)        
+        if self.spacesY is not None:
+            self.nImpSurf = len(self.spacesY)
+        else:
+            self.nImpSurf = 0        
+            
+        self.Yn_c = np.empty(len(frequency), dtype=object)
+        
         # driver reference
         self.LEM_enclosures = None
         self.radiator = None
@@ -339,61 +351,68 @@ class pointSourceBEM:
         print("Computing pressure on mesh")
         if self.admittanceCoeff is None:
             for i in tqdm(range(len(k))):
+                i_reverse = -i-1
+                k_i = k[i_reverse]
+                
                 double_layer = helmholtz.double_layer(self.spaceP, self.spaceP,
-                                                      self.spaceP, k[i])
+                                                      self.spaceP, k_i)
                 single_layer = helmholtz.single_layer(self.spaceP, self.spaceP,
-                                                      self.spaceP, k[i])
+                                                      self.spaceP, k_i)
                 lhs = double_layer + domain_operator*(0.5 * self.identity)
                 
                 for rs in range(self.Ns):
                     xsource = self.xSystem[rs::self.Ns, :]
-                    G  = greenMonopole(xsource, self.grid_sim, k[i])
+                    G  = greenMonopole(xsource, self.grid_sim, k_i)
                     n0 = incidenceCoeff(xsource, self.grid_sim, self.domain)
-                    self.propag_function[i, rs] = buildGridFunction(self.spaceP, 
-                                                        -1j*k[i]*n0*G)
-                    rhs = single_layer * self.propag_function[i, rs]
-                    self.u_mesh[i, rs], _ = gmres(lhs, rhs, tol=self.tol)
+                    self.propag_function[i_reverse, rs] = buildGridFunction(self.spaceP, 
+                                                          -1j*k_i*n0*G)
+                    rhs = single_layer * self.propag_function[i_reverse, rs]
+                    self.u_mesh[i_reverse, rs], _ = gmres(lhs, rhs, tol=self.tol)
             self.isComputed = True
             
         elif self.admittanceCoeff is not None:
             for i in tqdm(range(len(k))):
-                double_layer = helmholtz.double_layer(self.spaceP, self.spaceP,
-                                                      self.spaceP, k[i])
-                single_layer = helmholtz.single_layer(self.spaceP, self.spaceP,
-                                                      self.spaceP, k[i])
-
-                # ABSORBING SURFACES
-                Yn = self.admittanceCoeff[:, i]  # all admittance coeff at current frequency
-                yn_fun = bempp_cl.api.GridFunction(self.spaceP, coefficients=Yn)  # ? doubts on its usefulness
-                yn = DiagonalOperator(yn_fun.coefficients)
+                i_reverse = -i-1
+                k_i = k[i_reverse]
+                self.Yn_c[i_reverse] = 0
                 
-                lhs = ((double_layer + 
-                       domain_operator*(0.5 * self.identity)).weak_form() - 
-                       (1j*k[i]*single_layer.weak_form() * yn))
+                double_layer = helmholtz.double_layer(self.spaceP, self.spaceP,
+                                                      self.spaceP, k_i)
+                single_layer = helmholtz.single_layer(self.spaceP, self.spaceP,
+                                                      self.spaceP, k_i)
+                single_layer_Y = helmholtz.single_layer(self.spaceP, self.spaceP,
+                                                        self.spaceP, k_i)
+
+                # ABSORBING SURFACES            
+                lhs = double_layer + 0.5*self.identity * domain_operator
+                
+                for iSurf in range(self.nImpSurf):
+                    spaceY = self.spacesY[iSurf]
+                    Yn = self.admittanceCoeff[iSurf][:, i_reverse]
+                    Yn_func_spaceY = bempp_cl.api.GridFunction(spaceY, coefficients=Yn)
+                    Yn_func = bempp_cl.api.GridFunction(self.spaceP, projections=Yn_func_spaceY.projections(self.spaceP))
+                    Yn_op = MultiplicationOperator(Yn_func, self.spaceP, self.spaceP, self.spaceP)
+                    self.Yn_c[i_reverse] += Yn_func.coefficients
+                    lhs += 1j*k_i*single_layer_Y*Yn_op * -domain_operator
                 
                 for rs in range(self.Ns):
                     # PROPAGATION FROM SOURCE TO BOUNDARIES
                     xsource = self.xSystem[rs::self.Ns, :]
-                    G  = greenMonopole(xsource, self.grid_sim, k[i])
+                    G  = greenMonopole(xsource, self.grid_sim, k_i)
                     n0 = incidenceCoeff(xsource, self.grid_sim, self.domain)
-                    self.propag_function[i, rs] = buildGridFunction(self.spaceP, 
-                                                        -1j*k[i]*n0*G)
+                    self.propag_function[i_reverse, rs] = buildGridFunction(self.spaceP, 
+                                                        -1j*k_i*n0*G)
                     
-                    
-                    rhs = (single_layer * self.propag_function[i, rs])
-                    rhs = rhs.projections(self.spaceP)
-                    
-                    u_total_coeff, _ = scipy_gmres(lhs, rhs, rtol=self.tol)
-                    u_total_coeff_Y = 1j*k[i]*u_total_coeff*yn_fun.coefficients
-                    self.u_mesh[i, rs] = bempp_cl.api.GridFunction(self.spaceP, 
-                                                                coefficients=u_total_coeff)
-                    self.u_mesh_Y[i, rs] = bempp_cl.api.GridFunction(self.spaceP, 
-                                                                coefficients=u_total_coeff_Y)
+                    rhs = (single_layer * self.propag_function[i_reverse, rs])
 
-                    
+                    # u_total, _ = gmres(lhs, rhs, tol=self.tol)
+                    u_total = lu(lhs, rhs)
+                    u_total_Y = 1j*k_i*u_total.coefficients*self.Yn_c[i_reverse]
+                    self.u_mesh[i_reverse, rs] = u_total
+                    self.u_mesh_Y[i_reverse, rs] = bempp_cl.api.GridFunction(self.spaceP, 
+                                                                             coefficients=u_total_Y)       
             self.isComputed = True
         self.p_mesh = element2vertice_pressure(self.grid_sim, self.u_mesh)
-
 
     def getMicPressure(self, micPosition, individualSpeakers=False):
         """
@@ -421,6 +440,11 @@ class pointSourceBEM:
         compute the pressure at each microphone position.
 
         """
+        if self.domain == "exterior":
+            domain_operator = -1
+        elif self.domain == "interior":
+            domain_operator = +1
+        
         micPosition = np.array(micPosition).T
         nMic = np.shape(micPosition)[1]
 
@@ -451,6 +475,7 @@ class pointSourceBEM:
                 out = (pressure_mic, pressure_mic_array)
             elif individualSpeakers is False:
                 out = pressure_mic
+                
         elif self.admittanceCoeff is not None:
             for i in tqdm(range(len(k))):
                 for rs in range(self.Ns):
@@ -466,7 +491,7 @@ class pointSourceBEM:
                         pressure_mic_array[i, :, rs] += np.reshape(np.exp(1j*k[i]*dist) / (4*np.pi*dist)
                              + double_pot.evaluate(self.u_mesh[i, rs])
                              - single_pot.evaluate(self.propag_function[i, rs])
-                             + single_pot.evaluate(self.u_mesh_Y[i, rs]), nMic)
+                             + single_pot.evaluate(self.u_mesh_Y[i, rs]), nMic) * -domain_operator
                     pressure_mic[i, :] += pressure_mic_array[i, :, rs]
             
             if individualSpeakers is True:
@@ -474,36 +499,3 @@ class pointSourceBEM:
             elif individualSpeakers is False:
                 out = pressure_mic
         return out
-
-
-#%% helper function
-# def getSurfaceAdmittance(absorbingSurface, surfaceImpedance, freq, spaceP, c_0, rho_0):
-#     """
-#     Compute the total single layer coefficients linked to surfaces impedance.
-#     :param absorbingSurface:
-#     :param surfaceImpedance:
-#     :param freq:
-#     :param spaceP:
-#     :return:
-#     """
-#     Nfft       = len(freq)
-#     absSurf_in = np.array(absorbingSurface)
-#     surfImp_in = surfaceImpedance
-#     Nsurf      = len(absSurf_in)             # number of absorbing surfaces
-#     grid       = spaceP.grid
-#     dofCount   = spaceP.grid_dof_count
-
-#     if absSurf_in.shape[0] == 0 :
-#         admittanceMatrix = None
-#     else:
-#         admittanceMatrix = np.ones([dofCount, Nfft], dtype=complex) * 2.5e-3 # corresponds to 0.5% damping
-#         for surf in range(Nsurf):
-#             tmp_surf = absSurf_in[surf]  # current surface on which we apply admittance coefficients
-#             vertex, _ = get_group_points(grid, tmp_surf)
-#             for f in range(Nfft):
-#                 try:
-#                     Yn = rho_0 * c_0 / surfImp_in[surf][f] # rho_0 * c_0
-#                 except:
-#                     Yn = rho_0 * c_0 / surfImp_in[surf] # rho_0 * c_0
-#                 admittanceMatrix[vertex, f] = np.ones(len(vertex)) * Yn
-#     return admittanceMatrix      

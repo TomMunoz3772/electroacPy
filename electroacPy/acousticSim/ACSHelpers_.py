@@ -236,6 +236,68 @@ def getSurfaceAdmittance(absorbingSurface, surfaceImpedance, freq, spaceP, c_0, 
     return admittanceMatrix 
 
 
+def admittanceSpaces(absorbingSurface, surfaceImpedance, spaceP, freq, c_0, rho_0):
+    """
+    Create a list of admittance coeffs for each impedance surface. The coefficients
+    are frequency dependent.
+
+    Parameters
+    ----------
+    absorbingSurface : list of integer
+        List of physical groups that are impedance surfaces.
+    surfaceImpedance : list of floats
+        For each absorbing surface, the corresponding impedance value.
+    spaceP : bempp spaceFunction
+        Space of simulation.
+    freq : ndarray
+        Range of simulation (Hz).
+    c_0 : float
+        Speed of sound.
+    rho_0 : float
+        Air density.
+
+    Returns
+    -------
+    spacesY : bempp spaceFunction
+        Separate spaces corresponding to impedance surface.
+    admittanceCoeffs : list of ndarray
+        List of all admittance coefficients - each ndarray contains as much 
+        DOFs as its corresponding spaceY index.
+
+    """
+    import bempp_cl.api
+    
+    Nfft       = len(freq)
+    absSurf_in = np.array(absorbingSurface)
+    surfImp_in = surfaceImpedance
+    Nsurf      = len(absSurf_in)             # number of absorbing surfaces
+    
+    grid = spaceP.grid
+
+    if bool(absorbingSurface) is False:
+        spacesY = None
+        admittanceCoeffs = None
+    else:
+        spacesY = []
+        admittanceCoeffs = [] #
+        for i in range(Nsurf):
+            # create admittance spaces
+            spaceY = bempp_cl.api.function_space(grid, 'DP', 0, 
+                                                 segments=[absorbingSurface[i]])
+            spacesY.append(spaceY)
+            
+            # associate admittance coeff
+            dof_count = spaceY.grid_dof_count
+            Yn_matrix = np.zeros([dof_count, Nfft], dtype=complex)
+            for f in range(Nfft):
+                try:
+                    Yn = rho_0 * c_0 / surfaceImpedance[i][f]
+                except:
+                    Yn = rho_0 * c_0 / surfaceImpedance[i]
+                Yn_matrix[:, f] = np.ones(dof_count) * Yn
+            admittanceCoeffs.append(Yn_matrix)
+    return spacesY, admittanceCoeffs
+
 
 def get_group_points(grid, group_number):
     domain_indices = grid.domain_indices

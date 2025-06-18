@@ -10,14 +10,15 @@ import bempp_cl.api
 from bempp_cl.api.operators.boundary import helmholtz, sparse
 from bempp_cl.api.operators.potential import helmholtz as helmholtz_potential
 from bempp_cl.api.assembly.discrete_boundary_operator import DiagonalOperator
+from bempp_cl.api.assembly.boundary_operator import MultiplicationOperator
 from scipy.sparse.linalg import gmres as scipy_gmres
-from bempp_cl.api.linalg import gmres
+from bempp_cl.api.linalg import gmres, lu
 import numpy as np
 from tqdm import tqdm
 import warnings
 # from pyopencl import CompilerWarning
 import electroacPy.general as gtb
-from .ACSHelpers_ import getSurfaceAdmittance
+from .ACSHelpers_ import getSurfaceAdmittance, admittanceSpaces
 
 warnings.filterwarnings("ignore", message="splu requires CSC matrix format")
 warnings.filterwarnings("ignore", message="splu converted its input to CSC format")
@@ -155,8 +156,20 @@ class bem:
                                                                                     self.vibrometry_points[rs],
                                                                                     self.sizeFactor)
         
-        self.admittanceCoeff = getSurfaceAdmittance(self.impedanceSurfaceIndex, self.surfaceImpedance, 
-                                                    frequency, self.spaceP, self.c_0, self.rho_0)        
+        # GET ADMITTANCE COEFFICIENTS AND RELATED VARIABLES       
+        self.spacesY, self.admittanceCoeff = admittanceSpaces(self.impedanceSurfaceIndex,
+                                                              self.surfaceImpedance,                                                               
+                                                              self.spaceP, 
+                                                              frequency,
+                                                              self.c_0, 
+                                                              self.rho_0)
+        if self.spacesY is not None:
+            self.nImpSurf = len(self.spacesY)
+        else:
+            self.nImpSurf = 0
+            
+        self.Yn_c = np.empty(len(frequency), dtype=object)
+        
         # driver reference
         self.LEM_enclosures = None
         self.radiator = None
@@ -273,9 +286,9 @@ class bem:
     
                     # pressure over the whole surface of the loudspeaker (p_total)
                     rhs = 1j * omega[i_reverse] * self.rho_0 * single_layer * u_total
-                    p_total, _ = gmres(lhs, rhs, tol=self.tol, 
-                                       return_residuals=False)
-    
+                    p_total, _ = gmres(lhs, rhs, tol=self.tol, return_residuals=False)                    
+                    # p_total = lu(lhs, rhs)
+                    
                     self.p_mesh[i_reverse, rs] = p_total # individual speakers
                     self.u_mesh[i_reverse, rs] = u_total # individual speakers
             self.isComputed = True
@@ -285,21 +298,27 @@ class bem:
                 # run simulation from highest frequency to lowest
                 i_reverse = -i-1
                 k_i = k[i_reverse]
+                self.Yn_c[i_reverse] = 0
                 
                 # creation of the double layer
                 double_layer = helmholtz.double_layer(self.spaceP, self.spaceP,
                                                       self.spaceP, k_i)
-                # admittance single layer
-                single_layer_Y = helmholtz.single_layer(self.spaceP, self.spaceP,
+                single_layer_Y = helmholtz.single_layer(self.spaceP, self.spaceP, 
                                                         self.spaceP, k_i)
-                # ABSORBING SURFACES
-                Yn = self.admittanceCoeff[:, i_reverse]  # all admittance coeff at current frequency
-                yn_fun = bempp_cl.api.GridFunction(self.spaceP, coefficients=Yn)  # ? doubts on its usefulness
-                yn = DiagonalOperator(yn_fun.coefficients)
+                # lhs = (double_layer + 0.5*self.identity * domain_operator).weak_form()
+                lhs = double_layer + 0.5*self.identity * domain_operator
+                
+                for iSurf in range(self.nImpSurf):
+                    spaceY = self.spacesY[iSurf]
+                    Yn = self.admittanceCoeff[iSurf][:, i_reverse]
+                    Yn_func_spaceY = bempp_cl.api.GridFunction(spaceY, coefficients=Yn)
+                    Yn_func = bempp_cl.api.GridFunction(self.spaceP, projections=Yn_func_spaceY.projections(self.spaceP))
+                    Yn_op = MultiplicationOperator(Yn_func, self.spaceP, self.spaceP, self.spaceP)
+                    self.Yn_c[i_reverse] += Yn_func.coefficients
+                    
+                    # lhs -= 1j*k_i*single_layer_Y.weak_form()*Yn_op
+                    lhs -= 1j*k_i*single_layer_Y*Yn_op
 
-                # building left-hand-side term
-                lhs = ((double_layer + 0.5*self.identity * domain_operator).weak_form()
-                       - (1j*k_i*single_layer_Y.weak_form()*yn))    
                 
                 for rs in range(self.Ns):
                     # RADIATING SURFACES
@@ -320,12 +339,10 @@ class bem:
 
 
                     rhs = 1j * omega[i_reverse] * self.rho_0 * single_layer * u_total
-                    rhs = rhs.projections(self.spaceP)
-
+                    
                     # pressure over the whole surface of the loudspeaker (p_total)
-                    p_total_coefficients, _ = scipy_gmres(lhs, rhs, rtol=self.tol)
-                    p_total = bempp_cl.api.GridFunction(self.spaceP, coefficients=p_total_coefficients)
-
+                    p_total, _ = gmres(lhs, rhs, tol=self.tol, return_residuals=False)
+        
                     self.p_mesh[i_reverse, rs] = p_total  # individual speakers
                     self.u_mesh[i_reverse, rs] = u_total  # individual speakers
             self.isComputed = True 
@@ -365,25 +382,41 @@ class bem:
         pressure_mic = np.zeros([len(self.frequency), nMic], dtype=complex)
         omega = 2 * np.pi * self.frequency
         k = -omega / self.c_0
-
+        
         print("\n" + "Computing pressure at microphones")
-        for i in tqdm(range(len(k))):  # looping through frequencies
-            for rs in range(self.Ns):
-                # pressure received at microphones
-                pressure_mic_array[i, :, rs] = np.reshape(
-                    helmholtz_potential.double_layer(self.spaceP,
-                                              micPosition,
-                                              k[i]) * self.p_mesh[i, rs] \
-                    - 1j * omega[i] * self.rho_0 * \
-                    helmholtz_potential.single_layer(
-                        self.spaceU_freq[rs],
-                        micPosition, k[i]) * self.u_mesh[i, rs], nMic)
-                pressure_mic[i, :] += pressure_mic_array[i, :, rs]
+        if self.admittanceCoeff is None:
+            for i in tqdm(range(len(k))):  # looping through frequencies
+                for rs in range(self.Ns):
+                    # pressure received at microphones
+                    DP = helmholtz_potential.double_layer(self.spaceP, micPosition, k[i])*self.p_mesh[i, rs]
+                    SP = -1j*omega[i]*self.rho_0*helmholtz_potential.single_layer(self.spaceU_freq[rs], micPosition, k[i])*self.u_mesh[i, rs]
+                    pressure_mic_array[i, :, rs] = np.reshape(DP+SP, nMic)
+                    pressure_mic[i, :] += pressure_mic_array[i, :, rs]
+
+
+        elif self.admittanceCoeff is not None:
+            for i in tqdm(range(len(k))):
+                YP_sl = 1j*k[i]*helmholtz_potential.single_layer(self.spaceP, micPosition, k[i])                
+                for rs in range(self.Ns):
+                    DP = helmholtz_potential.double_layer(self.spaceP, micPosition, k[i])*self.p_mesh[i, rs]
+                    SP = -1j*omega[i]*self.rho_0*helmholtz_potential.single_layer(self.spaceU_freq[rs], micPosition, k[i])*self.u_mesh[i, rs]
+                    
+                    
+                    Yn_func = bempp_cl.api.GridFunction(self.spaceP, coefficients=self.Yn_c[i])
+                    Yn_op = MultiplicationOperator(Yn_func, self.spaceP, self.spaceP, self.spaceP)
+                    yn_times_p_total = Yn_op * self.p_mesh[i, rs] #bempp_cl.api.GridFunction(self.spaceP, 
+                                                                  #coefficients=Yn_op*self.p_mesh[i, rs].coefficients)
+                    YP_tot = -YP_sl * yn_times_p_total
+                    TOTAL = DP+YP_tot+SP
+                    pressure_mic_array[i, :, rs] = np.reshape(TOTAL, nMic)
+                    pressure_mic[i, :] += pressure_mic_array[i, :, rs]
+
 
         if individualSpeakers is True:
             out = (pressure_mic, pressure_mic_array)
         elif individualSpeakers is False:
             out = pressure_mic
+                
         return out
 
 

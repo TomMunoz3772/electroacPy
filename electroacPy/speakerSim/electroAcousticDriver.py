@@ -289,6 +289,8 @@ class electroAcousticDriver:
         ax2 = fig.add_subplot(222)
         ax3 = fig.add_subplot(223)
         ax4 = fig.add_subplot(224)
+        
+        fig.tight_layout()
     
         # Embed the plot into Tkinter
         canvas = FigureCanvasTkAgg(fig, master=root)
@@ -419,6 +421,10 @@ class electroAcousticDriver:
         entry_qal.bind("<Return>", lambda event: update_QAL())
         entry_qal.bind("<FocusOut>", lambda event: update_QAL())
 
+        
+        # initial plot
+        update_plot()
+
         root.mainloop()
      
     
@@ -462,6 +468,8 @@ class electroAcousticDriver:
         ax_imp = fig.add_subplot(222)
         ax_vx  = fig.add_subplot(223)
         ax_px  = fig.add_subplot(224)
+        
+        fig.tight_layout()
         
         # Create canvas for the plot and add to the tkinter window
         canvas = FigureCanvasTkAgg(fig, master=root)

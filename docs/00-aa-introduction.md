@@ -15,8 +15,8 @@ Example of sound diffraction around a round speaker head. Inspired from the Elip
 ## Installation
 ### Before Starting
 
-- The following steps have been verified on **Windows** and **Linux** for Python versions 3.9 to 3.11. For **macOS**, only version 3.9 has been tested. However, in theory, any version of Python should work as long as all dependencies are available.
-- You may want to try out different Python versions by creating multiple Conda environments (see **Step 1**).
+- The following steps have been verified on **Windows** and **Linux** for Python versions 3.9 to 3.12. For **macOS**, only version 3.9 has been tested. However, in theory, any version of Python should work as long as all dependencies are available.
+- You may want to try out different Python versions by creating multiple Conda environments.
 
 
 ### Setting Up Python with Conda
@@ -48,7 +48,7 @@ conda activate acoustic_sim
 
 3. **Install a version of Python compatible with electroacPy, as well as the *pip* package manager**
 ```shell 
-conda install python=3.11 pip
+conda install python=3.12 pip
 ```
 
 These 3 steps are all you need to do before installing electroacPy.

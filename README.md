@@ -9,8 +9,8 @@ Documentation of the main repository is available on [readthedocs](https://elect
 ## Installation
 ### Before Starting
 
-- The following steps have been verified on **Windows** and **Linux** for Python versions 3.9 to 3.11. For **macOS**, only version 3.9 has been tested. However, in theory, any version of Python should work as long as all dependencies are available.
-- You may want to try out different Python versions by creating multiple Conda environments (see **Step 1**).
+- The following steps have been verified on **Windows** and **Linux** for Python versions 3.9 to 3.12. For **macOS**, only version 3.9 has been tested. However, in theory, any version of Python should work as long as all dependencies are available.
+- You may want to try out different Python versions by creating multiple Conda environments.
 
 
 ### Setting Up Python with Conda
@@ -27,38 +27,34 @@ The recommended installation method uses the **Conda** package manager for Pytho
     - **Windows**: Use the Miniforge Prompt for installation.
     - **macOS/Linux**: Use your terminal (bash/zsh).
 
-### Install with pip
-The easiest way to install electroacpy is by using pip. In your Python environment:
-```shell
-pip install electroacPy
-```
+#### Creating a conda environment
+If you decide to manage your Python environments with conda, you can setup a specific environment for electroacPy as follow:
 
-If you wish to use the OpenCL backend, you can install pyopencl:
-
-```shell
-pip install pyopencl
-```
-
-Remember that you'll need to install opencl drivers on your computer.
-
-### Install from source
-
-1. **Create a new Conda environment** (recommended but optional):
+1. **Create the environment**
 ```shell
 conda create -n acoustic_sim
 ```
 
-2. **Activate the environment**:
+2. **Activate the environment**
 ```shell
 conda activate acoustic_sim
 ```
-3. **Install Python 3.11 and pip** (you can adjust the Python version if needed):
-```shell
-conda install python=3.11 pip
-```
-4. **Install electroacPy**:
 
-For standard installation:
+3. **Install a version of Python compatible with electroacPy, as well as the *pip* package manager**
+```shell
+conda install python=3.12 pip
+```
+
+These 3 steps are all you need to do before installing electroacPy.
+
+### Recommended installation: PyPI
+The easiest way to install electroacpy is to use the [PyPI repository](https://pypi.org/project/electroacPy/). In your Python/Conda environment:
+```shell
+pip install electroacPy
+```
+
+### Install from source
+If however, you wish to install from source, you'll need first to download or clone the main repository --- [here's a link to help you understand the process](https://docs.github.com/en/get-started/start-your-journey/downloading-files-from-github). Once you have downloaded what you need, you can use the following command (remember to be in your Python/Conda environment):
 
 ```shell
 pip install /path/to/electroacPy
@@ -69,7 +65,7 @@ For development installation:
 pip install -e /path/to/electroacPy
 ```
 
-You'll need to replace `/path/to/electroacPy` to where the toolbox is cloned/extracted on your computer --- pointing to the folder containing the "pyproject.toml" file. For example, if you use Windows, the path can look like this: `C:\Users\yourUsername\Documents\GitHub\electroacPy`.
+You'll need to replace `/path/to/electroacPy` by the actual location of  the toolbox on your computer --- pointing to the folder containing the "pyproject.toml" file. For example, if you use Windows, the path can look like this: `C:\Users\yourUsername\Documents\GitHub\electroacPy`.
 
 ### Notes
 **Using a separate environment**:  Installing ElectroacPy in its own Conda / Python environment is recommended. This helps prevent conflicts during updates and allows easier management of dependencies.
@@ -93,12 +89,6 @@ conda install spyder
 In Windows and Linux, you can actually use the OpenCL backend to reduce computing time. In the corresponding Conda environment:
 ```shell
 pip install pyopencl
-```
-
-and in the case you're using a intel CPU
-
-```shell
-pip install intel-opencl-rt
 ```
 
 You'll also need to install OpenCL drivers, which you'll find [here](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-cpu-runtime-for-opencl-applications-with-sycl-support.html) for intel users. For more information, you can follow the **OpenCL** section from [bempp-cl installation guide](https://bempp.com/installation.html).
