@@ -219,7 +219,7 @@ class bem:
             else:
                 pass
     
-    def solve(self):
+    def solve(self, solver="gmres"):
         """
         Compute the Boundary Element Method (BEM) solution for the loudspeaker system.
 
@@ -286,8 +286,11 @@ class bem:
     
                     # pressure over the whole surface of the loudspeaker (p_total)
                     rhs = 1j * omega[i_reverse] * self.rho_0 * single_layer * u_total
-                    p_total, _ = gmres(lhs, rhs, tol=self.tol, return_residuals=False)                    
-                    # p_total = lu(lhs, rhs)
+                    
+                    if solver in ["gmres", "GMRES"]:
+                        p_total, _ = gmres(lhs, rhs, tol=self.tol, return_residuals=False)
+                    elif solver in ["lu", "LU"]:
+                        p_total = lu(lhs, rhs)
                     
                     self.p_mesh[i_reverse, rs] = p_total # individual speakers
                     self.u_mesh[i_reverse, rs] = u_total # individual speakers
@@ -341,7 +344,10 @@ class bem:
                     rhs = 1j * omega[i_reverse] * self.rho_0 * single_layer * u_total
                     
                     # pressure over the whole surface of the loudspeaker (p_total)
-                    p_total, _ = gmres(lhs, rhs, tol=self.tol, return_residuals=False)
+                    if solver in ["gmres", "GMRES"]:
+                        p_total, _ = gmres(lhs, rhs, tol=self.tol, return_residuals=False)
+                    elif solver in ["lu", "LU"]:
+                        p_total = lu(lhs, rhs)
         
                     self.p_mesh[i_reverse, rs] = p_total  # individual speakers
                     self.u_mesh[i_reverse, rs] = u_total  # individual speakers

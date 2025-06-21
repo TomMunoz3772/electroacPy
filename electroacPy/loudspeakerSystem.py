@@ -634,9 +634,18 @@ class loudspeakerSystem:
 
     ## ===================
     # %% run / plot / info
-    def run(self):
+    def run(self, solver="gmres"):
         """
-        Run all defined studies
+        Run all defined studies and evaluations
+
+        Parameters
+        ----------
+        solver : str, optional
+            Choose which solver to use ('gmres' or 'lu'). The default is "gmres".
+
+        Returns
+        -------
+        None.
 
         """
 
@@ -645,7 +654,7 @@ class loudspeakerSystem:
                 if hasattr(self.acoustic_study[study], "xSource") and self.acoustic_study[study].meshPath is None:
                     pass # check if it is a point source study without BEM boundaries. No "solve" if True
                 else:
-                    self.acoustic_study[study].solve()
+                    self.acoustic_study[study].solve(solver=solver)
             else:
                 None
             

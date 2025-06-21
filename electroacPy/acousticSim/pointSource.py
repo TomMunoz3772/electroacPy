@@ -319,14 +319,19 @@ class pointSourceBEM:
         self.QSystem = np.tile(self.QSource, (self.sizeFactor, 1))
         
     
-    def solve(self):
+    def solve(self, solver="gmres"):
         """
         Compute the Boundary Element Method (BEM) solution for the loudspeaker system.
 
         This method performs the BEM computations to determine the acoustic pressure distribution on the mesh
         due to the contribution of individual speakers. The total pressure distribution is also computed by summing
         up the contributions of all speakers.
-
+        
+        Parameters
+        ----------
+        solver : str, optional
+            Choose which solver is used ("gmres" or "LU"). Default is "gmres"
+        
         Returns
         -------
         None
@@ -367,7 +372,12 @@ class pointSourceBEM:
                     self.propag_function[i_reverse, rs] = buildGridFunction(self.spaceP, 
                                                           -1j*k_i*n0*G)
                     rhs = single_layer * self.propag_function[i_reverse, rs]
-                    self.u_mesh[i_reverse, rs], _ = gmres(lhs, rhs, tol=self.tol)
+                    
+                    if solver in ["gmres", "GMRES"]:
+                        self.u_mesh[i_reverse, rs], _ = gmres(lhs, rhs, tol=self.tol, return_residuals=False)
+                    elif solver in ["lu", "LU"]:
+                        self.u_mesh[i_reverse, rs] = lu(lhs, rhs)
+                        
             self.isComputed = True
             
         elif self.admittanceCoeff is not None:
@@ -404,9 +414,13 @@ class pointSourceBEM:
                                                         -1j*k_i*n0*G)
                     
                     rhs = (single_layer * self.propag_function[i_reverse, rs])
-
-                    # u_total, _ = gmres(lhs, rhs, tol=self.tol)
-                    u_total = lu(lhs, rhs)
+                    
+                    if solver in ["gmres", "GMRES"]:
+                        u_total, _ = gmres(lhs, rhs, tol=self.tol, return_residuals=False)
+                    elif solver in ["lu", "LU"]:
+                        u_total = lu(lhs, rhs)
+                    
+                    # store results
                     u_total_Y = 1j*k_i*u_total.coefficients*self.Yn_c[i_reverse]
                     self.u_mesh[i_reverse, rs] = u_total
                     self.u_mesh_Y[i_reverse, rs] = bempp_cl.api.GridFunction(self.spaceP, 
