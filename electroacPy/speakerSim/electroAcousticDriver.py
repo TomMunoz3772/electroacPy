@@ -264,6 +264,7 @@ class electroAcousticDriver:
         
         driver = copy(self)
         driver.Le = 1e-12
+        driver_b = copy(self)
         c = self.c
         rho = self.rho
     
@@ -278,6 +279,7 @@ class electroAcousticDriver:
         f_axis = driver.f_array
         omega = 2 * np.pi * f_axis
         k = omega / c
+        s = 1j*omega
         
         # Setup Tkinter window
         root = tk.Tk()
@@ -289,9 +291,7 @@ class electroAcousticDriver:
         ax2 = fig.add_subplot(222)
         ax3 = fig.add_subplot(223)
         ax4 = fig.add_subplot(224)
-        
-        fig.tight_layout()
-    
+            
         # Embed the plot into Tkinter
         canvas = FigureCanvasTkAgg(fig, master=root)
         canvas.draw()
@@ -335,6 +335,8 @@ class electroAcousticDriver:
                 box.getDriverResponse(driver)
                 
                 p_s = 1j * k * rho * c * box.Q * np.exp(-1j * k * 1) / (2 * np.pi * 1)
+                
+                box.getDriverResponse(driver_b)
                 Ze = box.Ze
                 v = box.v
                 P = np.abs(box.network.getPotential(1) * box.network.getFlow(1))
@@ -345,14 +347,14 @@ class electroAcousticDriver:
                 ax3.clear()
                 ax4.clear()
     
-                ax1.semilogx(f_axis, gtb.gain.dBSPL(p_s))
-                ax2.semilogx(f_axis, np.abs(Ze))
-                ax3.semilogx(f_axis, np.abs(v))
-                ax4.semilogx(f_axis, P)
+                ax1.semilogx(f_axis, gtb.gain.SPL(p_s), "b")
+                ax2.semilogx(f_axis, np.abs(Ze), "b")
+                ax3.semilogx(f_axis, np.abs(v/s) * 1e3, "b")
+                ax4.semilogx(f_axis, P, "b")
                 
                 ax1.set(ylabel="SPL [dB]")
                 ax2.set(ylabel="Impedance [Ohm]")
-                ax3.set(xlabel="Frequency [Hz]", ylabel="Velocity [m/s]")
+                ax3.set(xlabel="Frequency [Hz]", ylabel="Excursion [mm]")
                 ax4.set(xlabel="Frequency [Hz]", ylabel="Power [W]")
                 
                 for ax in [ax1, ax2, ax3, ax4]:
@@ -424,6 +426,8 @@ class electroAcousticDriver:
         
         # initial plot
         update_plot()
+        fig.tight_layout()
+
 
         root.mainloop()
      
@@ -432,6 +436,7 @@ class electroAcousticDriver:
         from ..speakerSim.enclosureDesign import speakerBox
         
         driver = copy(self)
+        driver_b = copy(self)
         driver.Le = 1e-12
         c = self.c
         rho = self.rho
@@ -468,8 +473,9 @@ class electroAcousticDriver:
         ax_imp = fig.add_subplot(222)
         ax_vx  = fig.add_subplot(223)
         ax_px  = fig.add_subplot(224)
-        
-        fig.tight_layout()
+        ax_xx  = ax_vx.twinx()
+
+        # fig.tight_layout()
         
         # Create canvas for the plot and add to the tkinter window
         canvas = FigureCanvasTkAgg(fig, master=root)
@@ -522,6 +528,7 @@ class electroAcousticDriver:
                 box.getDriverResponse(driver)
                 p_s = 1j * k * rho * c * box.Q * np.exp(-1j * k * 1) / (2 * np.pi * 1)
                 p_p = 1j * k * rho * c * box.Qp * np.exp(-1j * k * 1) / (2 * np.pi * 1)
+                box.getDriverResponse(driver_b)
                 Ze = box.Ze
                 v  = box.v
                 vp = box.vp
@@ -531,36 +538,50 @@ class electroAcousticDriver:
                 ax_spl.clear()
                 ax_imp.clear()
                 ax_vx.clear()
+                ax_xx.clear()
                 ax_px.clear()
-                ax_spl.semilogx(f_axis, gtb.gain.dBSPL(p_s), label='driver')
-                ax_spl.semilogx(f_axis, gtb.gain.dBSPL(p_p), label='port')
-                ax_spl.semilogx(f_axis, gtb.gain.dBSPL(p_s+p_p), label='total')
-                ax_spl.set_ylim(np.max(gtb.gain.dBSPL(p_s+p_p))-30, 
-                                np.max(gtb.gain.dBSPL(p_s+p_p))+6)
+                ax_spl.semilogx(f_axis, gtb.gain.SPL(p_s), "b", label='driver')
+                ax_spl.semilogx(f_axis, gtb.gain.SPL(p_p), "r", label='port')
+                ax_spl.semilogx(f_axis, gtb.gain.SPL(p_s+p_p),"k", label='total')
+                ax_spl.set_ylim(np.max(gtb.gain.SPL(p_s+p_p))-30, 
+                                np.max(gtb.gain.SPL(p_s+p_p))+6)
 
-                ax_imp.semilogx(f_axis, np.abs(Ze), label='Impedance')
+                ax_imp.semilogx(f_axis, np.abs(Ze), "b", label='Impedance')
                 
-                ax_vx.semilogx(f_axis, np.abs(v), label="driver")
-                ax_vx.semilogx(f_axis, np.abs(vp), label="port")
+                # ax_vx.semilogx(f_axis, np.abs(v), label="driver")
+                ax_vx.semilogx(f_axis, np.abs(vp), color="red", label="port")
+                ax_xx.semilogx(f_axis, np.abs(v/s) * 1e3, color="blue", label="driver")
                 
-                ax_px.semilogx(f_axis, np.abs(P))
+                ax_px.semilogx(f_axis, np.abs(P), "b")
                 
                 # labels
                 ax_spl.set_ylabel('SPL [dB]')
                 ax_imp.set_ylabel('Impedance [Ohm]')
-                ax_vx.set(xlabel="Frequency [Hz]", ylabel="Velocity [m/s]")
+                ax_vx.set(xlabel="Frequency [Hz]")
+                ax_vx.set_ylabel("Port velocity [m/s]", color="red")
+                ax_xx.set_ylabel("Driver excursion [mm]", color="blue")
                 ax_px.set(xlabel="Frequency [Hz]", ylabel="Power [W]")
+                ax_xx.yaxis.set_label_position("right")
+                
+                ax_vx.tick_params(axis='y', labelcolor="red")
+                ax_xx.tick_params(axis='y', labelcolor="blue")
+                
+                # ax_xx.set_yticks(np.linspace(ax_xx.get_yticks()[0],
+                #                              ax_xx.get_yticks()[-1], 
+                #                              len(ax_vx.get_yticks())))
                 
                 # grids
                 ax_spl.grid(which='both', linestyle="dotted")
                 ax_imp.grid(which='both', linestyle="dotted")
-                ax_vx.grid(which='both', linestyle="dotted")
+                # ax_vx.grid(which='both', linestyle="dotted")
+                # ax_xx.grid(which='both', linestyle="dotted")
                 ax_px.grid(which='both', linestyle="dotted")
                 
                 # legend location
                 ax_spl.legend(loc='best')
-                ax_imp.legend(loc='best')
-                ax_vx.legend(loc='best')
+                # ax_imp.legend(loc='best')
+                # ax_vx.legend(loc='upper right')
+                # ax_xx.legend(loc='center right')
                 canvas.draw()
                 
             except ValueError:
@@ -632,6 +653,7 @@ class electroAcousticDriver:
         
         # Initial plot
         update_plot()
+        fig.tight_layout()
     
         # Run the tkinter loop
         root.mainloop()

@@ -583,10 +583,10 @@ class speakerBox:
         
         
         # convert velocity into displacement and acceleration
-        x = self.v / laplace(self.frequencyRange)
+        x = self.v / laplace(self.frequencyRange) * 1e3
         a = self.v * laplace(self.frequencyRange)
         
-        xp   = self.vp / laplace(self.frequencyRange)
+        xp   = self.vp / laplace(self.frequencyRange) * 1e3
         ap   = self.vp * laplace(self.frequencyRange)
         xp2  = self.vp2 / laplace(self.frequencyRange)
         ap2  = self.vp2 * laplace(self.frequencyRange)
