@@ -290,15 +290,22 @@ def storePressureMeshResults(acoustic_study):
     Nfft = len(study.frequency)
     nRad = study.Ns
     nCoeff = len(study.p_mesh[0, 0].coefficients)
-    nCoeffV = len(study.u_mesh[0, 0].coefficients)
+    
+    # get max u_mesh len (because acoustic radiators can be of different size, i.e. mesh elements)
+    radSurf_elements = []
+    for i in range(np.shape(study.u_mesh)[1]):
+        tmp_length = len(study.u_mesh[0, i].coefficients)
+        radSurf_elements.append(tmp_length)
+    nCoeffV = np.max(radSurf_elements)
     
     # store pressure
     pressureMesh = np.zeros([Nfft, nRad, nCoeff], dtype=complex)
     velocityMesh = np.zeros([Nfft, nRad, nCoeffV], dtype=complex)
     for freq in range(Nfft):
         for rad in range(nRad):
+            tmp_length = radSurf_elements[rad]
             pressureMesh[freq, rad, :] = study.p_mesh[freq, rad].coefficients
-            velocityMesh[freq, rad, :] = study.u_mesh[freq, rad].coefficients
+            velocityMesh[freq, rad, :tmp_length] = study.u_mesh[freq, rad].coefficients
     return pressureMesh, velocityMesh
 
 def storePressureMeshResults_ADM(acoustic_study):
@@ -306,17 +313,25 @@ def storePressureMeshResults_ADM(acoustic_study):
     Nfft = len(study.frequency)
     nRad = study.Ns
     nCoeff = len(study.p_mesh[0, 0].coefficients)
-    nCoeffV = len(study.u_mesh[0, 0].coefficients)
-    Yn_c        = np.zeros((Nfft, nCoeff), dtype=complex)
-
+    # nCoeffV = len(study.u_mesh[0, 0].coefficients)
+    Yn_c   = np.zeros((Nfft, nCoeff), dtype=complex)
+    
+    # get max u_mesh len (because acoustic radiators can be of different size, i.e. mesh elements)
+    radSurf_elements = []
+    for i in range(np.shape(study.u_mesh)[1]):
+        tmp_length = len(study.u_mesh[0, i].coefficients)
+        radSurf_elements.append(tmp_length)
+    nCoeffV = np.max(radSurf_elements)
+    
     # store pressure
     pressureMesh = np.zeros([Nfft, nRad, nCoeff], dtype=complex)
     velocityMesh = np.zeros([Nfft, nRad, nCoeffV], dtype=complex)
     for freq in range(Nfft):
         Yn_c[freq, :] = study.Yn_c[freq]
         for rad in range(nRad):
+            tmp_length = radSurf_elements[rad]
             pressureMesh[freq, rad, :] = study.p_mesh[freq, rad].coefficients
-            velocityMesh[freq, rad, :] = study.u_mesh[freq, rad].coefficients
+            velocityMesh[freq, rad, :tmp_length] = study.u_mesh[freq, rad].coefficients
     return pressureMesh, velocityMesh, Yn_c
 
 # LOAD PRESSURE
