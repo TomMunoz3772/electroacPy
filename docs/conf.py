@@ -10,6 +10,7 @@ copyright = '2025'
 exclude_patterns = ['**.ipynb_checkpoints', '.DS_Store', 'Thumbs.db', '_build']
 external_toc_exclude_missing = False
 external_toc_path = '_toc.yml'
+extensions=['sphinx_jupyterbook_latex']
 html_baseurl = ''
 html_favicon = ''
 html_logo = 'logo.png'
