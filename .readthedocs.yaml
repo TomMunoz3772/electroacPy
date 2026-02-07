@@ -5,8 +5,8 @@ build:
   tools:
     python: "3.11"
     nodejs: "20"
-  jobs:
-    pre_build:
+  #jobs:
+    #pre_build:
       # Generate the Sphinx configuration for this Jupyter Book so it builds.
       # - "jupyter-book config sphinx docs/"
 
