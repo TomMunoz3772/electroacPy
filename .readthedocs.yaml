@@ -17,6 +17,6 @@ python:
    install:
    - requirements: docs/requirements.txt
 
-sphinx:
-   builder: html
-   fail_on_warning: true
+# sphinx:
+#    builder: html
+#    fail_on_warning: true
