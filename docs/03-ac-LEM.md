@@ -81,7 +81,7 @@ This acoustic volume is represented as a capacitance $C_{ab}$​, coupled with t
 
 $$
 
-C_{ab} = \frac{V_b}{\rho c}, ~~ R_{ab} = \frac{1}{2 \pi f_c C_{ab} Q_{ab}}, ~~ R_{al} = \frac{Q_l}{2\pi f_c C_{ab}},
+C_{ab} = \frac{V_b}{\rho c^2}, ~~ R_{ab} = \frac{1}{2 \pi f_c C_{ab} Q_{ab}}, ~~ R_{al} = \frac{Q_l}{2\pi f_c C_{ab}},
 
 $$
 
