@@ -18,6 +18,7 @@ build:
     # Build the site
     - cd docs/
     - myst build --html
+    - cd ..
     # Copy the output to Read the Docs expected location
     - mkdir -p $READTHEDOCS_OUTPUT/html/
     - cp -r docs/_build/html/. "$READTHEDOCS_OUTPUT/html"
