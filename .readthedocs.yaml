@@ -4,10 +4,11 @@ build:
   os: ubuntu-24.04
   tools:
     python: "3.11"
-  jobs:
-    pre_build:
+    nodejs: "20"
+  #jobs:
+    #pre_build:
       # Generate the Sphinx configuration for this Jupyter Book so it builds.
-      - "jupyter-book config sphinx docs/"
+      # - "jupyter-book config sphinx docs/"
 
 sphinx:
   # Path to your Sphinx configuration file.
@@ -18,5 +19,5 @@ python:
    - requirements: docs/requirements.txt
 
 # sphinx:
-#   builder: html
-#   fail_on_warning: true
+#    builder: html
+#    fail_on_warning: true
