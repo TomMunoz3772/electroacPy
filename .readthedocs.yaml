@@ -24,3 +24,4 @@ build:
     - cp -r docs/_build/html/. "$READTHEDOCS_OUTPUT/html"
     # Clean up build artifacts
     - rm -rf docs/_build
+  cwd: docs
