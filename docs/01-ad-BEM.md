@@ -10,7 +10,7 @@ The BEM modeler is mostly focused on exterior acoustic radiation (e.g. a loudspe
 - projection of measured/simulated acceleration data.
 
 ```{figure} ./drawings/BEM.svg
-    :name: 
+:label: 
 
 Structure of the Boundary-Element Modeler.
 ```
@@ -64,7 +64,7 @@ ep.save("04_BEM_setup", system)
 The tweeter pressure on system's boundaries is shown in {numref}`boundary-pressure`. The mirrored mesh is due to the infinite boundary condition on the *xy* plane.
 
 ```{figure} ./boundary_images/mesh_pressure_tweeter_b.png
-    :name: boundary-pressure
+:label: boundary-pressure
 
 Estimated pressure on boundary.
 ```
@@ -126,7 +126,7 @@ As you can see in this code, we use the `.plot_system()` function[^pyvistaNote] 
 [^pyvistaNote]: Similar to Tkinter window, PyVista plotter will *also* stop execution of code.
 
 ```{figure} ./boundary_images/system_floor_with_eval_b.png
-    :name: plot-system
+    :label: plot-system
 
 System under study and related evaluations.
 ```
@@ -146,7 +146,7 @@ system.plot_results(study="inf_ground",
 ```
 
 ```{figure} ./boundary_images/field_plotter_2_b.png
-    :name: plot-field
+:label: plot-field
 
 Pressure-Field plotter.
 ```
@@ -154,7 +154,7 @@ Pressure-Field plotter.
 When plotting a pressure field, a left click will return the frequency response function of the closest points. {numref}`plot-field-point` is an example of this tool. The legend should display the (x, y, z) position of field point.
 
 ```{figure} ./boundary_images/field_point_from_field_b.svg
-    :name: plot-field-point
+:label: plot-field-point
 
 Extraction of FRF from field point.
 ```
@@ -162,7 +162,7 @@ Extraction of FRF from field point.
 Polar responses are displayed using a Matplotlib viewer. It helps navigating through frequencies / angle with four sub-figures: SPL and normalized directivity, pressure and polar response --- see {numref}`plot-dir`.
 
 ```{figure} ./boundary_images/directivity_plotter_b.svg
-    :name: plot-dir
+:label: plot-dir
 
 Directivity plotter. Horizontal radiation in free-field.
 ```
@@ -172,8 +172,8 @@ Directivity plotter. Horizontal radiation in free-field.
 ElectroacPy can use external meshes as evaluation grids. The resulting plots are displayed through Gmsh by calling its api. This means that Gmsh should be installed on your system and accessible through your computer's path. Depending on your OS, you'll probably need to setup this yourself. 
 
 ```{figure} ./boundary_images/grid_import_discs.png
-    :name: imported-grid
-    :scale: 50%
+:label: imported-grid
+:scale: 50%
 
 Creating evaluation grids in Salome.
 ```
@@ -191,8 +191,8 @@ Gmsh should open when calling the `.plot_results()` method. Two additional argum
 
 
 ```{figure} ./boundary_images/grid_gmsh_plotter.png
-    :name: grid-SPL-plot
-    :scale: 50%
+:label: grid-SPL-plot
+:scale: 50%
 
 Custom grid through Gmsh viewer.
 ```

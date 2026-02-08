@@ -33,8 +33,9 @@ radius    = 1.8
 ```
 
 ```{figure} ./evaluations_images/polar_radiation.png
-    :name: polar-radiation-setup
-    :width: 15cm
+:label: polar-radiation-setup
+:width: 15cm
+
 Example of polar radiation settings. Top-down view of the monitor speaker.
 ```
 
@@ -44,8 +45,9 @@ Without setting an offset, the array is centered at (`x=0`, `y=0`, `z=0`). As sh
 Running the `.plot_results()` function displays the following matplotlib window:
 
 ```{figure} ./evaluations_images/polar_radiation_window.png
-    :name: polar-radiation-display
-    :width: 20cm
+:label: polar-radiation-display
+:width: 20cm
+
 Visualization window for polar radiation evaluations.
 ```
 
@@ -68,8 +70,8 @@ system.evaluation_sphericalRadiation("reference_study", # associated study
 Similar to the polar radiation, `radius` and `offset` define the size and position of the evaluation sphere.
 
 ```{figure} ./evaluations_images/spherical_radiation_setup.png
-    :name: sph-setup
-    :width: 15cm
+:label: sph-setup
+:width: 15cm
 
 Spherical array of evaluation points.
 ```
@@ -78,8 +80,8 @@ Spherical array of evaluation points.
 Plotting results with a spherical evaluation displays a PyVista window:
 
 ```{figure} ./evaluations_images/spherical_radiation_window.png
-    :name: spherical-radiation-window
-    :width: 20cm
+:label: spherical-radiation-window
+:width: 20cm
 
 PyVista window for spherical evaluations.
 ```
@@ -120,8 +122,8 @@ offset = [0, 0, 0]
 ```
 
 ```{figure} ./evaluations_images/pressure_field_setup.png
-    :name: pressure-field-setup
-    :width: 15cm
+:label: pressure-field-setup
+:width: 15cm
 
 Evaluation points for pressure-field grids.
 ```
@@ -129,8 +131,8 @@ Evaluation points for pressure-field grids.
 Hence, if the screen is supposed to be placed in front of the loudspeaker, using `offset = [0.2, -0.5, 0.193]` moves it to the correct position, as shown in {numref}`pressure-field-setup-2`.
 
 ```{figure} ./evaluations_images/pressure_field_setup_2.png
-    :name: pressure-field-setup-2
-    :width: 15cm
+:label: pressure-field-setup-2
+:width: 15cm
 
 Pressure-field with offset.
 ```
@@ -143,8 +145,8 @@ For pressure-field visualizations, two backends are available: the default PyVis
 The default PyVista plotter gives {numref}`pressure-field-pyvista`:
 
 ```{figure} ./evaluations_images/pressure-field-pyvista-window.png
-    :name: pressure-field-pyvista
-    :width: 20cm
+:label: pressure-field-pyvista
+:width: 20cm
 
 PyVista window for pressure-field visualizations.
 ```
@@ -158,8 +160,8 @@ system.plot_results(pf2grid=True)  # pressure-field to grid
 The window in {numref}`pressure-field-gmsh` is displayed.
 
 ```{figure} ./evaluations_images/pressure-field-gmsh-window.png
-    :name: pressure-field-gmsh
-    :width: 20cm
+:label: pressure-field-gmsh
+:width: 20cm
 
 Gmsh window for pressure-field visualizations.
 ```
@@ -167,8 +169,8 @@ Gmsh window for pressure-field visualizations.
 The advantage of using Gmsh is that it provides a lot of built-in options to change colormap, transformations, light position, mesh visibility and so on --- see {numref}`pressure-field-gmsh-2` for example.
 
 ```{figure} ./evaluations_images/pressure-field-gmsh-window-2.png
-    :name: pressure-field-gmsh-2
-    :width: 20cm
+:label: pressure-field-gmsh-2
+:width: 20cm
 
 Some modifications of the visualization plot. We plot the real part of the pressure with `system.plot_results(pf2grid=True, transformation="real")`.
 ```
@@ -213,8 +215,8 @@ system.evaluation_fieldPoint("free-field", "linear-array", mic_array)
 ```
 
 ```{figure} ./evaluations_images/field_point_setup.png
-    :name: field-point-setup
-    :width: 15cm
+:label: field-point-setup
+:width: 15cm
 
 Top-down view of a near-field (blue) and linear array (yellow) study.
 ```
@@ -224,7 +226,7 @@ Top-down view of a near-field (blue) and linear array (yellow) study.
 The default plot opens a matplotlib window.
 
 ```{figure} ./evaluations_images/field-point-window-3.png
-    :name: field-point-window
+:label: field-point-window
 
 Field-point display.
 ```
@@ -251,7 +253,7 @@ plt.tight_layout()
 ```
 
 ```{figure} ./evaluations_images/field-point-distance.svg
-    :name: field-point-distance
+:label: field-point-distance
 
 Attenuation of SPL with distance. This checks the -6 dB per doubling of distance.
 ```
@@ -278,8 +280,8 @@ system.evaluation_plottingGrid("free-field", "ver_plane", "ver_plane.med")
 Using `system.plot_system("free-field", "gmsh")`, the total system is shown in {numref}`plotting-grid-setup`.
 
 ```{figure} ./evaluations_images/plotting-grid-setup.png
-    :name: plotting-grid-setup
-    :width: 15cm
+:label: plotting-grid-setup
+:width: 15cm
 
 Importing two evaluation grids.
 ```
@@ -292,8 +294,8 @@ For now, plotting-grids are only displayed through Gmsh. Depending on the input 
 - `export_grid` saves the evaluation mesh in the given file (ex: `"data_export.msh"`).
 
 ```{figure} ./evaluations_images/plotting-grid-window.png
-    :name: plotting-grid-window
-    :width: 20cm
+:label: plotting-grid-window
+:width: 20cm
 
 Sound pressure distribution on imported grids.
 ```

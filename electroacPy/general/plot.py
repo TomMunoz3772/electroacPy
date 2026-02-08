@@ -35,6 +35,138 @@ def sumPressureArray(bemObj, radiatingSurface, radiationCoeff=None):
                                     radiationCoeff[f, j])
     return pressureCoeff
 
+#%% VACS plot
+def vacsFig(x, y, **kwargs):
+    """
+    Plot data with VACS formating
+
+    Parameters
+    ----------
+    x : float, tuple, dict
+        x data.
+    y : float, tupl, dict
+        y data.
+    legend : str, tuple, dict
+        legend for plots.
+    **kwargs : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
+    
+    # get kwargs first
+    p_ = {"figsize":(7, 4), "semilogx":False, "legend":None,
+          "xlabel":"x", "ylabel":"y", 
+          "xlim":None, "ylim":None, 
+          "xticks":None, "xticks_label":None, 
+          "yticks":None, "yticks_label":None,
+          "smoothing": None, "decimate": None, 
+          "grid_style":"-", "linestyle":None, "linewidth":0.8, 
+          "colors": ("blue", "red", "green", "purple", "black", "yellow", "cyan", "orange"),
+          "legend_anchor": -0.2, "legend_col":4, 
+          "font": "default", "fontsize": 10, "fontweight": "normal",
+          "savefig":None, "dpi":256}
+    
+    for param in p_:
+        if param in kwargs:
+            p_[param] = kwargs[param]
+    
+    # check if data is a single array
+    if isinstance(x, np.ndarray):
+        x = (x,)
+        if isinstance(y, np.ndarray):
+            y = (y,)
+    
+    if p_["legend"] is None:
+        p_["legend"] = []
+        show_legend = False
+        for i in range(len(y)):
+            p_["legend"].append("...")
+    else:
+        if isinstance(p_["legend"], str):
+            p_["legend"] = (p_["legend"],)
+        show_legend=True
+        
+    if p_["linestyle"] is None:
+        p_["linestyle"] = []
+        for i in range(len(y)):
+            p_["linestyle"].append("-")
+            
+    # font properties
+    if p_["font"] == "default":
+        import matplotlib
+        matplotlib.style.use("default")
+        matplotlib.rc('font', weight=p_["fontweight"], size=p_["fontsize"])
+        matplotlib.rc('axes', labelweight=p_["fontweight"])
+
+    elif p_["font"] != "default":
+        import matplotlib
+        matplotlib.rc('font', family=p_["font"], weight=p_["fontweight"], size=p_["fontsize"])
+        matplotlib.rc('axes', labelweight=p_["fontweight"])
+        
+    # plot data
+    fig, ax = plt.subplots(figsize=p_["figsize"])
+    if isinstance(x, tuple) and isinstance(y, tuple):
+        xmin, xmax = [], []
+        ymin, ymax = [], []
+        for i in range(len(x)):
+            xmin.append(np.min(x[i]))
+            xmax.append(np.max(x[i]))
+            ymin.append(np.min(y[i]))
+            ymax.append(np.max(y[i]))
+            if p_["smoothing"] is not None:
+                if p_["decimate"] is not None:
+                    yplot, xplot = gtb.freqop.octave_smoothing(y[i], x[i], p_["smoothing"], p_["decimate"])
+                else:
+                    yplot = gtb.freqop.octave_smoothing(y[i], x[i], p_["smoothing"])
+                    xplot = x[i]
+            else:
+                yplot = y[i]
+                xplot = x[i]
+            # plot
+            ax.plot(xplot, yplot, label=p_["legend"][i], 
+                    color=p_['colors'][i], linewidth=p_["linewidth"],
+                    linestyle=p_["linestyle"][i])         
+        
+        xmin, xmax = np.min(xmin), np.max(xmax)
+        ymin, ymax = np.min(ymin), np.max(ymax)
+    
+    
+    if p_["xlim"] is None:
+        p_["xlim"] = (xmin*0.5, xmax*1.1)
+    
+    if p_["ylim"] is None:
+        p_["ylim"] = (ymin*0.1, ymax*1.1)
+    
+    # figure parameters
+    # axis param
+    if p_["semilogx"] is True:
+        ax.set_xscale("log")
+    ax.set_xlabel(p_["xlabel"], loc="right")
+    ax.set_ylabel(p_["ylabel"], loc="top", rotation="horizontal")
+    ax.yaxis.set_label_coords(0.1, 1.01)
+    ax.set(xlim=p_["xlim"], ylim=p_["ylim"])
+    
+    if p_["xticks"] is not None:
+        ax.set_xticks(p_["xticks"], labels=p_["xticks_label"])        
+
+    if show_legend is True:
+        ax.legend(bbox_to_anchor=(0, p_["legend_anchor"]), loc="lower left", ncol=p_["legend_col"], frameon=False)
+    plt.grid(which="both", visible=True, linestyle=p_["grid_style"])
+    plt.tight_layout()
+    
+    if p_["savefig"] is not None:
+        plt.savefig(p_["savefig"], dpi=p_["dpi"])
+
+    plt.show()
+    
+    if p_["font"] != "default":
+        matplotlib.style.use("default")
+    return None
+
 
 # %%2D plots
 def FRF(freq, H, transformation="SPL", logx=True, legend=None, **kwargs):  #logx=True, xlim=None, ylim=None, title=None, save=False, dpi=64):

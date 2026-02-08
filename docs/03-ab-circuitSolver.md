@@ -28,13 +28,13 @@ For those interested in MNA, [QUCS](https://qucs.sourceforge.net/tech/node14.htm
 The five basic electrical components are given in {numref}`cir-esource` and {numref}`cir-ecomponents`. These are defined by their positive and negative nodes (`np` and `nm`, respectively) and associated value in either Volt, Ampere, Ohm, Henry or Farad.
 
 ```{figure} ./svg_circuitikz/electric_sources.svg
-    :name: cir-esource
+:label: cir-esource
 
 **voltageSource(np, nm, value)** and **currentSource(np, nm, value)**.
 ```
 
 ```{figure} ./svg_circuitikz/electric_components.svg
-    :name: cir-ecomponents
+:label: cir-ecomponents
 
 From left to right: **resistance(np, nm, value=Ohm)**, **inductance(np, nm, value=H)**, **capacitance(np, nm, value=F)**.
 ```
@@ -76,7 +76,7 @@ gtb.plot.FRF(frequency, H, "dB", ylim=(-20, 3),
 ```
 
 ```{figure} ./circuitSolver_images/2nd_order_lp.svg
-    :name: cir-2nd-order-lp
+:label: cir-2nd-order-lp
 
 Transfer function of lowpass filter.
 ```
@@ -87,43 +87,43 @@ Because the three basic acoustic analogies[^acoustic-analogies] can be represent
 [^acoustic-analogies]: These are: acoustic mass, compliance, and loss.
 
 ```{figure} ./svg_circuitikz/acoustic_source.svg
-    :name: cir-psource
+:label: cir-psource
 
 **pressureSource(np, nm, value)**.
 ```
 
 ```{figure} ./svg_circuitikz/acoustic_cavity.svg
-    :name: cir-cavity
+:label: cir-cavity
 
 **cavity(np, nm, Vb, eta=1e-5, rho=1.22, c=343)**. With `Vb` the cavity volume (in m$^3$), `eta` the loss factor and (`rho`, `c`) the air density and speed of sound. The acoustic compliance is represented by Cb, acoustic leaks are defined by Rl. Generally, nm is connected to ground (node 0).
 ```
 
 ```{figure} ./svg_circuitikz/acoustic_port.svg
-    :name: cir-port
+:label: cir-port
 
 **port(np, nm, Lp, Sp, rho=1.22, c=343)**. With `Lp` the port length and `rp` its radius --- both expressed in meters. In that component, Mp and Rp are the acoustic mass and losses, respectively.
 ```
 
 ```{figure} ./svg_circuitikz/acoustic_membrane.svg
-    :name: cir-membrane
+:label: cir-membrane
 
 **membrane(np, nm, Cm, Mm, Rm, Sd, rho=1.22, c=343)**. With `Cm`, `Rm` the suspension compliance and losses, and `Mm` the moving mass. To convert these mechanical data to the acoustic domain, the radiating surface `Sd` is used. Hence we get the associated components Cma, Mma and Rma.
 ```
 
 ```{figure} ./svg_circuitikz/acoustic_radiator.svg
-    :name: cir-radiator
+:label: cir-radiator
 
 **radiator(np, nm, Sd, rho=1.22, c=343)**. With `Sd` the radiating surface. This element computes the complex radiating impedance of a circular piston. It should be possible to approximate the radiation of a rectangular surface using this component without to much error. The negative node nm is usually connected to ground. A radiator can be a loudspeaker as well as a port, vibrating plate, etc.
 ```
 
 ```{figure} ./svg_circuitikz/acoustic_generic.svg
-    :name: cir-cline
+:label: cir-cline
 
 **closed_line(np, nm, Lp, Sp, rho=1.22, c=343)**. With `Lp` the line length and `Sp` its cross-sectional. Similarly to `.cavity()`, nm is connected to ground. The closed line element uses transmission line impedance to get the resonances present within a cavity / line.
 ```
 
 ```{figure} ./svg_circuitikz/acoustic_tline.svg
-    :name: cir-tline
+:label: cir-tline
 
 **open_line_T(np0, np1, np2, nm, Lp, Sp, rho=1.22, c=343)**. With `Lp` the line length and `Sp` its cross-sectional area. Similarly to `cavity` and `closed_line`, `nm` is connected to ground. This component uses transmission line analogies as well, with Zt and Yt computed from Lp and Sp.
 ```
@@ -168,19 +168,19 @@ gtb.plot.FRF(frequency, v_m, "dB", ylabel="Volume velocity [dB]")
 ```
 
 ```{figure} ./svg_circuitikz/acoustic_transmission.svg
-    :name: membrane-system
+:label: membrane-system
 
 From top to bottom: system under study and lumped element analogy. Notice, from left to right: current source, T line, membrane and closed line.
 ```
 
 ```{figure} ./circuitSolver_images/membrane_H.svg
-    :name: membrane-H
+:label: membrane-H
 
 Sound transmission within the duct.
 ```
 
 ```{figure} ./circuitSolver_images/membrane_Q.svg
-    :name: membrane-Q
+:label: membrane-Q
 
 Volume velocity at membrane.
 ```
@@ -190,7 +190,7 @@ Volume velocity at membrane.
 For now, a single controlled source as been implemented. In electro-acoustics, controlled sources are generally used as a way to link two different domains (e.g. electric to mechanic).
 
 ```{figure} ./svg_circuitikz/coupler_ccvs.svg
-    :name: coupler-ccvs
+:label: coupler-ccvs
 
 Current controlled voltage source. **CCVS(np, nm, np1, nm1, value=R)**. Where `R` is the gain applied on the driven voltage. In the CCVS definition, a zero Volt source is added to read the current of its branch.
 ```
@@ -229,26 +229,26 @@ gtb.plot.FRF(frequency, v*1e3, "abs", ylabel="Velocity [mm/s]")
 ```
 
 ```{figure} ./svg_circuitikz/coupler_loudspeaker.svg
-    :name: coupler-spk
+:label: coupler-spk
 
 Lumped network of a loudspeaker driver in free-air.
 ```
 
 ```{figure} ./circuitSolver_images/coupler_loudspeaker_modulus.svg
-    :name: lspk-modulus
+:label: lspk-modulus
 
 Free-air impedance, modulus.
 ```
 
 
 ```{figure} ./circuitSolver_images/coupler_loudspeaker_phase.svg
-    :name: lspk-phase
+:label: lspk-phase
 
 Free-air impedance, phase.
 ```
 
 ```{figure} ./circuitSolver_images/coupler_loudspeaker_velocity.svg
-    :name: lspk-velocity
+:label: lspk-velocity
 
 Free-air velocity.
 ```
@@ -296,7 +296,7 @@ gtb.plot.FRF(frequency, (H_lp, H_hp, H_lp+H_hp), "dB",
 ```
 
 ```{figure} ./circuitSolver_images/block_hp_lp.svg
-    :name: block-hplp
+:label: block-hplp
 
 Frequency-response function of a 3rd order crossover stage.
 ```
@@ -305,8 +305,8 @@ Frequency-response function of a 3rd order crossover stage.
 Electro-dynamic blocks connect electrical to mechanical and/or acoustical domain. For now, only the electro-acoustic driver (EAD) block exists. It essentially regroup the network of {numref}`coupler-spk` with two additional ports in the acoustical domain: front and back load.
 
 ```{figure} ./svg_circuitikz/EAD_component.svg
-    :name: block-ead
-    :width: 200px
+:label: block-ead
+:width: 200px
 
 **EAD(A, B, C, D, Le, ..., Sd, v_probe:optional)**. Representative 4-port model of the electro-acoustic-driver block. With `A` and `B` being the positive and negative electrical connections; `C` and `D` the front and back acoustic load. If a *str* (text) is passed to the `v_probe` argument, cone velocity can be extracted using `circuit.getFlow(your_str)`.
 ```
@@ -387,13 +387,13 @@ gtb.plot.FRF(frequency, (v_single, v_parallel, v_series), "abs",
 ```
 
 ```{figure} ./circuitSolver_images/impedance_comparison.svg
-    :name: ead-impedance
+:label: ead-impedance
 
 Impedance comparison between single, parallel and series configuration.
 ```
 
 ```{figure} ./circuitSolver_images/velocity_comparison.svg
-    :name: ead-velocity
+:label: ead-velocity
 
 Velocity comparison between single, parallel and series configuration.
 ```
@@ -504,20 +504,20 @@ system.filter_addTransferFunction("HF_xover", "hhf", H_hf)
 This code gives horizontal and vertical directivity responses as seen in {numref}`xover-rad-polar-hor` and {numref}`xover-rad-polar-ver`. The transfer functions of the crossover network is shown in {numref}`xover-TF`
 
 ```{figure} ./circuitSolver_images/monitor_passive_xover_rad_b.svg
-    :name: xover-rad-polar-hor
+:label: xover-rad-polar-hor
 
 Horizontal directivity with passive crossovers.
 ```
 
 ```{figure} ./circuitSolver_images/monitor_passive_xover_rad.svg
-    :name: xover-rad-polar-ver
+:label: xover-rad-polar-ver
 
 Vertical directivity with passive crossovers.
 ```
 
 
 ```{figure} ./circuitSolver_images/xover_transfer_functions.svg
-    :name: xover-tf
+:label: xover-tf
 
 Lowpass, bandpass, highpass and total response of the passive filter network.
 ```

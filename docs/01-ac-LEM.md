@@ -3,7 +3,7 @@ ElectroacPy lumped modeler allows the simulation of loudspeaker drivers in enclo
 
 
 ```{figure} ./drawings/LEM.svg
-    :name:
+:label:drawing-lem
 
 Lumped-Modeler structure.
 ```
@@ -56,13 +56,13 @@ system.driver["SB34"].plotXVA()
 ```
 
 ```{figure} ./lumped_images/woofer_ze_b.svg
-    :name: woofer-ze
+:label: woofer-ze
 
 Electrical impedance of the SB34 subwoofer in free-air.
 ```
 
 ```{figure} ./lumped_images/woofer_xva_b.svg
-    :name: woofer-xva
+:label: woofer-xva
 
 Displacement, velocity and acceleration of the SB34 subwoofer in free-air.
 ```
@@ -73,7 +73,7 @@ Before working with **enclosures**, two small methods are available: `.sealedAli
 [^tkinter_shenanigans]: It is important to note that Tkinter windows will block the execution of code. This is normal behavior.
 
 ```{figure} ./lumped_images/ported_alignment_tool_b.png
-    :name: ported-aligment
+:label: ported-aligment
 
 Ported alignment tool.
 ```
@@ -112,13 +112,13 @@ system.enclosure["ported_LF"].plotXVA()
 
 
 ```{figure} ./lumped_images/ported_ze_b.svg
-    :name: ported-ze
+:label: ported-ze
 
 Electrical impedance of the SB34 woofer in its ported enclosure.
 ```
 
 ```{figure} ./lumped_images/ported_xva_b.svg
-    :name: ported-xva
+:label: ported-xva
 
 SB34 displacement, velocity and acceleration in its ported enclosure.
 ```

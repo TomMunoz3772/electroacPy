@@ -16,7 +16,7 @@ When creating a driver object, the circuit shown in {numref}`ead-model` is used 
 
 
 ```{figure} ./LEM_backend_images/00_electroacoustic_driver.svg
-    :name: ead-model
+:label: ead-model
 
 Lumped Element Model used in **electroAcousticDriver**.
 ```
@@ -48,9 +48,7 @@ As explained in the lumped-element modeler for enclosures, all **speakerBox** ob
 The alignments given in the following of this section are based on the [Wavecor WF275BD01](https://loudspeakerdatabase.com/Wavecor/WF275BD01) mid-bass driver. These are computed following the monopole equation --- mounted in an infinite baffle:
 
 $$
-
 P = j\omega \rho Q \times \frac{e^{-jkr}}{2\pi r},
-
 $$
 
 where $Q$ is the volume velocity of radiating components and $r=1$ m, the distance from the source to evaluation point.
@@ -60,8 +58,8 @@ where $Q$ is the volume velocity of radiating components and $r=1$ m, the distan
 The sealed box is the default configuration. In this case, the back of the driver is loaded by a simple acoustic volume.
 
 ```{figure} ./LEM_backend_images/0a_sealed_box.svg
-    :name: sealed-box-a
-    :scale: 50%  
+:label: sealed-box-a
+:scale: 50%  
 
 Physical representation of the sealed box.
 ```
@@ -72,7 +70,7 @@ system.lem_enclosure("sealed", Vb=20e-3, setDriver="wf250")  # volume in m^3
 
 
 ```{figure} ./LEM_backend_images/01_sealed_enclosure.svg
-    :name: sealed-box
+:label: sealed-box
 
 Acoustic network of a sealed enclosure. Connector `C` is linked to the front radiation impedance, while `D` is connected to the back radiation of the driver.
 ```
@@ -80,9 +78,7 @@ Acoustic network of a sealed enclosure. Connector `C` is linked to the front rad
 This acoustic volume is represented as a capacitance $C_{ab}$​, coupled with two resistances, $R_{ab}$​ and $R_{al}$​, which account for damping within the enclosure and acoustic leakage, respectively. These elements are defined as:
 
 $$
-
-C_{ab} = \frac{V_b}{\rho c}, ~~ R_{ab} = \frac{1}{2 \pi f_c C_{ab} Q_{ab}}, ~~ R_{al} = \frac{Q_l}{2\pi f_c C_{ab}},
-
+C_{ab} = \frac{V_b}{\rho c^2}, ~~ R_{ab} = \frac{1}{2 \pi f_c C_{ab} Q_{ab}}, ~~ R_{al} = \frac{Q_l}{2\pi f_c C_{ab}},
 $$
 
 with:
@@ -102,7 +98,7 @@ $$
 where lower values on the left indicate higher losses, while higher values on the right correspond to lower losses. Of course, these values depend heavily on the amount of damping material in the enclosure and the quality of construction. You will surely need to determine the "correct" values through trial and error, depending on your builds.
 
 ```{figure} ./LEM_backend_images/sealed.svg
-    :name: sealed-alignment
+:label: sealed-alignment
 
 Example a sealed box loudspeaker alignment.
 ```
@@ -114,8 +110,8 @@ Ported enclosures[^ported-box] are defined by adding --- to the `.lem_enclosure(
 [^ported-box]: Also known as bass-reflex.
 
 ```{figure} ./LEM_backend_images/0b_ported_box.svg
-    :name: ported-box-b
-    :scale: 50%
+:label: ported-box-b
+:scale: 50%
 
 Representation of a bass-reflex system with a port at the back of the enclosure.
 ```
@@ -126,7 +122,7 @@ system.lem_enclosure("port", Vb=20e-3, Lp=30e-2, rp=5e-2,        # length in m
 ```
 
 ```{figure} ./LEM_backend_images/02_ported_enclosure.svg
-    :name:ported-box
+:label:ported-box
 
 Ported enclosure. The port radiation is modeled with an additional radiation impedance.
 ```
@@ -152,7 +148,7 @@ where
 
 
 ```{figure} ./LEM_backend_images/ported.svg
-    :name: ported-alignment
+:label: ported-alignment
 
 Example of bass-reflex alignment.
 ```
@@ -163,8 +159,8 @@ Example of bass-reflex alignment.
 The ABR (or passive radiator) setup is really similar to the ported enclosure. The only difference is that it replaces the port (acoustic mass and resistance) by a membrane. Hence, the ABR is expressed as mechanical mass, resistance and compliance (`Mmd`, `Rmd`, `Cmd` and associated radiating surface `Sd`) --- similar to what is found in the mechanical circuit of a electro-dynamic loudspeaker.
 
 ```{figure} ./LEM_backend_images/0c_abr_box.svg
-    :name: abr-box-c
-    :scale: 50%
+:label: abr-box-c
+:scale: 50%
 
 ABR setup, with the auxiliary radiator represented in red.
 ```
@@ -175,7 +171,7 @@ system.lem_enclosure("abr", Vb=20e-3, Mmd=190e-3, Cmd=0.35e-3,
 ```
 
 ```{figure} ./LEM_backend_images/03_abr_enclosure.svg
-    :name:abr-box
+:label:abr-box
 
 ABR enclosure. Here, the port is replaced by a mechanical radiator expressed in the acoustic domain.
 ```
@@ -183,15 +179,13 @@ ABR enclosure. Here, the port is replaced by a mechanical radiator expressed in 
 These mechanical parameters are given by:
 
 $$
-
 Mma = \frac{Mmd}{Sd^2}, ~~ Rma = \frac{Rmd}{Sd^2}, ~~ Cma = Cmd \times Sd^2,
-
 $$
 
 where $Mmd$ is the mass of the passive radiator in $kg$, $Rmd$ the mechanical resistance of suspensions in $N.s/m$ and Cmd is the suspensions compliance in $m/N$. Finally, $Sd$ is the radiating surface of the ABR, which is used to translate the mechanical elements into their acoustical counterparts.
 
 ```{figure} ./LEM_backend_images/abr.svg
-    :name: abr-alignment
+:label: abr-alignment
 
 Example of ABR alignment.
 ```
@@ -201,17 +195,17 @@ The 4th order bandpass enclosure has its loudspeaker radiating into a front volu
 
 
 ```{figure} ./LEM_backend_images/0d_bandpassp_box.svg
-    :name: bp-box-d
-    :scale: 50%
-    :align: left
+:label: bp-box-d
+:scale: 50%
+:align: left
 
 Ported bandpass enclosure.
 ```
 
 ```{figure} ./LEM_backend_images/0e_bandpassabr_box.svg
-    :name: abr-box-d
-    :scale: 50%
-    :align: right
+:label: abr-box-d
+:scale: 50%
+:align: right
 
 ABR bandpass enclosure.
 ```
@@ -233,19 +227,19 @@ system.lem_enclosure("bp_abr", Vb, Vf, Mmd, Cmd, Rmd, Sd)
 ```
 
 ```{figure} ./LEM_backend_images/04_bandpass_port.svg
-    :name:bp-box
+:label:bp-box
 
 4th order bandpass enclosure. The port is in the volume in front of the woofer.
 ```
 
 ```{figure} ./LEM_backend_images/05_bandpass_abr.svg
-    :name:bp-abr-box
+:label:bp-abr-box
 
 4th order bandpass enclosure. A passive radiator replaces the port.
 ```
 
 ```{figure} ./LEM_backend_images/bp4p.svg
-    :name: bp4p-alignment
+:label: bp4p-alignment
 
 Example of a 4th order bandpass alignment. In this case, the front volume is loaded by a port.
 ```
@@ -256,17 +250,17 @@ Example of a 4th order bandpass alignment. In this case, the front volume is loa
 These configurations are achieved by setting an additional port / ABR into the `.lem_enclosure()` method. It will be connected to the back volume `Vb` of the driver.
 
 ```{figure} ./LEM_backend_images/0h_bandpassp6_box.svg
-    :name: bp6-box-h
-    :scale: 50%
-    :align: left
+:label: bp6-box-h
+:scale: 50%
+:align: left
 
 6th order bandpass --- port.
 ```
 
 ```{figure} ./LEM_backend_images/0g_bandpassabr6_box.svg
-    :name: abr6-box-g
-    :scale: 50%
-    :align: right
+:label: abr6-box-g
+:scale: 50%
+:align: right
 
 6th order bandpass --- ABR.
 ```
@@ -289,22 +283,22 @@ system.lem_enclosure("bp_abr", Vb, Vf, Mmd, Cmd, Rmd, Sd,
 ```
 
 ```{figure} ./LEM_backend_images/06_bandpass6_port.svg
-    :name:bp6-port-box
-    :align: center
+:label:bp6-port-box
+:align: center
 
 6th order bandpass --- port.
 ```
 
 ```{figure} ./LEM_backend_images/07_bandpass6_abr.svg
-    :name:bp6-abr-box
-    :align: center
+:label:bp6-abr-box
+:align: center
 
 6th order bandpass --- ABR.
 ```
 
 
 ```{figure} ./LEM_backend_images/bp6p.svg
-    :name: bp6p-alignment-plot
+:label: bp6p-alignment-plot
 
 Example of a 6th order bandpass alignment. Port configuration.
 ```

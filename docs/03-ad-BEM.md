@@ -6,9 +6,7 @@
 The boundary element method (BEM), as explained in {cite:ps}`Mechel2004FormulasOA`, aims to solve the following equation for exterior field studies:
 
 $$
-
 \iint_S \left[ p(\textbf{y}) \frac{\partial G(\textbf{x}, \textbf{y})}{\partial n(\textbf{y})} - \frac{\partial p(\textbf{y})}{\partial n(\textbf{y})}G(\textbf{x}, \textbf{y}) \right]dS = \begin{cases} p(\textbf{x}), & \textbf{x} \in B_e \\ \frac{1}{2}p(\textbf{x}), & \textbf{x} \in S \\ 0,& \textbf{x} \in B_i \end{cases}
-
 $$
 
 where **x** is a point in space, **y** is a point on the system boundary $S$; and where $B_e$ and $B_i$ the exterior and interior domains. In the case of bempp-cl (and these equations) the propagation convention is $e^{+jkr}$[^conventionStuff]. The green function $G(\textbf{x}, \textbf{y})$ used is:
@@ -34,7 +32,7 @@ Where $P_s$​ represents the acoustic pressure on the boundaries, $I$ is the id
 The single and double layer terms correspond to the configuration of direct (acoustic radiator) and indirect sources (system boundaries). Simply put, the single layer represents monopole sources, while the double layer corresponds to dipole sources.
 
 ```{figure} ./BEM_backend_images/single_double_layer.svg
-    :name: SD-layers
+:label: SD-layers
 
 Single layer (blue) and double layer (black). The external pressure is the sum of the two projected fields. This is a simplified representation of BEM — see {cite:ps}`Mechel2004FormulasOA` for more complete explanation.
 ```
@@ -82,8 +80,8 @@ p_total.plot(transformation="real")
 If Gmsh is installed --- and accessible through Python --- `p_total.plot(transformation="real")` will display the pressure over the system's mesh:
 
 ```{figure} ./BEM_backend_images/pressure_sphere.png
-    :name: pressure-sphere
-    :width: 15cm
+:label: pressure-sphere
+:width: 15cm
 
 Pressure distribution over a spherical loudspeaker.
 ```

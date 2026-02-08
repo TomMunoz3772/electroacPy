@@ -31,8 +31,8 @@ where:
 Let's take a room of dimensions $L_x=3.15$ m, $L_y=5$ m and $L_z=2.3$ m. We set a single point source in a corner, and evaluation point in the opposite position. In that case, we consider the walls to be fully reflective.
 
 ```{figure} ./monopole_images/source_mic_position.png
-    :name: monopole-system
-    :width: 15cm
+:label: monopole-system
+:width: 15cm
 
 Shoebox room, visualization done in Salome.
 ```
@@ -82,7 +82,7 @@ gtb.plot.FRF(frequency, mic, logx=False, xlim=(20, 200))
 ```
 
 ```{figure} ./monopole_images/corner_mic_response.svg
-    :name: corner-mic
+:label: corner-mic
 
 Corner microphone pressure.
 ```
@@ -90,14 +90,12 @@ Corner microphone pressure.
 We can also compare the BEM simulation with the analytical solution of modes in a shoebox room:
 
 $$
-
 f(n_x, n_y, n_z) = \frac{c}{2} \sqrt{\left(\frac{n_x}{L_x}\right)^2 + \left(\frac{n_y}{L_y}\right)^2 + \left(\frac{n_z}{L_z}\right)^2}
-
 $$
 
 
 ```{figure} ./monopole_images/corner_mic_response_with_modes.svg
-    :name: corner-mic-modes
+:label: corner-mic-modes
 
 Comparison between PSM/BEM acoustic pressure and analytical solution of room modes.
 ```
@@ -105,8 +103,9 @@ Comparison between PSM/BEM acoustic pressure and analytical solution of room mod
 Finally, using `sim.plot_pressureMesh("room")` we display the pressure over the mesh:
 
 ```{figure} ./monopole_images/modes.png
-    :name: room-mode-bem
-    :width: 15cm
+:label: room-mode-bem
+:width: 15cm
+
 Some room modes.
 ```
 

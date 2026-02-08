@@ -16,6 +16,7 @@ parts:
   - file: 02-ac-boundary_conditions
   - file: 02-ad-evaluations
   - file: 02-ae-automated_geometries
+  - file: 02-af-acceleration_projection
 - caption: Back-end
   chapters:
   - file: 03-ab-circuitSolver

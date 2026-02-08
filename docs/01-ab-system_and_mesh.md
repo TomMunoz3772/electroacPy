@@ -4,7 +4,7 @@ In the following sections, we demonstrate ElectroacPy's capabilities using a thr
 
 
 <!-- ```{figure} ./system_images/studio_monitor.png
-    :name: cad-model
+    :label: cad-model
     :width: 300px
     :align: left
 
@@ -12,7 +12,7 @@ CAD model.
 ```
 
 ```{figure} ./system_images/studio_monitor_sim.png
-    :name: sim-model
+    :label: sim-model
     :width: 300px
     :align: right
 
@@ -20,10 +20,11 @@ Simplified model for simulations.
 ``` -->
 
 ```{figure} ./system_images/studio_monitor_cad_sim.png
-    :name: cad-sim-model
+:label: cad-sim-model
 
 CAD model (left) and simplified version for simulation (right).
 ```
+
 
 ## Mesh
 A mesh of the system is required for simulation with bempp. As noted in its documentation, mesh imports are handled with [meshio](https://github.com/nschloe/meshio). Compatible mesh formats are listed on its GitHub page[^troublesAhead]. To simplify the process of meshing geometries, ElectroacPy provides a small wrapper for the [Gmsh](https://gmsh.info/) API. This is what we'll use for our study.
@@ -57,7 +58,7 @@ cad.addSurfaceGroup("tweeter", [7], 4)
 This code creates four surface groups numbered from `1` to `4`, each referencing a different surface in the geometry. Surface indices can be retrieved from your CAD software. For example, FreeCAD displays the element index in the bottom-left corner when hovering over a surface, line, or point.
 
 ```{figure} ./system_images/pre_mesh.png
-    :name: select-surface
+:label: select-surface
 
 Getting surface index.
 ```
@@ -68,8 +69,8 @@ cad.mesh("../geo/mesh/studio_monitor")
 ```
 
 ```{figure} ./system_images/mesh_1kHz.png
-    :name: mesh-1kHz
-    :scale: 60%
+:label: mesh-1kHz
+:scale: 60%
 
 Geometry meshed with a 1 kHz resolution.
 ```
@@ -95,8 +96,8 @@ cad.mesh("../geo/mesh/studio_monitor_refined")
 ```
 
 ```{figure} ./system_images/mesh_refined.png
-    :name: mesh-refined
-    :scale: 60%
+:label: mesh-refined
+:scale: 60%
 
 Refined mesh.
 ```
@@ -136,8 +137,8 @@ box.build("../geo/mesh/automated_mesh.msh")
 ```
 
 ```{figure} ./system_images/automated_monitor_mesh.png
-    :name: automated-monitor-mesh
-    :width: 12cm
+:label: automated-monitor-mesh
+:width: 12cm
 
 Mesh built with **shoebox** class.
 ```

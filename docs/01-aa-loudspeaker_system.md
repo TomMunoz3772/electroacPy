@@ -41,7 +41,7 @@ system = ep.loudspeakerSystem(frequency)
 
 
 ```{figure} ./drawings/System.svg
-  :name:
+:label:system-drawing
 
 Class structure.
 ```

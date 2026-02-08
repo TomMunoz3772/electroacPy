@@ -30,8 +30,8 @@ bc.addInfiniteBoundary(normal="z",  # axis normal to the boundary
 this gives the following system:
 
 ```{figure} ./boundary_conditions_images/infinite_boundary_z.png
-    :name: inf-z
-    :width: 15cm
+:label: inf-z
+:width: 15cm
 
 Infinite boundary, with $z$ normal to the mirror plane.
 ```
@@ -48,8 +48,8 @@ bc.addInfiniteBoundary(normal="z",  # axis normal to the boundary
 This sets an infinite boundary at 1 m below the source:
 
 ```{figure} ./boundary_conditions_images/infinite_boundary_z_w_offset.png
-    :name: inf-z-offset
-    :width: 15cm
+:label: inf-z-offset
+:width: 15cm
 
 Infinite boundary with an additional offset.
 ```
@@ -87,8 +87,8 @@ Because infinite boundaries were already explained in the {ref}`content:referenc
 To keep some continuity in the documentation, we take the previous room acoustic simulation from the {ref}`reference:content:pointSource` chapter. We try to mitigate the first five modes, shown in {numref}`corner-mic-w-modes`. 
 
 ```{figure} ./boundary_conditions_images/pressure_response_mode_association.png
-    :name: corner-mic-w-modes
-    :width: 15cm
+:label: corner-mic-w-modes
+:width: 15cm
 
 Room response and first five modes.
 ```
@@ -98,9 +98,7 @@ Room response and first five modes.
 In that room, the 34 Hz mode is relatively "far" (in term of frequency spacing) from the subsequent modes. To tackle it, we can use a narrow-band membrane absorber. Based on {cite:ps}`kuttruff2024room`, the impedance of a membrane absorber is written as:
 
 $$
-
 Z = r_s + j\left( \omega M' - \frac{\rho c^2}{\omega d} \right),
-
 $$
 
 with 
@@ -112,24 +110,20 @@ with
 The membrane mass $M'$ is related to the target angular resonance ($w_0=2\pi f_0$):
 
 $$
-
 M' = N \times \frac{\rho c}{w_0},
-
 $$
 
 and $d$ is given by:
 
 $$
-
 d = \left( \frac{600}{f_0 \sqrt{M'}} \right)^2 \times 0.01.
-
 $$
 
 If we set $r_s=1 \times Z_c$ and $N=5$, we get the impedance and absorption coefficients of {numref}`narrow-band-34`:
 
 
 ```{figure} ./boundary_conditions_images/impedance_abs_34_Hz.png
-    :name: narrow-band-34
+:label: narrow-band-34
 
 Impedance (left) and absorption (right) of the 34 Hz narrow-band absorber.
 ```
@@ -137,7 +131,7 @@ Impedance (left) and absorption (right) of the 34 Hz narrow-band absorber.
 Generally, the absorber is placed in a pressure extrema of the room --- as shown in {numref}`room-w-absorber`.
 
 ```{figure} ./boundary_conditions_images/source_mic_absA.png
-    :name: room-w-absorber
+:label: room-w-absorber
 
 Shoebox room with a membrane absorber.
 ```
@@ -210,7 +204,7 @@ sim.study_acousticPointSource("room", [xSce], "source",
 {numref}`pressure-response-B` displays the resulting in-room response with a narrow-band absorber. Although the absorber significantly reduces the 34 Hz peak --- which was the main target --- slight alterations are noticeable at higher frequencies. These changes occur because the room's effective volume decreases when the absorber is introduced.
 
 ```{figure} ./boundary_conditions_images/pressure_response_abs_B.svg
-    :name: pressure-response-B
+:label: pressure-response-B
 
 Comparison between the acoustic pressure with rigid walls and for a narrow-band absorber tuned at 34 Hz.
 ```
@@ -221,7 +215,7 @@ Similar equations are employed to design a wide-band absorber centered at 64 Hz.
 [^absorption-note]: To keep the same resonance and behavior, the depth of resonator should be changed. This was not done here for the sake of simplicity.
 
 ```{figure} ./boundary_conditions_images/source_mic_absB.png
-    :name: room-w-absorber-B
+:label: room-w-absorber-B
 
 Shoebox-room with 34 Hz and 64 Hz absorbers.
 ```
@@ -234,7 +228,7 @@ bc.addSurfaceImpedance("absorber_64_Hz", 3, "impedance", Z2)
 ```
 
 ```{figure} ./boundary_conditions_images/impedance_abs_64_Hz.png
-    :name: large-band-64
+:label: large-band-64
 
 Impedance (left) and absorption coefficient (right) of the large-band 64 Hz absorber.
 ```
@@ -242,7 +236,7 @@ Impedance (left) and absorption coefficient (right) of the large-band 64 Hz abso
 In the end, we get the pressure response shown in {numref}`pressure-response-room-C`.
 
 ```{figure} ./boundary_conditions_images/pressure_response_abs_C.svg
-    :name: pressure-response-room-C
+:label: pressure-response-room-C
 
 Frequency response comparison between 34 Hz absorber and the combination of 34 and 64 Hz absorbers.
 ```

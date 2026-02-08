@@ -187,7 +187,7 @@ class loudspeakerSystem:
         self.radiator_id[name] = 'PLV'
         return None
     
-    def vibrometry_data_user(self, name, Hv, X, ref2bem=None, inputVoltage=1):
+    def vibrometry_data_numpy(self, name, Hv, X, ref2bem=None, inputVoltage=1):
         """
         Add velocity data to the study. Meant to be used as a radiator - ref2bem strongly recommended.
 

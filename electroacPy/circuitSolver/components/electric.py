@@ -97,7 +97,7 @@ class voltageSource:
         
         # I stamp
         self.stamp_I = zeros([maxNode+M, 1], dtype=complex) 
-        self.stamp_I[maxNode+nbsource] = self.value # 1
+        self.stamp_I[maxNode+nbsource] = self.value
         
         
 class currentSource:
@@ -179,15 +179,8 @@ class currentSource:
         # G stamp
         self.stamp_G = zeros([maxNode+M, maxNode+M], dtype=complex)
         
-        # if self.np != 0:
-        #     self.stamp_G[np-1, maxNode+nbsource] = 1
-        #     self.stamp_G[maxNode+nbsource, np-1] = 1
-        # if self.nm != 0:
-        #     self.stamp_G[maxNode+nbsource, nm-1] = -1        
-        
         # I stamp
         self.stamp_I = zeros([maxNode+M, 1], dtype=complex) 
-        # self.stamp_I[maxNode+nbsource] = 1
         
         if self.np != 0:
             self.stamp_I[np-1, 0] = 1

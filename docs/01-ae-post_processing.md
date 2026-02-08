@@ -61,7 +61,7 @@ gtb.plot.FRF(system.frequency, (H_lf, H_mf, H_hf, H_lf+H_mf+H_hf),
 ```
 
 ```{figure} ./postP_images/crossovers_b.svg
-        :name: xover
+:label: xover
 
 Crossover frequency-response.
 ```
@@ -89,7 +89,7 @@ gtb.plot.FRF(system.frequency, (p_lf[:, 73//2],
 ```
 
 ```{figure} ./postP_images/pressure_xover_b.svg
-        :name: xover-pressure
+:label: xover-pressure
 
 Filtered loudspeaker response.
 ```
@@ -141,18 +141,18 @@ system.export_impedance("export_impedance", "TW29", "TW29")
 ```
 
 ```{figure} ./postP_images/vituixcad_parameter_import.png
-        :name: vituixcad-import
+:label: vituixcad-import
 
 Importing woofer simulation in VituixCAD. Because the directivity was estimated at 2 meters, a 6dB scaling is used to normalize it relative to 1 meter.
 ```
 
 ```{figure} ./postP_images/vituixcad_woofer_b.png
-        :name: vituixcad-woofer
+:label: vituixcad-woofer
 Frequency response, directivity and impedance plot without crossovers.
 ```
 
 ```{figure} ./postP_images/vituixcad_network_b.png
-        :name: vituixcad-network
+:label: vituixcad-network
 Frequency response, directivity and impedance plot of system with crossovers.
 ```
 
@@ -170,8 +170,8 @@ system.export_impedance("export_impedance_ZMA", "ported_LF", "ported_LF", zma=Tr
 ```
 
 ```{figure} ./postP_images/xsim_network.png
-        :name: xsim-network
-        :width: 20cm
+:label: xsim-network
+:width: 20cm
         
 Crossover design with Xsim4.
 ```

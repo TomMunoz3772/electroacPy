@@ -24,8 +24,8 @@ box.build()  # build the shoebox in a "*.msh" file
 This is technically all you need to create a simple shoebox mesh --- see {numref}`monitor-shoebox-mesh`. However, if additional boundaries are needed, the shoebox class becomes more complex to understand. In the following, we go through the global/local coordinate system, faces reference and how to add boundaries.
 
 ```{figure} ./system_images/monitor_shoebox.png
-    :name: monitor-shoebox-mesh
-    :width: 12cm
+:label: monitor-shoebox-mesh
+:width: 12cm
 
 Basic shoebox. With $L_x = 0.340$, $L_y = 0.6912$, $L_z = 0.3862$.
 ```
@@ -34,7 +34,7 @@ Basic shoebox. With $L_x = 0.340$, $L_y = 0.6912$, $L_z = 0.3862$.
 First of all, the convention used in electroacPy to reference the faces of a box is shown in {numref}`global-coord-faces`. Basically, the names of the six faces of a box are based on their outward normal direction in the global Cartesian coordinates. Each face is labeled according to the axis it is orthogonal to, with a sign indicating the direction of the outward normal.
 
 ```{figure} ./system_images/global_coordinates_faces.svg
-    :name: global-coord-faces
+:label: global-coord-faces
 
 Face naming convention.
 ```
@@ -43,8 +43,8 @@ The "global coordinates" refer to the box positioning in space: if not specified
 
 
 ```{figure} ./system_images/drawing_monitor_box_center_corner.svg
-    :name: global-coordinates-ref
-    :width: 17 cm
+:label: global-coordinates-ref
+:width: 17 cm
 
 (a) Default box configuration `position="center"`. (b) Alternative corner position `position="corner"`.
 ```
@@ -53,8 +53,8 @@ Local coordinates refers to the coordinates used when adding boundaries onto a f
 
 
 ```{figure} ./system_images/local_coordinates.svg
-    :name: local-coordinates-ref
-    :width: 17 cm
+:label: local-coordinates-ref
+:width: 17 cm
 
 (a) Local coordinates relative to the global Cartesian coordinates. (b) Local coordinates in the default configuration (i.e. `local="center"`). (c) Local coordinates in the corner configuration (i.e. `local="corner"`). See in the following sections for the `local` argument.
 ```
@@ -63,8 +63,8 @@ As you can see, depending on the `local` coordinates, the user can choose betwee
 
 ## Circular boundaries
 ```{figure} ./system_images/local_coordinates_circle.svg
-    :name: local-circle
-    :width: 15cm
+:label: local-circle
+:width: 15cm
 
 (a) Centered local coordinates: `local="center"`. (b) Corner-based local coordinates: `local="corner"`.
 ```
@@ -113,7 +113,7 @@ box.build("test_circular_b.msh")
 
 
 ```{figure} ./system_images/test_circular_b.svg
-    :name: test-circ-b
+:label: test-circ-b
 
 Shoebox enclosure with centered global coordinates and corner local coordinates. 
 ```
@@ -121,8 +121,8 @@ Shoebox enclosure with centered global coordinates and corner local coordinates.
 
 ## Rectangular boundaries
 ```{figure} ./system_images/local_coordinates_rectangle.svg
-    :name: local-rectangle
-    :width: 15cm
+:label: local-rectangle
+:width: 15cm
 
 (a) Centered local coordinates: `local="center"`. (b) Corner-based local coordinates: `local="corner"`. The rectangle $x$ and $y$ position are given relative to its center of mass.
 ```
@@ -159,15 +159,15 @@ box.build("test_rectangular_b.msh")
 ```
 
 ```{figure} ./system_images/test_rectangular_b.svg
-    :name: test-rect-b
+:label: test-rect-b
 
 Shoebox enclosure with rectangular port. 
 ```
 
 ## Polygonal boundaries
 ```{figure} ./system_images/local_coordinates_polygon.svg
-    :name: local-polygon
-    :width: 15cm
+:label: local-polygon
+:width: 15cm
 
 (a) Centered local coordinates: `local="center"`. (b) Corner-based local coordinates: `local="corner"`. Notice that the coordinates must be given in the trigonometric direction --- otherwise the mesh normals are inverted.
 ```
@@ -208,7 +208,7 @@ box.build("test_polygon_b.msh")
 ```
 
 ```{figure} ./system_images/test_polygon_b.svg
-    :name: test-poly-b
+:label: test-poly-b
 
 Shoebox enclosure with triangular ports.
 ```

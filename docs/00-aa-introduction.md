@@ -6,8 +6,8 @@ Examples are available in [this](https://github.com/TomMunoz3772/electroacPy_exa
 
 
 ```{figure} ./boundary_images/intro_field.png
-    :name: intro-image
-    :scale: 50%
+:label: intro-image
+:scale: 50%
 
 Example of sound diffraction around a round speaker head. Inspired from the Elipson 4260.
 ```
