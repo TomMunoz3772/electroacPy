@@ -10,9 +10,9 @@ build:
       # Generate the Sphinx configuration for this Jupyter Book so it builds.
       # - "jupyter-book config sphinx docs/"
 
-sphinx:
+#sphinx:
   # Path to your Sphinx configuration file.
-  configuration: docs/conf.py
+#  configuration: docs/conf.py
 
 python:
    install:

@@ -26,7 +26,7 @@ project:
         - file: 02-ac-boundary_conditions.md
         - file: 02-ad-evaluations.md
         - file: 02-ae-automated_geometries.md
-        - file: 02-af-acceleration_projection.md
+ #       - file: 02-af-acceleration_projection.md
     - title: Back-end
       children:
         - file: 03-ab-circuitSolver.md
