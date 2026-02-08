@@ -1,0 +1,42 @@
+version: 1
+project:
+  title: ElectroacPy
+  #authors:
+  #  - name: Tom Munoz
+  copyright: '2026'
+  github: TomMunoz3772/electroacPy/
+  bibliography:
+    - biblio.bib
+  exports:
+    - format: pdf
+      template: plain_latex_book
+      output: exports/book.pdf
+  toc:
+    - file: 00-aa-introduction.md
+    - title: Walkthrough
+      children:
+        - file: 01-aa-loudspeaker_system.md
+        - file: 01-ab-system_and_mesh.md
+        - file: 01-ac-LEM.md
+        - file: 01-ad-BEM.md
+        - file: 01-ae-post_processing.md
+    - title: Advanced Mechanics
+      children:
+        - file: 02-ab-monopoles.md
+        - file: 02-ac-boundary_conditions.md
+        - file: 02-ad-evaluations.md
+        - file: 02-ae-automated_geometries.md
+ #       - file: 02-af-acceleration_projection.md
+    - title: Back-end
+      children:
+        - file: 03-ab-circuitSolver.md
+        - file: 03-ac-LEM.md
+        - file: 03-ad-BEM.md
+#    - title: References
+#      children:
+#        - file: 100-ref.md
+site:
+  options:
+    logo: logo.png
+    folders: true
+  template: book-theme
